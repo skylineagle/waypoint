@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Trek Companion — onboarding (Trek style)</title>
+<link href="https://fonts.googleapis.com/css2?family=MuseoModerno:wght@600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<style>
+  :root {
+    --night:#070c1a; --ink:#111827; --ink-hover:#1f2937; --text2:#374151; --muted:#6b7280; --faint:#9ca3af;
+    --border:#e5e7eb; --bg:#f9fafb; --subtle:#f1f5f9; --success:#16a34a; --success-soft:#dcfce7;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:Poppins, -apple-system, system-ui, sans-serif; background:#E4E6EB; color:var(--ink); padding:40px; }
+  h1.page { font-size:26px; margin-bottom:6px; }
+  p.lead { color:#4b5563; margin-bottom:34px; max-width:980px; line-height:1.55; font-size:14px; }
+  .row { display:flex; gap:30px; flex-wrap:wrap; }
+  .phone { width:320px; height:680px; border-radius:48px; background:var(--bg); position:relative; overflow:hidden; box-shadow:0 0 0 10px #0b0b0d, 0 30px 60px rgba(0,0,0,.25); }
+  .caption { text-align:center; margin-top:18px; font-size:12px; color:#6b7280; }
+  .island { position:absolute; top:10px; left:50%; transform:translateX(-50%); width:100px; height:28px; background:#000; border-radius:20px; z-index:9; }
+  .status { height:48px; display:flex; justify-content:space-between; align-items:center; padding:4px 28px 0; font-size:13px; font-weight:600; position:relative; z-index:5; }
+  .home { position:absolute; bottom:8px; left:50%; transform:translateX(-50%); width:118px; height:5px; border-radius:3px; background:#111; z-index:9; }
+  svg.lucide { width:18px; height:18px; stroke-width:2; }
+
+  /* welcome */
+  .night { background:var(--night); color:#fff; }
+  .night .status, .night .home { color:#fff; } .night .home { background:#fff; }
+  .aurora { position:absolute; border-radius:50%; filter:blur(50px); }
+  .aurora.a { width:300px; height:300px; top:-60px; left:-80px; background:radial-gradient(circle, rgba(79,70,229,.75), rgba(79,70,229,0) 70%); }
+  .aurora.b { width:260px; height:260px; bottom:40px; right:-90px; background:radial-gradient(circle, rgba(6,182,212,.5), rgba(6,182,212,0) 72%); }
+  .aurora.c { width:220px; height:220px; top:260px; left:40px; background:radial-gradient(circle, rgba(139,92,246,.35), rgba(139,92,246,0) 70%); }
+  .dots { position:absolute; inset:0; background-image:radial-gradient(rgba(255,255,255,.22) 1px, transparent 1.2px); background-size:7px 7px;
+          -webkit-mask-image:radial-gradient(ellipse 80% 45% at 55% 38%, #000 30%, transparent 75%); opacity:.55; }
+  .route { position:absolute; left:-20px; right:-20px; top:170px; height:120px; border-top:1px solid rgba(165,180,252,.45); border-radius:50%; }
+  .city { position:absolute; width:5px; height:5px; border-radius:50%; background:#fff; box-shadow:0 0 10px 3px rgba(165,180,252,.8); }
+  .welcome-body { position:absolute; left:0; right:0; top:318px; text-align:center; padding:0 24px; z-index:3; }
+  .welcome-body img { height:62px; filter:drop-shadow(0 2px 10px rgba(4,8,20,.55)); }
+  .tagline { font-family:MuseoModerno, sans-serif; font-weight:700; font-size:25px; white-space:nowrap; letter-spacing:-.02em; text-transform:lowercase; margin-top:10px; line-height:1.1; }
+  .welcome-body p { color:rgba(255,255,255,.62); font-size:13.5px; line-height:1.6; margin-top:10px; }
+  .dock { position:absolute; left:20px; right:20px; bottom:36px; z-index:4; }
+  .btn { width:100%; height:50px; border-radius:12px; border:0; font:600 15px Poppins, sans-serif; display:flex; align-items:center; justify-content:center; gap:8px; }
+  .btn.primary { background:var(--ink); color:#fff; }
+  .btn.light { background:#e4e4e7; color:#09090b; }
+  .btn.secondary { background:rgba(0,0,0,.06); color:var(--text2); margin-top:10px; }
+  .btn.disabled { opacity:.35; }
+  .fineprint { text-align:center; color:rgba(255,255,255,.45); font-size:11.5px; margin-top:12px; }
+
+  /* steps */
+  .top { display:flex; align-items:center; gap:12px; padding:4px 20px 0; height:40px; }
+  .back { width:34px; height:34px; border-radius:10px; background:#fff; border:1px solid var(--border); display:grid; place-items:center; color:var(--text2); }
+  .progress { display:flex; gap:6px; flex:1; } .progress i { flex:1; height:4px; border-radius:2px; background:var(--border); } .progress i.on { background:var(--ink); }
+  .body { padding:22px 20px 0; }
+  .eyebrow { color:var(--muted); font-size:12px; font-weight:500; letter-spacing:.02em; margin-bottom:6px; }
+  .title { font-size:26px; font-weight:700; letter-spacing:-.02em; line-height:1.15; }
+  .sub { color:var(--muted); font-size:13.5px; line-height:1.55; margin-top:8px; margin-bottom:22px; }
+  .label { font-size:12.5px; font-weight:600; color:var(--text2); margin:14px 2px 6px; }
+  .input { background:#fff; border:1px solid var(--border); border-radius:12px; height:46px; display:flex; align-items:center; gap:10px; padding:0 12px; font-size:14px; color:var(--ink); }
+  .input.focus { border-color:var(--ink); box-shadow:0 0 0 3px rgba(17,24,39,.08); }
+  .input .icon { color:var(--faint); display:flex; } .input .ph { color:var(--faint); flex:1; } .input .val { flex:1; }
+  .input .pre { color:var(--faint); margin-right:-8px; }
+  .hint { display:flex; align-items:center; gap:6px; font-size:12px; margin:8px 2px 0; }
+  .hint.ok { color:var(--success); } .hint.ok svg.lucide { width:14px; height:14px; }
+  .chip { display:inline-flex; align-items:center; gap:7px; background:#fff; border:1px solid var(--border); border-radius:999px; padding:5px 11px 5px 9px; font-size:12px; color:var(--text2); margin-bottom:6px; }
+  .chip b { width:7px; height:7px; border-radius:50%; background:var(--success); }
+  .kbd { position:absolute; bottom:0; left:0; right:0; height:236px; background:#d1d5db; border-radius:0 0 38px 38px; z-index:2; }
+  .dock.kb { bottom:248px; }
+
+  /* trip cards */
+  .card { background:#fff; border:1px solid var(--border); border-radius:16px; padding:12px; display:flex; gap:12px; align-items:center; margin-bottom:10px; box-shadow:0 1px 3px rgba(0,0,0,.05); }
+  .card.sel { border-color:var(--ink); box-shadow:0 0 0 1px var(--ink); }
+  .thumb { width:48px; height:48px; border-radius:12px; flex:none; }
+  .card .name { font-weight:600; font-size:14px; }
+  .card .meta { font-family:'Geist', Poppins, sans-serif; color:var(--muted); font-size:11.5px; margin-top:2px; }
+  .badge { font-size:10.5px; font-weight:600; color:var(--success); background:var(--success-soft); padding:2px 7px; border-radius:999px; margin-left:6px; }
+  .check { margin-left:auto; width:22px; height:22px; border-radius:50%; background:var(--ink); color:#fff; display:grid; place-items:center; } .check svg.lucide { width:13px; height:13px; stroke-width:3; }
+  .ring { margin-left:auto; width:22px; height:22px; border-radius:50%; border:1.5px solid var(--border); }
+
+  /* shortcut steps */
+  .steps { background:#fff; border:1px solid var(--border); border-radius:20px; padding:6px 14px; box-shadow:0 2px 16px rgba(0,0,0,.04); }
+  .step { display:flex; gap:12px; align-items:center; padding:10px 0; border-bottom:1px solid #f3f4f6; font-size:12.5px; line-height:1.45; color:var(--text2); }
+  .step:last-child { border-bottom:0; }
+  .tile { width:34px; height:34px; flex:none; border-radius:10px; background:var(--ink); color:#fff; display:grid; place-items:center; } .tile svg.lucide { width:16px; height:16px; }
+  .step b { color:var(--ink); font-weight:600; }
+</style>
+</head>
+<body>
+<h1 class="page">Trek Companion — one step at a time, in Trek's style</h1>
+<p class="lead">
+  <b>UX</b> follows the AppLlama research (Alfred's one question per screen with segmented progress, Tripsy's welcome, Splitwise's labelled fields).<br>
+  <b>Look</b> matches TREK itself, taken from its login page and <code>index.css</code>: <code>#070c1a</code> night sky with indigo/cyan aurora and a dotted map, the TREK logo, the MuseoModerno lowercase tagline, Poppins text, <code>#111827</code> 12px-radius buttons, white inputs with a <code>#e5e7eb</code> border, leading icons and a 12px radius, and 16–20px-radius cards.
+</p>
+
+<div class="row">
+  <!-- 0 Welcome -->
+  <div>
+    <div class="phone night">
+      <div class="island"></div>
+      <div class="aurora a"></div><div class="aurora b"></div><div class="aurora c"></div>
+      <div class="dots"></div>
+      <div class="route"></div>
+      <span class="city" style="top:196px;left:70px"></span><span class="city" style="top:172px;left:178px"></span><span class="city" style="top:214px;left:262px"></span>
+      <div class="status"><span>9:41</span><span>●●● ▮</span></div>
+      <div class="welcome-body">
+        <img src="logo-light.svg" alt="TREK">
+        <div class="tagline">your trips. your costs.</div>
+        <p>Every Apple Pay payment on your trip,<br>added to your Trek budget automatically.</p>
+      </div>
+      <div class="dock">
+        <button class="btn light">Get Started <i data-lucide="arrow-right"></i></button>
+        <div class="fineprint">Works with your self-hosted TREK</div>
+      </div>
+      <div class="home"></div>
+    </div>
+    <div class="caption">Welcome</div>
+  </div>
+
+  <!-- 1 Server -->
+  <div>
+    <div class="phone">
+      <div class="island"></div>
+      <div class="status"><span>9:41</span><span>●●● ▮</span></div>
+      <div class="top"><div class="back"><i data-lucide="chevron-left"></i></div><div class="progress"><i class="on"></i><i></i><i></i><i></i></div></div>
+      <div class="body">
+        <div class="eyebrow">Step 1 of 4</div>
+        <div class="title">Where's your Trek?</div>
+        <div class="sub">The address you open TREK at in your browser.</div>
+        <div class="input focus"><span class="icon"><i data-lucide="globe"></i></span><span class="val">trek.skylineagle.com</span></div>
+        <div class="hint ok"><i data-lucide="circle-check"></i> TREK found</div>
+      </div>
+      <div class="dock kb"><button class="btn primary">Continue</button></div>
+      <div class="kbd"></div>
+    </div>
+    <div class="caption">1 · Server (checked live)</div>
+  </div>
+
+  <!-- 2 Sign in -->
+  <div>
+    <div class="phone">
+      <div class="island"></div>
+      <div class="status"><span>9:41</span><span>●●● ▮</span></div>
+      <div class="top"><div class="back"><i data-lucide="chevron-left"></i></div><div class="progress"><i class="on"></i><i class="on"></i><i></i><i></i></div></div>
+      <div class="body">
+        <div class="eyebrow">Step 2 of 4</div>
+        <div class="title">Sign in</div>
+        <div class="chip" style="margin-top:10px"><b></b>trek.skylineagle.com</div>
+        <div class="label">Email</div>
+        <div class="input focus"><span class="icon"><i data-lucide="mail"></i></span><span class="ph">your@email.com</span></div>
+        <div class="label">Password</div>
+        <div class="input"><span class="icon"><i data-lucide="lock"></i></span><span class="ph">••••••••</span><span class="icon"><i data-lucide="eye"></i></span></div>
+      </div>
+      <div class="dock kb" style="bottom:244px"><button class="btn primary"><i data-lucide="plane-takeoff"></i> Sign In</button></div>
+      <div class="kbd"></div>
+    </div>
+    <div class="caption">2 · Sign in</div>
+  </div>
+
+  <!-- 3 Trip -->
+  <div>
+    <div class="phone">
+      <div class="island"></div>
+      <div class="status"><span>9:41</span><span>●●● ▮</span></div>
+      <div class="top"><div class="back"><i data-lucide="chevron-left"></i></div><div class="progress"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div></div>
+      <div class="body">
+        <div class="eyebrow">Step 3 of 4</div>
+        <div class="title">Which trip?</div>
+        <div class="sub">Payments are added to this trip's budget. You can switch any time.</div>
+        <div class="card sel"><div class="thumb" style="background:linear-gradient(135deg,#4f46e5,#06b6d4)"></div><div><div class="name">Japan 2026<span class="badge">Now</span></div><div class="meta">Sep 20 – Oct 4 · JPY</div></div><div class="check"><i data-lucide="check"></i></div></div>
+        <div class="card"><div class="thumb" style="background:linear-gradient(135deg,#d97706,#f59e0b)"></div><div><div class="name">Lisbon weekend</div><div class="meta">Nov 12 – 16 · EUR</div></div><div class="ring"></div></div>
+        <div class="card"><div class="thumb" style="background:linear-gradient(135deg,#0d9488,#14b8a6)"></div><div><div class="name">Iceland road trip</div><div class="meta">Mar 3 – 14 · ISK</div></div><div class="ring"></div></div>
+      </div>
+      <div class="dock"><button class="btn primary">Continue</button></div>
+      <div class="home"></div>
+    </div>
+    <div class="caption">3 · Trip (current trip preselected)</div>
+  </div>
+
+  <!-- 4 Shortcut -->
+  <div>
+    <div class="phone">
+      <div class="island"></div>
+      <div class="status"><span>9:41</span><span>●●● ▮</span></div>
+      <div class="top"><div class="back"><i data-lucide="chevron-left"></i></div><div class="progress"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div></div>
+      <div class="body" style="padding-top:16px">
+        <div class="eyebrow">Step 4 of 4</div>
+        <div class="title">Automate it</div>
+        <div class="sub" style="margin-bottom:14px">One Shortcuts automation, set up once.</div>
+        <div class="steps">
+          <div class="step"><div class="tile"><i data-lucide="layers"></i></div><div>Open <b>Shortcuts</b> → <b>Automation</b></div></div>
+          <div class="step"><div class="tile"><i data-lucide="plus"></i></div><div>Tap <b>+</b> → <b>Transaction</b></div></div>
+          <div class="step"><div class="tile"><i data-lucide="credit-card"></i></div><div>Pick cards, <b>Run Immediately</b></div></div>
+          <div class="step"><div class="tile"><i data-lucide="search"></i></div><div>Add <b>Add Expense to Trek</b></div></div>
+          <div class="step"><div class="tile"><i data-lucide="git-merge"></i></div><div>Amount & Merchant → <b>Shortcut Input</b></div></div>
+        </div>
+      </div>
+      <div class="dock">
+        <button class="btn primary"><i data-lucide="external-link"></i> Open Shortcuts</button>
+        <button class="btn secondary">I've set it up</button>
+      </div>
+      <div class="home"></div>
+    </div>
+    <div class="caption">4 · Shortcut</div>
+  </div>
+</div>
+<script>lucide.createIcons();</script>
+</body>
+</html>

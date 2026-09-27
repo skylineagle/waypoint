@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Shows where you are among today's stops.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Marks today's stops done after you spend time there, even when the app is closed.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>dev.horizon.trekcompanion</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>trekcompanion</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>

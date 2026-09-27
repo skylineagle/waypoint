@@ -1,0 +1,229 @@
+import SwiftUI
+
+enum CostsSheet: Identifiable {
+    case trip, shortcut
+
+    var id: Self { self }
+}
+
+enum ExpenseEditorTarget: Identifiable {
+    case new
+    case edit(BudgetItem)
+
+    var id: Int {
+        if case .edit(let item) = self { item.id } else { -1 }
+    }
+
+    var item: BudgetItem? {
+        if case .edit(let item) = self { item } else { nil }
+    }
+}
+
+struct CostsView: View {
+    @Environment(AppModel.self) private var app
+    let model: CostsModel
+    @State private var tab = CostsTab.expenses
+    @State private var categoryFilter: CostCategory?
+    @State private var unpaidOnly = false
+    @State private var editor: ExpenseEditorTarget?
+    @State private var sheet: CostsSheet?
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    CostsHeader(trip: model.trip, menu: menu).plainListRow()
+                    CostsTotalCard(model: model)
+                        .redacted(reason: model.items == nil ? .placeholder : [])
+                        .plainListRow()
+                    if model.isShared {
+                        SplitSummary(model: model, onShowUnpaid: showUnpaid).plainListRow()
+                    }
+                    CurrencyConverterCard(converter: model.converter)
+                        .redacted(reason: model.items == nil ? .placeholder : [])
+                        .plainListRow()
+                    CostsTabPicker(selection: $tab, tabs: tabs).plainListRow()
+                }
+
+                switch tab {
+                case .expenses:
+                    expenseSections
+                case .insights:
+                    Section {
+                        CostsInsightsView(model: model) { category in
+                            categoryFilter = category
+                            tab = .expenses
+                        }
+                        .plainListRow()
+                    }
+                case .balances:
+                    Section {
+                        BalancesView(model: model).plainListRow()
+                    }
+                }
+            }
+            .listStyle(.insetGrouped)
+            .listSectionSpacing(10)
+            .scrollContentBackground(.hidden)
+            .background(Color.trekBackground)
+            .toolbarVisibility(.hidden, for: .navigationBar)
+            .contentMargins(.bottom, 90, for: .scrollContent)
+            .overlay(alignment: .bottomTrailing) { addButton }
+            .sheet(item: $editor) { target in
+                ExpenseEditorView(
+                    item: target.item,
+                    converter: model.converter,
+                    members: model.members,
+                    meID: model.meID,
+                    onSave: { try await model.save($0, editing: target.item) },
+                    onDelete: { if let item = target.item { await model.delete(item) } }
+                )
+                .presentationDragIndicator(.visible)
+            }
+            .sheet(item: $sheet) { sheet in
+                NavigationStack {
+                    Group {
+                        switch sheet {
+                        case .trip: TripStepView { self.sheet = nil }
+                        case .shortcut: ShortcutStepView { self.sheet = nil }
+                        }
+                    }
+                    .padding(.top, 12)
+                    .background(Color.trekBackground)
+                    .toolbar {
+                        Button("Close", systemImage: "xmark") { self.sheet = nil }
+                    }
+                }
+            }
+            .onChange(of: model.unpaidItems.isEmpty) { _, isEmpty in
+                if isEmpty { unpaidOnly = false }
+            }
+            .refreshable { await model.load() }
+        }
+    }
+
+    private var tabs: [CostsTab] {
+        model.isShared ? CostsTab.allCases : [.expenses, .insights]
+    }
+
+    @ViewBuilder
+    private var expenseSections: some View {
+        let categories = model.categoryTotals.map(\.category)
+        if unpaidOnly {
+            Section {
+                Button {
+                    unpaidOnly = false
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "exclamationmark.circle.fill").foregroundStyle(Color.trekWarning)
+                        Text("Expenses without a payer — tap one to set who paid")
+                            .foregroundStyle(Color.trekTextSecondary)
+                        Spacer(minLength: 6)
+                        Text("Show all").fontWeight(.semibold).foregroundStyle(Color.trekText)
+                    }
+                    .font(.poppins(12.5, relativeTo: .footnote))
+                    .contentShape(.rect)
+                }
+                .buttonStyle(.borderless)
+                .plainListRow()
+            }
+        } else if categories.count > 1 {
+            Section {
+                CategoryFilterChips(categories: categories, selection: $categoryFilter)
+                    .plainListRow()
+            }
+        }
+
+        if let errorMessage = model.errorMessage {
+            Section {
+                Label(errorMessage, systemImage: "wifi.exclamationmark")
+                    .font(.poppins(13, relativeTo: .footnote))
+                    .foregroundStyle(Color.trekDanger)
+            }
+        } else if model.items == nil {
+            Section {
+                ProgressView().frame(maxWidth: .infinity, minHeight: 80)
+            }
+            .listRowBackground(Color.clear)
+        } else if model.items?.isEmpty == true {
+            Section {
+                ContentUnavailableView("No costs yet", systemImage: "creditcard", description: Text("Pay with Apple Pay or tap + to add one."))
+            }
+            .listRowBackground(Color.clear)
+        }
+
+        ForEach(model.days(in: categoryFilter, unpaidOnly: unpaidOnly)) { day in
+            Section {
+                ForEach(day.items) { item in
+                    Button {
+                        editor = .edit(item)
+                    } label: {
+                        ExpenseRow(item: item, converter: model.converter)
+                    }
+                    .buttonStyle(.plain)
+                    .listRowBackground(Color.trekCard)
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                        Button("Delete", systemImage: "trash", role: .destructive) {
+                            Task { await model.delete(item) }
+                        }
+                        .tint(Color.trekDanger)
+                        Button("Edit", systemImage: "pencil") { editor = .edit(item) }
+                            .tint(Color(hex: 0x111827))
+                    }
+                    .contextMenu {
+                        Button("Edit", systemImage: "pencil") { editor = .edit(item) }
+                        Button("Delete", systemImage: "trash", role: .destructive) {
+                            Task { await model.delete(item) }
+                        }
+                    }
+                }
+            } header: {
+                ExpenseDayHeader(day: day, currency: model.converter.displayCurrency)
+            }
+        }
+    }
+
+    private func showUnpaid() {
+        let unpaid = model.unpaidItems
+        if unpaid.count == 1, let item = unpaid.first {
+            editor = .edit(item)
+            return
+        }
+        categoryFilter = nil
+        unpaidOnly = true
+        tab = .expenses
+    }
+
+    private var addButton: some View {
+        Button {
+            editor = .new
+        } label: {
+            Image(systemName: "plus")
+                .font(.system(size: 22, weight: .semibold))
+                .frame(width: 34, height: 34)
+        }
+        .buttonStyle(.glassProminent)
+        .buttonBorderShape(.circle)
+        .controlSize(.extraLarge)
+        .tint(Color.trekAccent)
+        .foregroundStyle(Color.trekAccentText)
+        .accessibilityLabel("Add expense")
+        .padding(20)
+    }
+
+    private var menu: some View {
+        Menu("Options", systemImage: "ellipsis") {
+            Button("Change Trip", systemImage: "suitcase") { sheet = .trip }
+            Button("Shortcut Setup", systemImage: "bolt") { sheet = .shortcut }
+            Button("Sign Out", systemImage: "rectangle.portrait.and.arrow.right", role: .destructive, action: app.signOut)
+        }
+    }
+}
+
+private extension View {
+    func plainListRow() -> some View {
+        listRowInsets(EdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0))
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
+    }
+}

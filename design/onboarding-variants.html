@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Trek Companion — onboarding variants</title>
+<style>
+  :root { --orange:#FA5A2A; --orange2:#FF8A3D; --ink:#141414; --muted:#8E8E93; --field:#F2F2F7; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system, "SF Pro Text", system-ui, sans-serif; background:#E9E9EE; color:var(--ink); padding:40px; }
+  h1.page { font-size:28px; margin-bottom:6px; }
+  p.lead { color:#555; margin-bottom:36px; max-width:900px; line-height:1.45; }
+  section.variant { margin-bottom:64px; }
+  section.variant > h2 { font-size:22px; margin-bottom:4px; }
+  section.variant > p { color:#555; margin-bottom:20px; max-width:900px; line-height:1.45; }
+  .row { display:flex; gap:28px; flex-wrap:wrap; }
+  .phone { width:320px; height:680px; border-radius:48px; background:#fff; position:relative; overflow:hidden; box-shadow:0 0 0 10px #111, 0 30px 60px rgba(0,0,0,.25); }
+  .caption { text-align:center; margin-top:18px; font-size:13px; color:#666; }
+  .status { height:44px; display:flex; justify-content:space-between; align-items:center; padding:0 28px; font-size:14px; font-weight:600; position:relative; z-index:3; }
+  .island { position:absolute; top:10px; left:50%; transform:translateX(-50%); width:100px; height:28px; background:#000; border-radius:20px; z-index:4; }
+  .home { position:absolute; bottom:8px; left:50%; transform:translateX(-50%); width:120px; height:5px; border-radius:3px; background:#111; z-index:4; }
+  .pill { display:block; width:calc(100% - 40px); margin:0 20px; height:54px; border-radius:27px; border:0; font:600 17px -apple-system,system-ui; color:#fff; background:linear-gradient(180deg,var(--orange2),var(--orange)); }
+  .pill.ghost { background:transparent; color:var(--orange); height:40px; margin-top:6px; }
+  .pill.disabled { opacity:.4; }
+  .icon { width:84px; height:84px; border-radius:22px; background:linear-gradient(160deg,#FF9A4D,#F2542A); display:grid; place-items:center; box-shadow:0 12px 24px rgba(250,90,42,.35); font-size:40px; }
+  .muted { color:var(--muted); }
+
+  /* Variant A */
+  .a-hero { position:absolute; inset:0 0 auto 0; height:360px; background:linear-gradient(180deg,#FCE3D6 0%,#FFF 100%); }
+  .a-grid { position:absolute; top:52px; left:-30px; right:-30px; display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:0 10px; opacity:.95; -webkit-mask-image:linear-gradient(#000 55%,transparent); }
+  .a-card { height:92px; border-radius:16px; }
+  .a-card.tall { grid-row:span 2; height:194px; }
+  .a-body { position:absolute; top:300px; left:0; right:0; text-align:center; padding:0 28px; }
+  .a-body .icon { margin:0 auto 18px; }
+  .a-body h3 { font-size:28px; letter-spacing:-.5px; margin-bottom:10px; }
+  .a-body p { color:#707075; line-height:1.4; font-size:15px; }
+  .dots { display:flex; justify-content:center; gap:7px; margin:20px 0; }
+  .dots i { width:7px; height:7px; border-radius:50%; background:#DDD; } .dots i.on { background:var(--orange); }
+  .bottom { position:absolute; bottom:34px; left:0; right:0; }
+  .sheet { position:absolute; left:0; right:0; bottom:0; top:120px; background:#fff; border-radius:28px 28px 0 0; box-shadow:0 -10px 30px rgba(0,0,0,.12); padding:22px 20px; }
+  .dim { position:absolute; inset:0; background:linear-gradient(180deg,#FCE3D6,#F6CDB9); }
+  .grab { width:38px; height:5px; background:#DDD; border-radius:3px; margin:0 auto 18px; }
+  .sheet h4 { font-size:24px; letter-spacing:-.3px; margin-bottom:6px; }
+  .field { background:var(--field); border-radius:14px; height:52px; display:flex; align-items:center; padding:0 16px; gap:10px; font-size:16px; margin-top:10px; }
+  .field .ph { color:#A5A5AA; flex:1; } .field .val { flex:1; }
+  .label { font-size:13px; font-weight:600; color:#6C6C70; margin:16px 4px 0; text-transform:uppercase; letter-spacing:.3px; }
+  .ok { color:#1FA35B; font-size:13px; margin:8px 4px 0; display:flex; gap:6px; align-items:center; }
+
+  /* Variant B */
+  .b-top { display:flex; align-items:center; gap:14px; padding:6px 20px 0; }
+  .back { width:36px; height:36px; border-radius:50%; background:var(--field); display:grid; place-items:center; font-size:18px; }
+  .progress { display:flex; gap:6px; flex:1; } .progress i { flex:1; height:5px; border-radius:3px; background:#E5E5EA; } .progress i.on { background:var(--orange); }
+  .b-body { padding:30px 22px 0; }
+  .b-body .eyebrow { color:var(--orange); font-weight:600; font-size:14px; margin-bottom:8px; }
+  .b-body h3 { font-size:30px; letter-spacing:-.6px; line-height:1.1; margin-bottom:10px; }
+  .b-body p.sub { color:#707075; font-size:15px; line-height:1.4; margin-bottom:26px; }
+  .big { border-bottom:2px solid var(--orange); padding:10px 2px; font-size:22px; display:flex; align-items:center; gap:4px; }
+  .big .pre { color:#B0B0B5; }
+  .kbd { position:absolute; bottom:0; left:0; right:0; height:250px; background:#D1D3D9; border-radius:0 0 38px 38px; }
+  .kbd-cta { position:absolute; bottom:262px; left:0; right:0; }
+  .server-chip { display:inline-flex; align-items:center; gap:8px; background:var(--field); border-radius:20px; padding:7px 12px; font-size:14px; margin-bottom:22px; }
+  .server-chip b { width:8px; height:8px; border-radius:50%; background:#1FA35B; }
+
+  /* Variant C */
+  .c-bg { position:absolute; inset:0; background:
+      radial-gradient(120% 70% at 20% 10%, #3C6E8F 0%, transparent 60%),
+      radial-gradient(90% 60% at 90% 30%, #C9703F 0%, transparent 55%),
+      linear-gradient(180deg,#27404F 0%, #151A1E 70%); }
+  .c-bg::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,0) 30%,rgba(0,0,0,.65) 75%); }
+  .c { position:relative; z-index:2; color:#fff; height:100%; }
+  .c .status { color:#fff; }
+  .c-head { text-align:center; padding-top:90px; }
+  .c-head .icon { margin:0 auto 16px; }
+  .c-head h3 { font-size:30px; letter-spacing:-.6px; }
+  .c-head p { color:rgba(255,255,255,.7); margin-top:8px; font-size:15px; }
+  .glass { background:rgba(255,255,255,.12); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,.18); border-radius:16px; height:54px; display:flex; align-items:center; padding:0 16px; margin:10px 20px 0; gap:10px; font-size:16px; }
+  .glass .ph { color:rgba(255,255,255,.55); flex:1; }
+  .c-form { position:absolute; bottom:34px; left:0; right:0; }
+  .c-foot { text-align:center; font-size:13px; color:rgba(255,255,255,.6); margin-top:14px; }
+</style>
+</head>
+<body>
+<h1 class="page">Trek Companion — onboarding variants</h1>
+<p class="lead">Based on AppLlama references: <b>Tripsy</b> (travel planner welcome: warm gradient, photo cards, app icon, orange pill CTA), <b>Alfred</b> (one question per screen + segmented progress), <b>Splitwise</b> (clear labelled fields, password eye). In every variant the server is checked before you sign in (Trek's public <code>/api/auth/app-config</code>), so a typo in the URL shows up immediately instead of as a failed login.</p>
+
+<!-- ===================== VARIANT A ===================== -->
+<section class="variant">
+  <h2>A · Warm welcome + sign-in sheet</h2>
+  <p>A Tripsy-style welcome with travel cards and the app icon. "Get Started" slides up a sheet where you enter the server, then email and password. Friendly and on-brand for a travel app, with two screens in total.</p>
+  <div class="row">
+    <div>
+      <div class="phone">
+        <div class="island"></div>
+        <div class="a-hero"></div>
+        <div class="status"><span>9:41</span><span>●●● ▮</span></div>
+        <div class="a-grid">
+          <div class="a-card" style="background:linear-gradient(135deg,#2A5C7A,#6FA3B8)"></div>
+          <div class="a-card tall" style="background:linear-gradient(160deg,#C57A4A,#503C45)"></div>
+          <div class="a-card" style="background:linear-gradient(135deg,#E6A36B,#F4D1A8)"></div>
+          <div class="a-card" style="background:linear-gradient(135deg,#3E6B4F,#9BB88A)"></div>
+          <div class="a-card" style="background:linear-gradient(135deg,#7FA7C9,#E7EEF4)"></div>
+        </div>
+        <div class="a-body">
+          <div class="icon">🧳</div>
+          <h3>Trek Companion</h3>
+          <p>Every Apple Pay purchase on your trip, logged in Trek automatically.</p>
+          <div class="dots"><i class="on"></i><i></i><i></i></div>
+        </div>
+        <div class="bottom"><button class="pill">Get Started</button></div>
+        <div class="home"></div>
+      </div>
+      <div class="caption">Welcome</div>
+    </div>
+    <div>
+      <div class="phone">
+        <div class="island"></div>
+        <div class="dim"></div>
+        <div class="status"><span>9:41</span><span>●●● ▮</span></div>
+        <div class="sheet">
+          <div class="grab"></div>
+          <h4>Connect your Trek</h4>
+          <p class="muted" style="font-size:15px">Sign in to your self-hosted instance.</p>
+          <div class="label">Server</div>
+          <div class="field"><span>🌐</span><span class="val">trek.myhome.dev</span></div>
+          <div class="ok">✓ Trek found</div>
+          <div class="label">Account</div>
+          <div class="field"><span>✉️</span><span class="ph">Email</span></div>
+          <div class="field"><span>🔒</span><span class="ph">Password</span><span class="muted">👁</span></div>
+          <div class="bottom"><button class="pill">Sign In</button></div>
+        </div>
+        <div class="home"></div>
+      </div>
+      <div class="caption">Sign-in sheet</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== VARIANT B ===================== -->
+<section class="variant">
+  <h2>B · One step at a time</h2>
+  <p>Alfred-style: a segmented progress bar covers the whole onboarding (Server → Sign in → Trip → Shortcut). Each screen asks one thing with a big title, and Continue sits just above the keyboard. The most guided option and the easiest to follow.</p>
+  <div class="row">
+    <div>
+      <div class="phone">
+        <div class="island"></div>
+        <div class="status"><span>9:41</span><span>●●● ▮</span></div>
+        <div class="b-top"><div class="progress"><i class="on"></i><i></i><i></i><i></i></div></div>
+        <div class="b-body">
+          <div class="eyebrow">Step 1 of 4</div>
+          <h3>Where's your Trek?</h3>
+          <p class="sub">Enter the address you open Trek at in your browser.</p>
+          <div class="big"><span class="pre">https://</span><span>trek.myhome.dev</span></div>
+          <div class="ok">✓ Trek found</div>
+        </div>
+        <div class="kbd-cta"><button class="pill">Continue</button></div>
+        <div class="kbd"></div>
+      </div>
+      <div class="caption">Server</div>
+    </div>
+    <div>
+      <div class="phone">
+        <div class="island"></div>
+        <div class="status"><span>9:41</span><span>●●● ▮</span></div>
+        <div class="b-top"><div class="back">‹</div><div class="progress"><i class="on"></i><i class="on"></i><i></i><i></i></div></div>
+        <div class="b-body">
+          <div class="eyebrow">Step 2 of 4</div>
+          <h3>Sign in</h3>
+          <div class="server-chip"><b></b>trek.myhome.dev</div>
+          <div class="field" style="margin-top:0"><span class="ph">Email</span></div>
+          <div class="field"><span class="ph">Password</span><span class="muted">👁</span></div>
+        </div>
+        <div class="kbd-cta"><button class="pill">Sign In</button></div>
+        <div class="kbd"></div>
+      </div>
+      <div class="caption">Sign in</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== VARIANT C ===================== -->
+<section class="variant">
+  <h2>C · Immersive single screen</h2>
+  <p>Tripsy's "create trip" look: a dark scenic gradient full-bleed, with the icon and title at the top and glassy fields at the bottom. Everything fits on one screen and it looks the most premium, but it's the least guided.</p>
+  <div class="row">
+    <div>
+      <div class="phone">
+        <div class="island"></div>
+        <div class="c-bg"></div>
+        <div class="c">
+          <div class="status"><span>9:41</span><span>●●● ▮</span></div>
+          <div class="c-head">
+            <div class="icon">🧳</div>
+            <h3>Trek Companion</h3>
+            <p>Your trip costs, on autopilot.</p>
+          </div>
+          <div class="c-form">
+            <div class="glass"><span>🌐</span><span class="ph">trek.example.com</span></div>
+            <div class="glass"><span>✉️</span><span class="ph">Email</span></div>
+            <div class="glass"><span>🔒</span><span class="ph">Password</span><span style="opacity:.6">👁</span></div>
+            <div style="height:16px"></div>
+            <button class="pill">Connect</button>
+            <div class="c-foot">Your password stays in this iPhone's Keychain.</div>
+          </div>
+        </div>
+        <div class="home" style="background:#fff"></div>
+      </div>
+      <div class="caption">Connect</div>
+    </div>
+  </div>
+</section>
+</body>
+</html>

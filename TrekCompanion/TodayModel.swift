@@ -1,0 +1,151 @@
+import CoreLocation
+import Foundation
+import MapKit
+import Observation
+
+struct TravelLeg {
+    let minutes: Int
+    let meters: Double
+    let isTransit: Bool
+}
+
+enum TripPhase {
+    case before(daysUntil: Int, firstDay: TripDay?)
+    case during(day: TripDay, number: Int)
+    case after
+}
+
+@Observable
+final class TodayModel {
+    let trip: Trip
+    private(set) var days: [TripDay]?
+    private(set) var reservations: [Reservation] = []
+    private(set) var stays: [Stay] = []
+    private(set) var weather: DayWeather?
+    private(set) var legs: [Int: TravelLeg] = [:]
+    private(set) var errorMessage: String?
+    private(set) var doneIDs: Set<Int>
+
+    private var doneKey: String { TodaySnapshot.doneKey(tripID: trip.id) }
+
+    init(trip: Trip) {
+        self.trip = trip
+        doneIDs = Set(AppGroup.defaults.array(forKey: TodaySnapshot.doneKey(tripID: trip.id)) as? [Int] ?? [])
+    }
+
+    func reloadDone() {
+        doneIDs = Set(AppGroup.defaults.array(forKey: doneKey) as? [Int] ?? [])
+    }
+
+    var phase: TripPhase {
+        let days = days ?? []
+        let today = ExpenseDate.today
+        if let index = days.firstIndex(where: { $0.date == today }) {
+            return .during(day: days[index], number: index + 1)
+        }
+        if let start = trip.startDate, today < start, let startDate = ExpenseDate.date(from: start) {
+            let calendar = Calendar.current
+            let until = calendar.dateComponents([.day], from: calendar.startOfDay(for: ExpenseDate.now), to: startDate).day ?? 0
+            return .before(daysUntil: until, firstDay: days.first)
+        }
+        return .after
+    }
+
+    func nextStop(on day: TripDay) -> TripStop? {
+        day.stops.first { !doneIDs.contains($0.id) }
+    }
+
+    func bookings(on day: TripDay) -> [Reservation] {
+        reservations
+            .filter { $0.dayId == day.id || ($0.dayId == nil && $0.date == day.date) }
+            .filter { $0.type != "hotel" }
+            .sorted { ($0.time ?? "") < ($1.time ?? "") }
+    }
+
+    func stay(for day: TripDay) -> (stay: Stay, night: Int, nights: Int)? {
+        let order = (days ?? []).map(\.id)
+        guard let dayIndex = order.firstIndex(of: day.id) else { return nil }
+        for stay in stays {
+            guard let startID = stay.startDayId, let endID = stay.endDayId,
+                  let start = order.firstIndex(of: startID), let end = order.firstIndex(of: endID),
+                  dayIndex >= start, dayIndex < end
+            else { continue }
+            return (stay, dayIndex - start + 1, end - start)
+        }
+        return nil
+    }
+
+    func previousNightStay(before day: TripDay) -> Stay? {
+        let order = (days ?? []).map(\.id)
+        guard let index = order.firstIndex(of: day.id), index > 0 else { return nil }
+        return stay(for: (days ?? [])[index - 1])?.stay
+    }
+
+    func toggleDone(_ stop: TripStop) {
+        if doneIDs.contains(stop.id) {
+            doneIDs.remove(stop.id)
+        } else {
+            doneIDs.insert(stop.id)
+        }
+        AppGroup.defaults.set(Array(doneIDs), forKey: doneKey)
+    }
+
+    func load() async {
+        guard let client = TrekClient.current else { return }
+        do {
+            async let loadedDays = client.days(tripID: trip.id)
+            async let loadedReservations = client.reservations(tripID: trip.id)
+            async let loadedStays = client.stays(tripID: trip.id)
+            days = try await loadedDays
+            reservations = (try? await loadedReservations) ?? []
+            stays = (try? await loadedStays) ?? []
+            errorMessage = nil
+        } catch {
+            errorMessage = error.localizedDescription
+            return
+        }
+        await loadDayExtras()
+    }
+
+    var focusDay: TripDay? {
+        switch phase {
+        case .during(let day, _): day
+        case .before(_, let firstDay): firstDay
+        case .after: nil
+        }
+    }
+
+    private func loadDayExtras() async {
+        guard let day = focusDay else { return }
+        var origin = previousNightStay(before: day)?.coordinate
+        var computed: [Int: TravelLeg] = [:]
+        for stop in day.stops {
+            guard let destination = stop.place.coordinate else { continue }
+            if let origin, let leg = await Self.leg(from: origin, to: destination) {
+                computed[stop.id] = leg
+            }
+            origin = destination
+        }
+        legs = computed
+        if let anchor = day.stops.compactMap(\.place.coordinate).first ?? stay(for: day)?.stay.coordinate, let date = day.date {
+            weather = try? await TrekClient.current?.weather(latitude: anchor.latitude, longitude: anchor.longitude, date: date)
+        }
+    }
+
+    private static let longestWalkMinutes = 25
+
+    private static func leg(from origin: CLLocationCoordinate2D, to destination: CLLocationCoordinate2D) async -> TravelLeg? {
+        let walk = await eta(from: origin, to: destination, by: .walking)
+        if let walk, walk.minutes <= longestWalkMinutes { return walk }
+        return await eta(from: origin, to: destination, by: .transit) ?? walk
+    }
+
+    private static func eta(from origin: CLLocationCoordinate2D, to destination: CLLocationCoordinate2D, by transport: MKDirectionsTransportType) async -> TravelLeg? {
+        let request = MKDirections.Request()
+        request.source = MKMapItem(location: CLLocation(latitude: origin.latitude, longitude: origin.longitude), address: nil)
+        request.destination = MKMapItem(location: CLLocation(latitude: destination.latitude, longitude: destination.longitude), address: nil)
+        request.transportType = transport
+        guard let eta = try? await MKDirections(request: request).calculateETA() else { return nil }
+        return TravelLeg(minutes: max(Int((eta.expectedTravelTime / 60).rounded()), 1), meters: eta.distance, isTransit: transport == .transit)
+    }
+}
