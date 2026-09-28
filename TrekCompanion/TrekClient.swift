@@ -105,7 +105,7 @@ struct TrekClient {
     private func reauthenticate() async throws -> String {
         let result = try? await Self.signIn(serverURL: account.serverURL, email: account.email, password: account.password)
         guard case .signedIn(let refreshed)? = result else {
-            throw TrekError("Your Trek session expired. Open Trek Companion to sign in again.")
+            throw TrekError("Your Trek session expired. Open Waypoint to sign in again.")
         }
         store(token: refreshed.token)
         return refreshed.token

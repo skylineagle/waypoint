@@ -39,6 +39,10 @@ struct SettingsView: View {
                     .labelsHidden()
                 }
                 Section {
+                    Link("Privacy Policy", destination: TrekLinks.privacy)
+                    Link("Support", destination: TrekLinks.support)
+                }
+                Section {
                     Button("Log Out", role: .destructive) { isConfirmingLogOut = true }
                         .frame(maxWidth: .infinity)
                         .confirmationDialog("Log out of TREK?", isPresented: $isConfirmingLogOut, titleVisibility: .visible) {
@@ -66,4 +70,9 @@ struct SettingsView: View {
             .onChange(of: directionsApp) { syncActivity() }
         }
     }
+}
+
+enum TrekLinks {
+    static let privacy = URL(string: "https://github.com/skylineagle/waypoint/blob/main/PRIVACY.md")!
+    static let support = URL(string: "https://github.com/skylineagle/waypoint/issues")!
 }

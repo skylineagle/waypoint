@@ -44,4 +44,4 @@ This file in the [waypoint repository](https://github.com/skylineagle/waypoint) 
 
 ## Contact
 
-Open an issue: [github.com/skylineagle/waypoint/issues/new](https://github.com/skylineagle/waypoint/issues/new)
+Open an issue: [github.com/skylineagle/waypoint/issues](https://github.com/skylineagle/waypoint/issues)

@@ -42,6 +42,14 @@ struct WelcomeStepView: View {
                 .font(.poppins(12, relativeTo: .caption))
                 .foregroundStyle(.white.opacity(0.45))
                 .padding(.top, 14)
+
+            HStack(spacing: 18) {
+                Link("Privacy Policy", destination: TrekLinks.privacy)
+                Link("Support", destination: TrekLinks.support)
+            }
+            .font(.poppins(12, relativeTo: .caption))
+            .tint(.white.opacity(0.45))
+            .padding(.top, 10)
         }
         .padding(.horizontal, 24)
         .padding(.bottom, 12)

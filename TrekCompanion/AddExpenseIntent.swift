@@ -18,7 +18,7 @@ struct AddExpenseIntent: AppIntent {
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
         guard let client = TrekClient.current, let trip = client.account.trip else {
-            throw TrekError("Open Trek Companion and finish setup first.")
+            throw TrekError("Open Waypoint and finish setup first.")
         }
         guard let amount else {
             return .result(dialog: "TREK shortcut is ready.")
