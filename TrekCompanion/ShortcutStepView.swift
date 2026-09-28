@@ -10,7 +10,7 @@ struct ShortcutStepView: View {
     private let automationInstructions: [ShortcutInstruction] = [
         ShortcutInstruction(symbol: "square.stack.3d.up", text: "**Automation** → **+** → **Transaction**"),
         ShortcutInstruction(symbol: "creditcard", text: "Pick your cards, **Run Immediately**"),
-        ShortcutInstruction(symbol: "checkmark", text: "Choose **Add to TREK**"),
+        ShortcutInstruction(symbol: "checkmark", text: "Choose **Waypoint - TREK costs**"),
     ]
 
     private var isReady: Bool {
@@ -18,7 +18,7 @@ struct ShortcutStepView: View {
     }
 
     private var subtitle: String {
-        guard isReady else { return "One tap installs Add to TREK in Shortcuts." }
+        guard isReady else { return "Waypoint - TREK costs logs every Apple Pay payment to your trip." }
         guard let title = model.account?.trip?.title else { return "Last thing: let Wallet run it on every payment." }
         return "Last thing: let Wallet run it on every payment into \(title)."
     }
@@ -41,9 +41,8 @@ struct ShortcutStepView: View {
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active else { return }
             if isAwaitingImport {
-                startCheck()
-            } else if model.shortcutCheck == .checking {
-                Task { await giveUpWaitingForCallback() }
+                isAwaitingImport = false
+                model.shortcutCheck = .found
             }
         }
         .stepActions { actions }
@@ -54,14 +53,8 @@ struct ShortcutStepView: View {
         switch model.shortcutCheck {
         case .idle:
             addButton
-        case .missing:
-            addButton
-            Button("Check again", action: startCheck)
+            Button("I already have it") { model.shortcutCheck = .found }
                 .buttonStyle(TrekButtonStyle(kind: .secondary))
-        case .checking:
-            Button("Checking…") {}
-                .buttonStyle(TrekButtonStyle())
-                .disabled(true)
         case .found:
             Button {
                 openURL(URL(string: "shortcuts://")!)
@@ -79,11 +72,13 @@ struct ShortcutStepView: View {
     }
 
     private var addButton: some View {
-        ShareLink(item: TrekShortcut.file, preview: SharePreview(TrekShortcut.name, image: Image("TrekLogo"))) {
-            Label("Add TREK Shortcut", systemImage: "plus")
+        Button {
+            isAwaitingImport = true
+            openURL(TrekShortcut.link)
+        } label: {
+            Label("Add Shortcut", systemImage: "plus")
         }
         .buttonStyle(TrekButtonStyle())
-        .simultaneousGesture(TapGesture().onEnded { isAwaitingImport = true })
     }
 
     private var automationCard: some View {
@@ -100,18 +95,5 @@ struct ShortcutStepView: View {
         .background(Color.trekCard, in: .rect(cornerRadius: 20))
         .overlay(RoundedRectangle(cornerRadius: 20).strokeBorder(Color.trekBorder))
         .shadow(color: .black.opacity(0.04), radius: 8, y: 2)
-    }
-
-    private func startCheck() {
-        isAwaitingImport = false
-        model.shortcutCheck = .checking
-        openURL(TrekShortcut.checkURL)
-    }
-
-    private func giveUpWaitingForCallback() async {
-        try? await Task.sleep(for: .seconds(4))
-        if model.shortcutCheck == .checking {
-            model.shortcutCheck = .missing
-        }
     }
 }

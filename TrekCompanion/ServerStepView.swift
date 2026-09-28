@@ -9,13 +9,14 @@ struct ServerStepView: View {
     init(initialURL: URL?, onContinue: @escaping (URL) -> Void) {
         self.initialURL = initialURL
         self.onContinue = onContinue
-        _address = State(initialValue: initialURL?.host() ?? "")
+        _address = State(initialValue: initialURL?.absoluteString ?? "https://")
     }
 
     private var serverURL: URL? {
         let trimmed = address.trimmingCharacters(in: .whitespaces)
-        guard !trimmed.isEmpty else { return nil }
-        return URL(string: trimmed.contains("://") ? trimmed : "https://\(trimmed)")
+        let url = URL(string: trimmed.contains("://") ? trimmed : "https://\(trimmed)")
+        guard url?.host()?.isEmpty == false else { return nil }
+        return url
     }
 
     var body: some View {
@@ -23,7 +24,7 @@ struct ServerStepView: View {
             StepHeader(title: "Where's your Trek?", subtitle: "The address you open TREK at in your browser.")
 
             VStack(alignment: .leading, spacing: 10) {
-                TrekTextField(symbol: "globe", placeholder: "trek.example.com", text: $address, focusOnAppear: true, accessibilityLabel: "Server address")
+                TrekTextField(symbol: "globe", placeholder: "https://trek.example.com", text: $address, focusOnAppear: true, accessibilityLabel: "Server address")
                     .keyboardType(.URL)
                     .textContentType(.URL)
                     .textInputAutocapitalization(.never)

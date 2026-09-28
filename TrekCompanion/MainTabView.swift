@@ -11,9 +11,14 @@ struct MainTabView: View {
         _costs = State(initialValue: CostsModel(trip: trip))
     }
 
+    private var tripDay: TripDay? {
+        guard tab == .today, case .during(let day, _) = today.phase, !day.stops.isEmpty else { return nil }
+        return day
+    }
+
     var body: some View {
         @Bindable var app = app
-        TabView(selection: $tab) {
+        TabView(selection: $tab.animation(.smooth)) {
             Tab("Today", systemImage: "sun.max", value: MainTab.today) {
                 TodayView(model: today, costs: costs)
             }
@@ -23,6 +28,9 @@ struct MainTabView: View {
             Tab("Settings", systemImage: "gearshape", value: MainTab.settings) {
                 SettingsView()
             }
+        }
+        .tabViewBottomAccessory(isEnabled: tripDay != nil) {
+            if let tripDay { TripStopAccessory(model: today, day: tripDay) }
         }
         .task { await costs.load() }
         .sheet(isPresented: $app.isAddingExpense) {

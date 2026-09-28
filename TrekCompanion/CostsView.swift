@@ -1,11 +1,5 @@
 import SwiftUI
 
-enum CostsSheet: Identifiable {
-    case trip, shortcut
-
-    var id: Self { self }
-}
-
 enum ExpenseEditorTarget: Identifiable {
     case new
     case edit(BudgetItem)
@@ -20,19 +14,17 @@ enum ExpenseEditorTarget: Identifiable {
 }
 
 struct CostsView: View {
-    @Environment(AppModel.self) private var app
     let model: CostsModel
     @State private var tab = CostsTab.expenses
     @State private var categoryFilter: CostCategory?
     @State private var unpaidOnly = false
     @State private var editor: ExpenseEditorTarget?
-    @State private var sheet: CostsSheet?
 
     var body: some View {
         NavigationStack {
             List {
                 Section {
-                    CostsHeader(trip: model.trip, menu: menu).plainListRow()
+                    CostsHeader(trip: model.trip).plainListRow()
                     CostsTotalCard(model: model)
                         .redacted(reason: model.items == nil ? .placeholder : [])
                         .plainListRow()
@@ -79,21 +71,6 @@ struct CostsView: View {
                     onDelete: { if let item = target.item { await model.delete(item) } }
                 )
                 .presentationDragIndicator(.visible)
-            }
-            .sheet(item: $sheet) { sheet in
-                NavigationStack {
-                    Group {
-                        switch sheet {
-                        case .trip: TripStepView { self.sheet = nil }
-                        case .shortcut: ShortcutStepView { self.sheet = nil }
-                        }
-                    }
-                    .padding(.top, 12)
-                    .background(Color.trekBackground)
-                    .toolbar {
-                        Button("Close", systemImage: "xmark") { self.sheet = nil }
-                    }
-                }
             }
             .onChange(of: model.unpaidItems.isEmpty) { _, isEmpty in
                 if isEmpty { unpaidOnly = false }
@@ -209,14 +186,6 @@ struct CostsView: View {
         .foregroundStyle(Color.trekAccentText)
         .accessibilityLabel("Add expense")
         .padding(20)
-    }
-
-    private var menu: some View {
-        Menu("Options", systemImage: "ellipsis") {
-            Button("Change Trip", systemImage: "suitcase") { sheet = .trip }
-            Button("Shortcut Setup", systemImage: "bolt") { sheet = .shortcut }
-            Button("Sign Out", systemImage: "rectangle.portrait.and.arrow.right", role: .destructive, action: app.signOut)
-        }
     }
 }
 

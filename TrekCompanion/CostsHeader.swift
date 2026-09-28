@@ -1,8 +1,7 @@
 import SwiftUI
 
-struct CostsHeader<Trailing: View>: View {
+struct CostsHeader: View {
     let trip: Trip
-    let menu: Trailing
 
     private var subtitle: String? {
         guard let range = trip.dateRange else { return nil }
@@ -24,14 +23,6 @@ struct CostsHeader<Trailing: View>: View {
                         .foregroundStyle(Color.trekMuted)
                 }
             }
-            Spacer()
-            menu
-                .labelStyle(.iconOnly)
-                .font(.system(size: 17, weight: .semibold))
-                .foregroundStyle(Color.trekText)
-                .buttonStyle(.glass)
-                .buttonBorderShape(.circle)
-                .controlSize(.large)
         }
         .padding(.top, 4)
     }

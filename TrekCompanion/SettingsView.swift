@@ -1,6 +1,15 @@
 import SwiftUI
 
+private enum SettingsSheet: Identifiable {
+    case trip, shortcut
+
+    var id: Self { self }
+}
+
 struct SettingsView: View {
+    @Environment(AppModel.self) private var model
+    @State private var isConfirmingLogOut = false
+    @State private var sheet: SettingsSheet?
     @AppStorage(AppSettings.liveActivityKey, store: AppGroup.defaults) private var isLiveActivityEnabled = true
     @AppStorage(AppSettings.directionsAppKey, store: AppGroup.defaults) private var directionsApp = DirectionsApp.appleMaps
 
@@ -11,12 +20,16 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
+                Section("Trip") {
+                    Button("Change Trip", systemImage: "suitcase") { sheet = .trip }
+                    Button("Shortcut Setup", systemImage: "bolt") { sheet = .shortcut }
+                }
                 Section {
                     Toggle("Start automatically", isOn: $isLiveActivityEnabled)
                 } header: {
                     Text("Live Activity")
                 } footer: {
-                    Text("Shows your next stop and today's spend on the Lock Screen and in the Dynamic Island on trip days.")
+                    Text("Starts once your location is picked up on a trip day. Shows your next stop and today's spend on the Lock Screen and in the Dynamic Island on trip days.")
                 }
                 Section("Directions") {
                     Picker("Open directions in", selection: $directionsApp) {
@@ -25,8 +38,30 @@ struct SettingsView: View {
                     .pickerStyle(.inline)
                     .labelsHidden()
                 }
+                Section {
+                    Button("Log Out", role: .destructive) { isConfirmingLogOut = true }
+                        .frame(maxWidth: .infinity)
+                        .confirmationDialog("Log out of TREK?", isPresented: $isConfirmingLogOut, titleVisibility: .visible) {
+                            Button("Log Out", role: .destructive) { model.signOut() }
+                        }
+                }
             }
             .navigationTitle("Settings")
+            .sheet(item: $sheet) { sheet in
+                NavigationStack {
+                    Group {
+                        switch sheet {
+                        case .trip: TripStepView { self.sheet = nil }
+                        case .shortcut: ShortcutStepView { self.sheet = nil }
+                        }
+                    }
+                    .padding(.top, 12)
+                    .background(Color.trekBackground)
+                    .toolbar {
+                        Button("Close", systemImage: "xmark") { self.sheet = nil }
+                    }
+                }
+            }
             .onChange(of: isLiveActivityEnabled) { syncActivity() }
             .onChange(of: directionsApp) { syncActivity() }
         }

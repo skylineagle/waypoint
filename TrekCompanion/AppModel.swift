@@ -27,5 +27,8 @@ final class AppModel {
     func signOut() {
         account = nil
         isShortcutSetUp = false
+        TodaySnapshot.clear()
+        StopTracker.shared.sync(isActive: false)
+        Task { await TripLiveActivity.sync(with: nil) }
     }
 }

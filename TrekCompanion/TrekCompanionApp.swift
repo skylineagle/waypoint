@@ -15,7 +15,6 @@ struct TrekCompanionApp: App {
                 .environment(model)
                 .tint(.trekAccent)
                 .onOpenURL { url in
-                    if let check = ShortcutCheck(callback: url) { model.shortcutCheck = check }
                     if url.host() == "add-expense" { model.isAddingExpense = true }
                     if let directions = AppSettings.resolveDirectionsLink(url) { UIApplication.shared.open(directions) }
                 }

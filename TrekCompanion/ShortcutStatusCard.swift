@@ -4,19 +4,13 @@ struct ShortcutStatusCard: View {
     let check: ShortcutCheck
 
     private var title: String {
-        switch check {
-        case .idle, .missing: "Add to TREK"
-        case .checking: "Checking your shortcut…"
-        case .found: "Add to TREK is ready"
-        }
+        check == .found ? "Shortcut is ready" : "Add the shortcut"
     }
 
-    private var message: LocalizedStringKey? {
+    private var message: LocalizedStringKey {
         switch check {
-        case .idle: "Opens Shortcuts. Tap **Add Shortcut**, then come back here."
-        case .checking: "Shortcuts may ask once to allow **Add to TREK** — tap **Allow**."
-        case .missing: "Not found yet. Add it and keep the name **Add to TREK**."
-        case .found: nil
+        case .idle: "Tap **Add Shortcut** in Shortcuts, then **◀ Waypoint** at the top left to come back."
+        case .found: "Your first payment may ask once to **Allow** it."
         }
     }
 
@@ -26,13 +20,11 @@ struct ShortcutStatusCard: View {
             Text(title)
                 .font(.poppins(17, .semibold, relativeTo: .headline))
                 .foregroundStyle(Color.trekText)
-            if let message {
-                Text(message)
-                    .font(.poppins(13, relativeTo: .footnote))
-                    .foregroundStyle(check == .missing ? Color.trekDanger : Color.trekMuted)
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(2)
-            }
+            Text(message)
+                .font(.poppins(13, relativeTo: .footnote))
+                .foregroundStyle(Color.trekMuted)
+                .multilineTextAlignment(.center)
+                .lineSpacing(2)
         }
         .frame(maxWidth: .infinity)
         .padding(20)
@@ -46,13 +38,9 @@ struct ShortcutStatusCard: View {
     @ViewBuilder
     private var badge: some View {
         switch check {
-        case .checking:
-            ProgressView()
-                .controlSize(.large)
-                .frame(width: 64, height: 64)
         case .found:
             badgeTile(symbol: "checkmark", fill: .trekSuccess, foreground: .white)
-        case .idle, .missing:
+        case .idle:
             badgeTile(symbol: "plus.square", fill: .trekAccent, foreground: .trekAccentText)
         }
     }

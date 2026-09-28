@@ -74,13 +74,16 @@ final class StopTracker: NSObject, CLLocationManagerDelegate {
               location.timestamp.timeIntervalSinceNow > -60,
               let snapshot = TodaySnapshot.load()
         else { return }
+        Task { await TripLiveActivity.startAutomatically(with: snapshot) }
         let step = StopVisits.step(visit, places: places(in: snapshot), at: location, dwell: Self.dwell)
         visit = step.visit
         if let id = step.done { markDone(id, in: snapshot) }
     }
 
     private func handleVisit(at location: CLLocation, accuracy: CLLocationAccuracy, stay: TimeInterval, hasLeft: Bool) {
-        guard hasLeft, stay >= Self.dwell, let snapshot = TodaySnapshot.load() else { return }
+        guard let snapshot = TodaySnapshot.load() else { return }
+        Task { await TripLiveActivity.startAutomatically(with: snapshot) }
+        guard hasLeft, stay >= Self.dwell else { return }
         let reach = min(max(StopVisits.radius, accuracy), 200)
         if let id = StopVisits.nearest(to: location, in: places(in: snapshot), within: reach) {
             markDone(id, in: snapshot)

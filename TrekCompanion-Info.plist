@@ -6,6 +6,10 @@
 	<false/>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Shows where you are among today's stops.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
