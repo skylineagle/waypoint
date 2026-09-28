@@ -16,7 +16,7 @@ struct NextStopWidgetView: View {
                     small(snapshot)
                 }
             } else {
-                Text("Open Trek Companion to load your trip.")
+                Text("Open Waypoint to load your trip.")
                     .font(.system(size: 13, weight: .medium))
                     .foregroundStyle(.white.opacity(0.7))
             }

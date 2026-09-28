@@ -135,7 +135,7 @@
 		"ASSETCATALOG_COMPILER_APPICON_NAME" = AppIcon;
 		"CODE_SIGN_ENTITLEMENTS" = "TrekCompanion.entitlements";
 		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 2;
+		"CURRENT_PROJECT_VERSION" = 3;
 		"ENABLE_PREVIEWS" = YES;
 		"GENERATE_INFOPLIST_FILE" = YES;
 		"INFOPLIST_FILE" = "TrekCompanion-Info.plist";
@@ -163,7 +163,7 @@
 		"ASSETCATALOG_COMPILER_APPICON_NAME" = AppIcon;
 		"CODE_SIGN_ENTITLEMENTS" = "TrekCompanion.entitlements";
 		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 2;
+		"CURRENT_PROJECT_VERSION" = 3;
 		"ENABLE_PREVIEWS" = YES;
 		"GENERATE_INFOPLIST_FILE" = YES;
 		"INFOPLIST_FILE" = "TrekCompanion-Info.plist";
@@ -190,7 +190,7 @@
 	buildSettings = {
 		"CODE_SIGN_ENTITLEMENTS" = "TrekCompanionWidgets.entitlements";
 		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 2;
+		"CURRENT_PROJECT_VERSION" = 3;
 		"GENERATE_INFOPLIST_FILE" = YES;
 		"INFOPLIST_FILE" = "TrekCompanionWidgets-Info.plist";
 		"INFOPLIST_KEY_CFBundleDisplayName" = Waypoint;
@@ -215,7 +215,7 @@
 	buildSettings = {
 		"CODE_SIGN_ENTITLEMENTS" = "TrekCompanionWidgets.entitlements";
 		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 2;
+		"CURRENT_PROJECT_VERSION" = 3;
 		"GENERATE_INFOPLIST_FILE" = YES;
 		"INFOPLIST_FILE" = "TrekCompanionWidgets-Info.plist";
 		"INFOPLIST_KEY_CFBundleDisplayName" = Waypoint;
