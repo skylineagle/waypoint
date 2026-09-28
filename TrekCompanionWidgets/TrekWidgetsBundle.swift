@@ -6,6 +6,7 @@ struct TrekWidgetsBundle: WidgetBundle {
     var body: some Widget {
         NextStopWidget()
         SpentTodayWidget()
+        ConverterWidget()
         TripActivityWidget()
     }
 }

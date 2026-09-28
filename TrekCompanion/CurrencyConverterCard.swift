@@ -2,12 +2,26 @@ import SwiftUI
 
 struct CurrencyConverterCard: View {
     let converter: CurrencyConverter
-    @State private var amount: Double = 1000
+    let showsSlider: Bool
+    @State private var amount: Double
     @State private var isFromTrip = true
     @FocusState private var isEditing: Bool
 
+    init(converter: CurrencyConverter, amount: Double = 1000, showsSlider: Bool = false) {
+        self.converter = converter
+        self.showsSlider = showsSlider
+        _amount = State(initialValue: amount)
+    }
+
     private var from: String { isFromTrip ? converter.tripCurrency : converter.displayCurrency }
     private var to: String { isFromTrip ? converter.displayCurrency : converter.tripCurrency }
+
+    private var sliderPosition: Binding<Double> {
+        Binding(
+            get: { log10(max(amount, 1)) },
+            set: { amount = Double(String(format: "%.1e", pow(10, $0))) ?? amount }
+        )
+    }
 
     private var rateLine: String {
         let forward = converter.convert(1, from: converter.tripCurrency, to: converter.displayCurrency)
@@ -38,6 +52,9 @@ struct CurrencyConverterCard: View {
                         .lineLimit(1)
                         .contentTransition(.numericText())
                 }
+            }
+            if showsSlider {
+                Slider(value: sliderPosition, in: 0...7)
             }
             Text(rateLine)
                 .font(.poppins(11, relativeTo: .caption2))

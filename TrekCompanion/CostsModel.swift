@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import WidgetKit
 
 struct ExpenseDay: Identifiable {
     let date: String?
@@ -165,6 +166,7 @@ final class CostsModel {
             meID = try? await loadedMe
             members = (try? await loadedMembers) ?? []
             self.converter = converter
+            if rates != nil { publishConverter() }
             errorMessage = nil
             await loadSettlement()
         } catch {
@@ -172,11 +174,21 @@ final class CostsModel {
         }
     }
 
+    private func publishConverter() {
+        ConverterState.publish(
+            tripTitle: trip.title,
+            tripCurrency: converter.tripCurrency,
+            displayCurrency: converter.displayCurrency,
+            rate: converter.convert(1, from: converter.tripCurrency)
+        )
+        WidgetCenter.shared.reloadAllTimelines()
+    }
+
     private func loadSettlement() async {
         settlement = try? await TrekClient.current?.settlement(tripID: trip.id, currency: converter.displayCurrency)
     }
 
-    func save(_ input: ExpenseInput, editing item: BudgetItem?) async throws {
+    func save(_ input: ExpenseInput, editing item: BudgetItem?, receipt: Data?) async throws {
         guard let client = TrekClient.current else { return }
         let saved = if let item {
             try await client.updateExpense(id: item.id, input, tripID: trip.id)
@@ -190,7 +202,19 @@ final class CostsModel {
             updated.append(saved)
         }
         items = updated
+        if let receipt {
+            await upload(receipt, for: saved, with: client)
+        }
         await loadSettlement()
+    }
+
+    private func upload(_ receipt: Data, for item: BudgetItem, with client: TrekClient) async {
+        do {
+            try await client.uploadReceipt(receipt, expenseID: item.id, tripID: trip.id)
+            items = try await client.expenses(tripID: trip.id)
+        } catch {
+            errorMessage = "\(item.name) was saved, but its receipt didn't upload: \(error.localizedDescription)"
+        }
     }
 
     func delete(_ item: BudgetItem) async {

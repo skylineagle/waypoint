@@ -39,10 +39,13 @@ struct MainTabView: View {
                 converter: costs.converter,
                 members: costs.members,
                 meID: costs.meID,
-                onSave: { try await costs.save($0, editing: nil) },
+                onSave: { try await costs.save($0, editing: nil, receipt: $1) },
                 onDelete: {}
             )
             .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $app.isConverting) {
+            ConverterSheet(converter: costs.converter, amount: app.converterAmount)
         }
     }
 }

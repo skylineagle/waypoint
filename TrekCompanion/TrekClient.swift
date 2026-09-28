@@ -13,7 +13,7 @@ struct TrekClient {
     }
 
     static func isTrekServer(_ serverURL: URL) async -> Bool {
-        guard let (data, status) = try? await send("GET", "api/auth/app-config", serverURL: serverURL, token: nil, body: nil as LoginRequest?),
+        guard let (data, status) = try? await send("GET", "api/auth/app-config", serverURL: serverURL, token: nil, body: nil),
               (200..<300).contains(status)
         else { return false }
         return (try? decoder.decode(AppConfig.self, from: data).version) != nil
@@ -76,21 +76,31 @@ struct TrekClient {
     }
 
     func addExpense(_ input: ExpenseInput, tripID: Int) async throws -> BudgetItem {
-        try await request("POST", "api/trips/\(tripID)/budget", body: input, as: BudgetItemEnvelope.self).item
+        try await request("POST", "api/trips/\(tripID)/budget", body: try .json(input), as: BudgetItemEnvelope.self).item
     }
 
     func updateExpense(id: Int, _ input: ExpenseInput, tripID: Int) async throws -> BudgetItem {
-        try await request("PUT", "api/trips/\(tripID)/budget/\(id)", body: input, as: BudgetItemEnvelope.self).item
+        try await request("PUT", "api/trips/\(tripID)/budget/\(id)", body: try .json(input), as: BudgetItemEnvelope.self).item
     }
 
     func deleteExpense(id: Int, tripID: Int) async throws {
         _ = try await request("DELETE", "api/trips/\(tripID)/budget/\(id)", as: SuccessResponse.self)
     }
 
+    func uploadReceipt(_ jpeg: Data, expenseID: Int, tripID: Int) async throws {
+        let body = RequestBody.multipart(
+            fields: ["budget_item_id": "\(expenseID)", "description": "Receipt"],
+            file: jpeg,
+            fileName: "receipt-\(expenseID).jpg",
+            mimeType: "image/jpeg"
+        )
+        _ = try await request("POST", "api/trips/\(tripID)/files", body: body, as: SuccessResponse.self)
+    }
+
     private func request<Response: Decodable>(
         _ method: String,
         _ path: String,
-        body: ExpenseInput? = nil,
+        body: RequestBody? = nil,
         as: Response.Type
     ) async throws -> Response {
         var (data, status) = try await Self.send(method, path, serverURL: account.serverURL, token: account.token, body: body)
@@ -123,7 +133,7 @@ struct TrekClient {
     }
 
     private static func sendPublic<Response: Decodable>(_ path: String, serverURL: URL, body: some Encodable) async throws -> Response {
-        let (data, status) = try await send("POST", path, serverURL: serverURL, token: nil, body: body)
+        let (data, status) = try await send("POST", path, serverURL: serverURL, token: nil, body: try .json(body))
         try validate(data: data, status: status)
         return try decoder.decode(Response.self, from: data)
     }
@@ -133,7 +143,7 @@ struct TrekClient {
         _ path: String,
         serverURL: URL,
         token: String?,
-        body: (some Encodable)?
+        body: RequestBody?
     ) async throws -> (Data, Int) {
         let parts = path.split(separator: "?", maxSplits: 1).map(String.init)
         var url = serverURL.appending(path: parts[0])
@@ -148,8 +158,8 @@ struct TrekClient {
             request.setValue("\(sessionCookie)=\(token)", forHTTPHeaderField: "Cookie")
         }
         if let body {
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.httpBody = try encoder.encode(body)
+            request.setValue(body.contentType, forHTTPHeaderField: "Content-Type")
+            request.httpBody = body.data
         }
         let (data, response) = try await URLSession.shared.data(for: request)
         let httpResponse = response as? HTTPURLResponse
@@ -176,7 +186,7 @@ struct TrekClient {
 
     private static let sessionCookie = "trek_session"
 
-    private static let encoder: JSONEncoder = {
+    fileprivate static let encoder: JSONEncoder = {
         let encoder = JSONEncoder()
         encoder.keyEncodingStrategy = .convertToSnakeCase
         return encoder
@@ -260,4 +270,25 @@ private struct BudgetItemList: Decodable {
 
 private struct BudgetItemEnvelope: Decodable {
     let item: BudgetItem
+}
+
+private struct RequestBody {
+    let data: Data
+    let contentType: String
+
+    static func json(_ value: some Encodable) throws -> RequestBody {
+        RequestBody(data: try TrekClient.encoder.encode(value), contentType: "application/json")
+    }
+
+    static func multipart(fields: [String: String], file: Data, fileName: String, mimeType: String) -> RequestBody {
+        let boundary = "Boundary-\(UUID().uuidString)"
+        var data = Data()
+        for (name, value) in fields {
+            data.append(Data("--\(boundary)\r\nContent-Disposition: form-data; name=\"\(name)\"\r\n\r\n\(value)\r\n".utf8))
+        }
+        data.append(Data("--\(boundary)\r\nContent-Disposition: form-data; name=\"file\"; filename=\"\(fileName)\"\r\nContent-Type: \(mimeType)\r\n\r\n".utf8))
+        data.append(file)
+        data.append(Data("\r\n--\(boundary)--\r\n".utf8))
+        return RequestBody(data: data, contentType: "multipart/form-data; boundary=\(boundary)")
+    }
 }

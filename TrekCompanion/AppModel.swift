@@ -17,11 +17,20 @@ final class AppModel {
 
     var shortcutCheck = ShortcutCheck.idle
     var isAddingExpense = false
+    var isConverting = false
+    var converterAmount = 100.0
 
     func select(_ trip: Trip?) {
         guard var latest = Account.load() else { return }
         latest.trip = trip
         account = latest
+    }
+
+    func openConverter(from url: URL) {
+        let amount = URLComponents(url: url, resolvingAgainstBaseURL: false)?
+            .queryItems?.first { $0.name == "amount" }?.value.flatMap(Double.init)
+        converterAmount = amount.flatMap { $0 > 0 ? $0 : nil } ?? 100
+        isConverting = true
     }
 
     func signOut() {

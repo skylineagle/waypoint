@@ -2,18 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
-	<key>NSSupportsLiveActivities</key>
-	<true/>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>location</string>
-	</array>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Shows where you are among today's stops.</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Marks today's stops done after you spend time there, even when the app is closed.</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -24,6 +12,20 @@
 				<string>trekcompanion</string>
 			</array>
 		</dict>
+	</array>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>NSCameraUsageDescription</key>
+	<string>Scans your receipts so their total, place and date fill in for you.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Marks today's stops done after you spend time there, even when the app is closed.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Shows where you are among today's stops.</string>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
 	</array>
 </dict>
 </plist>

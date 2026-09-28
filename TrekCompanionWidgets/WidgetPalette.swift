@@ -8,4 +8,8 @@ extension Color {
 enum WidgetLinks {
     static let today = URL(string: "trekcompanion://today")!
     static let addExpense = URL(string: "trekcompanion://add-expense")!
+
+    static func converter(amount: Double?) -> URL {
+        URL(string: "trekcompanion://converter?amount=\(amount ?? 0)")!
+    }
 }
