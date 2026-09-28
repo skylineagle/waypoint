@@ -24,9 +24,10 @@ struct AddExpenseIntent: AppIntent {
             return .result(dialog: "TREK shortcut is ready.")
         }
         let name = merchant ?? "Apple Pay"
+        let category = merchant == nil ? CostCategory.other : await ExpenseCategorizer.category(for: name)
         var expense = ExpenseInput(
             name: name,
-            category: CostCategory.other.rawValue,
+            category: category.rawValue,
             totalPrice: amount,
             note: ExpenseInput.applePayNote,
             expenseDate: ExpenseDate.today
@@ -35,6 +36,6 @@ struct AddExpenseIntent: AppIntent {
             expense.payers = [ExpenseInput.PayerInput(userId: meID, amount: amount)]
         }
         _ = try await client.addExpense(expense, tripID: trip.id)
-        return .result(dialog: "Added \(name) to \(trip.title).")
+        return .result(dialog: "Added \(name) to \(trip.title) as \(category.label).")
     }
 }
