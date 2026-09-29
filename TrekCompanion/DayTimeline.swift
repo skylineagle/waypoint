@@ -8,7 +8,7 @@ struct DayTimeline: View {
     let legs: [Int: TravelLeg]
     let highlightedID: Int?
     let onSelect: (TripStop) -> Void
-    let onToggle: (TripStop) -> Void
+    let onToggle: ((TripStop) -> Void)?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -42,13 +42,11 @@ struct DayTimeline: View {
             HStack(alignment: .top, spacing: 10) {
                 TimelineDot(number: number, state: .next)
                     .padding(.top, 14)
-                UpNextCard(stop: stop, number: number, total: stopCount, leg: legs[stop.id]) { onToggle(stop) }
+                UpNextCard(stop: stop, number: number, total: stopCount, leg: legs[stop.id]) { onToggle?(stop) }
                     .onTapGesture { onSelect(stop) }
             }
         } else {
-            StopRow(stop: stop, number: number, state: doneIDs.contains(stop.id) ? .done : .upcoming, isHighlighted: stop.id == highlightedID) {
-                onToggle(stop)
-            }
+            StopRow(stop: stop, number: number, state: doneIDs.contains(stop.id) ? .done : .upcoming, isHighlighted: stop.id == highlightedID, onToggle: onToggle.map { toggle in { toggle(stop) } })
             .onTapGesture { onSelect(stop) }
         }
     }

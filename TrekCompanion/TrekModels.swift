@@ -40,6 +40,11 @@ struct BudgetItem: Codable, Identifiable, Hashable {
     var expenseDate: String?
     var payers: [Payer]?
     var members: [Member]?
+    var receipts: [Receipt]?
+
+    struct Receipt: Codable, Hashable {
+        let id: Int
+    }
 
     struct Payer: Codable, Hashable {
         let userId: Int

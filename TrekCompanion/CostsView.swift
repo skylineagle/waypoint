@@ -2,10 +2,19 @@ import SwiftUI
 
 enum ExpenseEditorTarget: Identifiable {
     case new
+    case scan
     case edit(BudgetItem)
 
     var id: Int {
-        if case .edit(let item) = self { item.id } else { -1 }
+        switch self {
+        case .new: -1
+        case .scan: -2
+        case .edit(let item): item.id
+        }
+    }
+
+    var startsScanning: Bool {
+        if case .scan = self { true } else { false }
     }
 
     var item: BudgetItem? {
@@ -59,7 +68,7 @@ struct CostsView: View {
             .scrollContentBackground(.hidden)
             .background(Color.trekBackground)
             .toolbarVisibility(.hidden, for: .navigationBar)
-            .contentMargins(.bottom, 90, for: .scrollContent)
+            .contentMargins(.bottom, 72, for: .scrollContent)
             .overlay(alignment: .bottomTrailing) { addButton }
             .sheet(item: $editor) { target in
                 ExpenseEditorView(
@@ -67,7 +76,8 @@ struct CostsView: View {
                     converter: model.converter,
                     members: model.members,
                     meID: model.meID,
-                    onSave: { try await model.save($0, editing: target.item) },
+                    startsScanning: target.startsScanning,
+                    onSave: { try await model.save($0, editing: target.item, receipt: $1) },
                     onDelete: { if let item = target.item { await model.delete(item) } }
                 )
                 .presentationDragIndicator(.visible)
@@ -172,20 +182,21 @@ struct CostsView: View {
     }
 
     private var addButton: some View {
-        Button {
-            editor = .new
+        Menu {
+            Button("Add manually", systemImage: "square.and.pencil") { editor = .new }
+            Button(DocumentScanner.isAvailable ? "Scan receipt" : "Receipt from photos", systemImage: "doc.text.viewfinder") { editor = .scan }
         } label: {
             Image(systemName: "plus")
-                .font(.system(size: 22, weight: .semibold))
-                .frame(width: 34, height: 34)
+                .font(.system(size: 18, weight: .semibold))
+                .frame(width: 28, height: 28)
         }
-        .buttonStyle(.glassProminent)
+        .buttonStyle(.glass)
         .buttonBorderShape(.circle)
-        .controlSize(.extraLarge)
+        .controlSize(.regular)
         .tint(Color.trekAccent)
-        .foregroundStyle(Color.trekAccentText)
         .accessibilityLabel("Add expense")
-        .padding(20)
+        .padding(.trailing, 16)
+        .padding(.bottom, 12)
     }
 }
 

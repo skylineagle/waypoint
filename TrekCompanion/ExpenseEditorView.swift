@@ -1,3 +1,4 @@
+import PhotosUI
 import SwiftUI
 
 struct ExpenseEditorView: View {
@@ -6,7 +7,8 @@ struct ExpenseEditorView: View {
     let converter: CurrencyConverter
     let members: [TripMember]
     let meID: Int?
-    let onSave: (ExpenseInput) async throws -> Void
+    let startsScanning: Bool
+    let onSave: (ExpenseInput, _ receipt: Data?) async throws -> Void
     let onDelete: () async -> Void
 
     @State private var name: String
@@ -19,6 +21,11 @@ struct ExpenseEditorView: View {
     @State private var splitIDs: Set<Int>
     @State private var isSaving = false
     @State private var errorMessage: String?
+    @State private var receiptImage: UIImage?
+    @State private var isScanning = false
+    @State private var isPickingPhoto = false
+    @State private var pickedPhoto: PhotosPickerItem?
+    @State private var isReadingReceipt = false
     @FocusState private var isAmountFocused: Bool
 
     init(
@@ -26,13 +33,15 @@ struct ExpenseEditorView: View {
         converter: CurrencyConverter,
         members: [TripMember],
         meID: Int?,
-        onSave: @escaping (ExpenseInput) async throws -> Void,
+        startsScanning: Bool = false,
+        onSave: @escaping (ExpenseInput, _ receipt: Data?) async throws -> Void,
         onDelete: @escaping () async -> Void
     ) {
         self.item = item
         self.converter = converter
         self.members = members
         self.meID = meID
+        self.startsScanning = startsScanning
         self.onSave = onSave
         self.onDelete = onDelete
         _name = State(initialValue: item?.name ?? "")
@@ -80,6 +89,13 @@ struct ExpenseEditorView: View {
             header
             ScrollView {
                 VStack(alignment: .leading, spacing: 10) {
+                    ReceiptTile(
+                        image: receiptImage,
+                        savedCount: item?.receipts?.count ?? 0,
+                        isReading: isReadingReceipt,
+                        onScan: DocumentScanner.isAvailable ? { isScanning = true } : nil,
+                        onChoosePhoto: { isPickingPhoto = true }
+                    )
                     TrekTextField(symbol: "pencil", placeholder: "What was it?", text: $name, accessibilityLabel: "Name")
                     HStack(spacing: 8) {
                         DatePicker("Date", selection: $date, displayedComponents: .date)
@@ -122,7 +138,26 @@ struct ExpenseEditorView: View {
                 .frame(minHeight: 36)
             }
         }
-        .onAppear { isAmountFocused = item == nil }
+        .fullScreenCover(isPresented: $isScanning) {
+            DocumentScanner(onScan: readReceipt).ignoresSafeArea()
+        }
+        .photosPicker(isPresented: $isPickingPhoto, selection: $pickedPhoto, matching: .images)
+        .onChange(of: pickedPhoto) { _, photo in
+            guard let photo else { return }
+            pickedPhoto = nil
+            Task {
+                if let data = try? await photo.loadTransferable(type: Data.self), let image = UIImage(data: data) {
+                    readReceipt(image)
+                }
+            }
+        }
+        .onAppear {
+            if startsScanning {
+                if DocumentScanner.isAvailable { isScanning = true } else { isPickingPhoto = true }
+            } else {
+                isAmountFocused = item == nil
+            }
+        }
     }
 
     private var header: some View {
@@ -196,6 +231,24 @@ struct ExpenseEditorView: View {
         }
     }
 
+    private func readReceipt(_ image: UIImage) {
+        receiptImage = image
+        isReadingReceipt = true
+        Task {
+            defer { isReadingReceipt = false }
+            let details = await ReceiptReader.details(of: image)
+            if amount == nil { amount = details.total }
+            guard item == nil else { return }
+            if let currency = details.currency { self.currency = currency }
+            if let date = details.date { self.date = date }
+            if name.trimmingCharacters(in: .whitespaces).isEmpty, let merchant = details.merchant {
+                name = merchant.capitalized
+                category = await ExpenseCategorizer.category(for: merchant)
+            }
+            if amount == nil { isAmountFocused = true }
+        }
+    }
+
     private func save() {
         guard canSave, let amount else { return }
         let input = ExpenseInput(
@@ -213,7 +266,7 @@ struct ExpenseEditorView: View {
         Task {
             defer { isSaving = false }
             do {
-                try await onSave(input)
+                try await onSave(input, receiptImage?.jpegData(compressionQuality: 0.6))
                 dismiss()
             } catch {
                 errorMessage = error.localizedDescription

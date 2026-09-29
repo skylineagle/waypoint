@@ -10,17 +10,21 @@ struct StopRow: View {
     let state: StopState
     var isHighlighted = false
     @State private var isExpanded = false
-    let onToggle: () -> Void
+    var onToggle: (() -> Void)?
 
     private var isDone: Bool { state == .done }
 
     var body: some View {
         HStack(alignment: isDone ? .center : .top, spacing: 10) {
-            Button(action: onToggle) {
+            if let onToggle {
+                Button(action: onToggle) {
+                    TimelineDot(number: number, state: state)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(isDone ? "Mark \(stop.place.name) not done" : "Mark \(stop.place.name) done")
+            } else {
                 TimelineDot(number: number, state: state)
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel(isDone ? "Mark \(stop.place.name) not done" : "Mark \(stop.place.name) done")
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(stop.place.name)
@@ -49,7 +53,9 @@ struct StopRow: View {
             .onTapGesture { withAnimation(.snappy) { isExpanded.toggle() } }
             .contextMenu {
                 Button("Directions", systemImage: "arrow.triangle.turn.up.right.diamond") { Directions.open(to: stop.place) }
-                Button(isDone ? "Mark as not done" : "Mark as done", systemImage: "checkmark.circle", action: onToggle)
+                if let onToggle {
+                    Button(isDone ? "Mark as not done" : "Mark as done", systemImage: "checkmark.circle", action: onToggle)
+                }
             }
         }
         .animation(.smooth, value: isHighlighted)
