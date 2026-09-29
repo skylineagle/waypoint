@@ -25,7 +25,7 @@ struct TodayView: View {
                         content
                     }
                     .padding(.horizontal, 16)
-                    .padding(.bottom, 24)
+                    .padding(.bottom, model.selectedDayID == nil ? 24 : 80)
                 }
                 .onScrollGeometryChange(for: Bool.self) { geometry in
                     geometry.contentOffset.y + geometry.contentInsets.top > 12
@@ -38,6 +38,7 @@ struct TodayView: View {
                 }
             }
             }
+            .overlay(alignment: .bottom) { backButton }
             .background(Color.trekBackground)
             .toolbarVisibility(.hidden, for: .navigationBar)
             .task { await model.load() }
@@ -137,6 +138,22 @@ struct TodayView: View {
                     .transition(.move(edge: .top).combined(with: .opacity))
                 }
             }
+        }
+    }
+
+    @ViewBuilder
+    private var backButton: some View {
+        if model.selectedDayID != nil {
+            Button(model.todayDay == nil ? "Back to overview" : "Back to today", systemImage: "arrow.uturn.backward") {
+                withAnimation(.smooth) { model.selectedDayID = nil }
+            }
+            .font(.poppins(14, .semibold, relativeTo: .subheadline))
+            .foregroundStyle(Color.trekText)
+            .padding(.horizontal, 18)
+            .frame(height: 44)
+            .glassEffect(.regular.interactive(), in: .capsule)
+            .padding(.bottom, 12)
+            .transition(.blurReplace.combined(with: .move(edge: .bottom)))
         }
     }
 
