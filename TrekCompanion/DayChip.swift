@@ -1,0 +1,40 @@
+import SwiftUI
+
+struct DayChip: View {
+    let day: TripDay
+    let number: Int
+    let isSelected: Bool
+    let isToday: Bool
+    let action: () -> Void
+
+    private var date: Date? { ExpenseDate.date(from: day.date) }
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 1) {
+                Text(date?.formatted(.dateTime.weekday(.abbreviated)).uppercased() ?? "DAY")
+                    .font(.poppins(9.5, .semibold, relativeTo: .caption2))
+                    .tracking(0.6)
+                    .opacity(0.65)
+                Text(date?.formatted(.dateTime.day()) ?? "\(number)")
+                    .font(.poppins(17, .bold, relativeTo: .headline))
+                    .monospacedDigit()
+                Circle()
+                    .fill(isToday ? Color.trekSuccess : .clear)
+                    .frame(width: 5, height: 5)
+            }
+            .foregroundStyle(isSelected ? Color.trekAccentText : Color.trekText)
+            .frame(width: 46, height: 60)
+            .contentShape(.rect(cornerRadius: 18))
+        }
+        .buttonStyle(.plain)
+        .glassEffect(isSelected ? .regular.tint(.trekAccent).interactive() : .regular.interactive(), in: .rect(cornerRadius: 18))
+        .accessibilityLabel(accessibilityText)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+
+    private var accessibilityText: String {
+        let title = "Day \(number)" + (date.map { ", \($0.formatted(date: .complete, time: .omitted))" } ?? "")
+        return isToday ? "\(title), today" : title
+    }
+}

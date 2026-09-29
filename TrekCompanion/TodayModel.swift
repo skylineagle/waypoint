@@ -21,10 +21,12 @@ final class TodayModel {
     private(set) var days: [TripDay]?
     private(set) var reservations: [Reservation] = []
     private(set) var stays: [Stay] = []
-    private(set) var weather: DayWeather?
+    private(set) var weather: [Int: DayWeather] = [:]
     private(set) var legs: [Int: TravelLeg] = [:]
     private(set) var errorMessage: String?
     private(set) var doneIDs: Set<Int>
+    var selectedDayID: Int?
+    private var loadedDayIDs: Set<Int> = []
 
     private var doneKey: String { TodaySnapshot.doneKey(tripID: trip.id) }
 
@@ -49,6 +51,29 @@ final class TodayModel {
             return .before(daysUntil: until, firstDay: days.first)
         }
         return .after
+    }
+
+    var todayDay: TripDay? {
+        guard case .during(let day, _) = phase else { return nil }
+        return day
+    }
+
+    var viewedDay: TripDay? {
+        days?.first { $0.id == selectedDayID } ?? todayDay
+    }
+
+    func isToday(_ day: TripDay) -> Bool {
+        day.id == todayDay?.id
+    }
+
+    func number(of day: TripDay) -> Int {
+        (days?.firstIndex { $0.id == day.id } ?? 0) + 1
+    }
+
+    func daysFromToday(_ day: TripDay) -> Int? {
+        guard let date = ExpenseDate.date(from: day.date) else { return nil }
+        let calendar = Calendar.current
+        return calendar.dateComponents([.day], from: calendar.startOfDay(for: ExpenseDate.now), to: date).day
     }
 
     func nextStop(on day: TripDay) -> TripStop? {
@@ -104,19 +129,14 @@ final class TodayModel {
             errorMessage = error.localizedDescription
             return
         }
-        await loadDayExtras()
-    }
-
-    var focusDay: TripDay? {
-        switch phase {
-        case .during(let day, _): day
-        case .before(_, let firstDay): firstDay
-        case .after: nil
+        loadedDayIDs = []
+        for day in [todayDay, viewedDay].compactMap(\.self) {
+            await loadExtras(for: day)
         }
     }
 
-    private func loadDayExtras() async {
-        guard let day = focusDay else { return }
+    func loadExtras(for day: TripDay) async {
+        guard loadedDayIDs.insert(day.id).inserted else { return }
         var origin = previousNightStay(before: day)?.coordinate
         var computed: [Int: TravelLeg] = [:]
         for stop in day.stops {
@@ -126,9 +146,9 @@ final class TodayModel {
             }
             origin = destination
         }
-        legs = computed
+        legs.merge(computed) { $1 }
         if let anchor = day.stops.compactMap(\.place.coordinate).first ?? stay(for: day)?.stay.coordinate, let date = day.date {
-            weather = try? await TrekClient.current?.weather(latitude: anchor.latitude, longitude: anchor.longitude, date: date)
+            weather[day.id] = try? await TrekClient.current?.weather(latitude: anchor.latitude, longitude: anchor.longitude, date: date)
         }
     }
 

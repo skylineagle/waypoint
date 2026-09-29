@@ -63,7 +63,7 @@ struct BeforeTripView: View {
                     CardCaption(text: dayTitle(firstDay)).padding(.top, 6)
                     ForEach(bookings) { BookingRow(reservation: $0) }
                     ForEach(firstDay.stops) { stop in
-                        StopRow(stop: stop, number: (firstDay.stops.firstIndex(of: stop) ?? 0) + 1, state: .upcoming) {}
+                        StopRow(stop: stop, number: (firstDay.stops.firstIndex(of: stop) ?? 0) + 1, state: .upcoming)
                     }
                 }
                 if let firstStay = model.stays.first {
