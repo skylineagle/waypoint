@@ -1,0 +1,19 @@
+{
+  "name": "waypoint-film",
+  "private": true,
+  "scripts": {
+    "studio": "remotion studio",
+    "render": "remotion render src/index.ts Promo out/promo-v1.mp4 --crf=16"
+  },
+  "dependencies": {
+    "@remotion/bundler": "4.0.400",
+    "@remotion/cli": "4.0.400",
+    "@remotion/fonts": "4.0.400",
+    "@remotion/renderer": "4.0.400",
+    "@types/react": "19",
+    "react": "19",
+    "react-dom": "19",
+    "remotion": "4.0.400",
+    "typescript": "5.9.3"
+  }
+}
