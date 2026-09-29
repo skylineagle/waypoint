@@ -68,3 +68,8 @@ fastlane/screenshots/**/*.png
 fastlane/test_output
 
 .asc/
+<<<<<<< Updated upstream
+=======
+.argent/
+scripts/receipt-examples/
+>>>>>>> Stashed changes
