@@ -11,6 +11,10 @@ struct MainTabView: View {
         _costs = State(initialValue: CostsModel(trip: trip))
     }
 
+    private var isBrowsingDay: Bool {
+        tab == .today && today.selectedDayID != nil
+    }
+
     private var tripDay: TripDay? {
         guard tab == .today, case .during(let day, _) = today.phase, !day.stops.isEmpty else { return nil }
         return day
@@ -29,8 +33,18 @@ struct MainTabView: View {
                 SettingsView()
             }
         }
-        .tabViewBottomAccessory(isEnabled: tripDay != nil) {
-            if let tripDay { TripStopAccessory(model: today, day: tripDay) }
+        .tabViewBottomAccessory(isEnabled: tripDay != nil || isBrowsingDay) {
+            Group {
+                if isBrowsingDay {
+                    BackToTodayAccessory(title: today.todayDay == nil ? "Back to overview" : "Back to today") {
+                        withAnimation(.smooth) { today.selectedDayID = nil }
+                    }
+                } else if let tripDay {
+                    TripStopAccessory(model: today, day: tripDay)
+                }
+            }
+            .transition(.blurReplace)
+            .animation(.smooth, value: isBrowsingDay)
         }
         .task { await costs.load() }
         .sheet(isPresented: $app.isAddingExpense) {

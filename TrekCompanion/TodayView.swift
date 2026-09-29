@@ -9,6 +9,7 @@ struct TodayView: View {
     @AppStorage("today-map-shown") private var isMapShown = false
     @State private var highlightedID: Int?
     @State private var mapFocusID: Int?
+    @State private var isScrolled = false
 
     var body: some View {
         NavigationStack {
@@ -24,7 +25,12 @@ struct TodayView: View {
                         content
                     }
                     .padding(.horizontal, 16)
-                    .padding(.bottom, model.selectedDayID == nil ? 24 : 80)
+                    .padding(.bottom, 24)
+                }
+                .onScrollGeometryChange(for: Bool.self) { geometry in
+                    geometry.contentOffset.y + geometry.contentInsets.top > 12
+                } action: { _, scrolled in
+                    withAnimation(.smooth) { isScrolled = scrolled }
                 }
                 .onChange(of: highlightedID) { _, id in
                     guard let id else { return }
@@ -32,7 +38,6 @@ struct TodayView: View {
                 }
             }
             }
-            .overlay(alignment: .bottom) { backButton }
             .background(Color.trekBackground)
             .toolbarVisibility(.hidden, for: .navigationBar)
             .task { await model.load() }
@@ -118,8 +123,11 @@ struct TodayView: View {
                 if let day = model.viewedDay {
                     TodayHeader(eyebrow: eyebrow(day: day), title: day.title ?? "Day \(model.number(of: day))", weather: model.weather[day.id], weatherURL: weatherURL(for: day), isMapShown: $isMapShown)
                 }
-                DayStrip(days: days, todayID: model.todayDay?.id, selectedID: model.viewedDay?.id, onSelect: select)
-                    .padding(.horizontal, -16)
+                if !isScrolled {
+                    DayStrip(days: days, todayID: model.todayDay?.id, selectedID: model.viewedDay?.id, onSelect: select)
+                        .padding(.horizontal, -16)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                }
                 if isMapShown, let day = model.viewedDay, !day.stops.isEmpty {
                     TodayMapView(stops: day.stops, doneIDs: model.doneIDs, nextID: model.isToday(day) ? model.nextStop(on: day)?.id : nil, focusID: mapFocusID) { stop in
                         highlight(stop)
@@ -129,22 +137,6 @@ struct TodayView: View {
                     .transition(.move(edge: .top).combined(with: .opacity))
                 }
             }
-        }
-    }
-
-    @ViewBuilder
-    private var backButton: some View {
-        if model.selectedDayID != nil {
-            Button(model.todayDay == nil ? "Back to overview" : "Back to today", systemImage: "arrow.uturn.backward") {
-                withAnimation(.smooth) { model.selectedDayID = nil }
-            }
-            .font(.poppins(14, .semibold, relativeTo: .subheadline))
-            .buttonStyle(.glassProminent)
-            .tint(.trekAccent)
-            .foregroundStyle(Color.trekAccentText)
-            .controlSize(.large)
-            .padding(.bottom, 14)
-            .transition(.move(edge: .bottom).combined(with: .opacity))
         }
     }
 
