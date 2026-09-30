@@ -130,7 +130,7 @@ struct TodayView: View {
                     TodayHeader(eyebrow: eyebrow(day: day), title: day.title ?? "Day \(model.number(of: day))", weather: model.weather[day.id], weatherURL: weatherURL(for: day), isMapShown: $isMapShown)
                 }
                 if !isScrolled {
-                    DayStrip(days: days, todayID: model.todayDay?.id, selectedID: model.viewedDay?.id, daysUntilStart: daysUntilStart, onSelect: select, onOverscrollStart: returnToOverview)
+                    DayStrip(days: days, segments: model.segments, todayID: model.todayDay?.id, selectedID: model.viewedDay?.id, daysUntilStart: daysUntilStart, onSelect: select, onOverscrollStart: returnToOverview)
                         .padding(.horizontal, -16)
                         .padding(.top, 4)
                         .transition(.move(edge: .top).combined(with: .opacity))

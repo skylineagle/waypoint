@@ -2,6 +2,7 @@ import SwiftUI
 
 struct DayStrip: View {
     let days: [TripDay]
+    let segments: [TripSegment]
     let todayID: Int?
     let selectedID: Int?
     let daysUntilStart: Int?
@@ -27,7 +28,7 @@ struct DayStrip: View {
                             .transition(.opacity)
                     }
                     ForEach(Array(days.enumerated()), id: \.element.id) { index, day in
-                        DayChip(day: day, number: index + 1, isSelected: day.id == selectedID, isToday: day.id == todayID) {
+                        DayChip(day: day, number: index + 1, segment: segments.first { $0.covers(dayNumber: index + 1) }, isSelected: day.id == selectedID, isToday: day.id == todayID) {
                             onSelect(day)
                         }
                         .id(day.id)

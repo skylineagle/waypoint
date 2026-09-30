@@ -3,6 +3,7 @@ import SwiftUI
 struct DayChip: View {
     let day: TripDay
     let number: Int
+    let segment: TripSegment?
     let isSelected: Bool
     let isToday: Bool
     let action: () -> Void
@@ -31,8 +32,15 @@ struct DayChip: View {
         .background {
             if isSelected {
                 RoundedRectangle(cornerRadius: 18).fill(Color.trekAccent)
+            } else if let tint = segment?.tint {
+                RoundedRectangle(cornerRadius: 18).fill(tint.opacity(0.12))
             } else {
                 RoundedRectangle(cornerRadius: 18).fill(Color.trekSecondaryFill)
+            }
+        }
+        .overlay {
+            if isSelected, let tint = segment?.tint {
+                RoundedRectangle(cornerRadius: 18).strokeBorder(tint, lineWidth: 1.5)
             }
         }
         .accessibilityLabel(accessibilityText)
@@ -40,7 +48,7 @@ struct DayChip: View {
     }
 
     private var accessibilityText: String {
-        let title = "Day \(number)" + (date.map { ", \($0.formatted(date: .complete, time: .omitted))" } ?? "")
+        let title = "Day \(number)" + (date.map { ", \($0.formatted(date: .complete, time: .omitted))" } ?? "") + (segment.map { ", \($0.name)" } ?? "")
         return isToday ? "\(title), today" : title
     }
 }

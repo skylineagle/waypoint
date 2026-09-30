@@ -87,6 +87,10 @@ struct TrekClient {
         try await request("GET", "api/trips/\(tripID)/days", as: DaysEnvelope.self).days
     }
 
+    func segments(tripID: Int) async throws -> [TripSegment] {
+        try await request("GET", "api/plugins/trip-segments/overview?tripId=\(tripID)", as: TripSegmentOverview.self).segments
+    }
+
     func reservations(tripID: Int) async throws -> [Reservation] {
         try await request("GET", "api/trips/\(tripID)/reservations", as: ReservationsEnvelope.self).reservations
     }

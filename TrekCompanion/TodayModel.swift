@@ -21,6 +21,7 @@ final class TodayModel {
     private(set) var days: [TripDay]?
     private(set) var reservations: [Reservation] = []
     private(set) var stays: [Stay] = []
+    private(set) var segments: [TripSegment] = []
     private(set) var weather: [Int: DayWeather] = [:]
     private(set) var legs: [Int: TravelLeg] = [:]
     private(set) var errorMessage: String?
@@ -122,7 +123,9 @@ final class TodayModel {
             async let loadedDays = client.days(tripID: trip.id)
             async let loadedReservations = client.reservations(tripID: trip.id)
             async let loadedStays = client.stays(tripID: trip.id)
+            async let loadedSegments = client.segments(tripID: trip.id)
             days = try await loadedDays
+            segments = (try? await loadedSegments) ?? []
             trip = (try? await loadedTrip) ?? trip
             reservations = (try? await loadedReservations) ?? []
             stays = (try? await loadedStays) ?? []
