@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "landing",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": ["--port", "4321", "./landing/index.html"],
+      "port": 4321
+    }
+  ]
+}

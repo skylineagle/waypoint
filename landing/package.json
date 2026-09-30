@@ -1,0 +1,14 @@
+{
+  "name": "waypoint-landing",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --port 4321 ./index.html",
+    "build": "bun build ./index.html --outdir dist --minify",
+    "preview": "bun run build && bunx serve dist"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.9.0"
+  }
+}
