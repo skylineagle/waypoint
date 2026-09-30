@@ -1,0 +1,18 @@
+appId: dev.horizon.trekcompanion
+---
+- assertVisible: "Day [0-9]+,.*"
+- swipe:
+    start: 50%, 45%
+    end: 50%, 75%
+    duration: 600
+- assertVisible: "Day [0-9]+,.*"
+- swipe:
+    start: 50%, 75%
+    end: 50%, 40%
+    duration: 600
+- assertNotVisible: "Day [0-9]+,.*"
+- swipe:
+    start: 50%, 35%
+    end: 50%, 80%
+    duration: 600
+- assertVisible: "Day [0-9]+,.*"

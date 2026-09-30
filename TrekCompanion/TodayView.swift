@@ -29,9 +29,11 @@ struct TodayView: View {
                     .padding(.horizontal, 16)
                     .padding(.bottom, model.selectedDayID == nil ? 24 : 80)
                 }
-                .onScrollGeometryChange(for: Bool.self) { geometry in
-                    geometry.contentOffset.y + geometry.contentInsets.top > 12
-                } action: { _, scrolled in
+                .onScrollPhaseChange { _, phase, context in
+                    guard phase == .idle else { return }
+                    let geometry = context.geometry
+                    let scrolled = geometry.contentOffset.y + geometry.contentInsets.top > 12
+                    guard scrolled != isScrolled else { return }
                     withAnimation(.smooth) { isScrolled = scrolled }
                 }
                 .onChange(of: highlightedID) { _, id in
