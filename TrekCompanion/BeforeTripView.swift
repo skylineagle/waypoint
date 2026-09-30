@@ -2,17 +2,7 @@ import SwiftUI
 
 struct BeforeTripView: View {
     let model: TodayModel
-    let daysUntil: Int
     let firstDay: TripDay?
-
-    private var countdown: String {
-        daysUntil == 1 ? "Tomorrow" : "\(daysUntil) days"
-    }
-
-    private var summary: String {
-        let bookings = model.reservations.filter { $0.type != "hotel" }.count
-        return "\(model.days?.count ?? 0) days · \(model.stays.count) hotels · \(bookings) bookings"
-    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -35,21 +25,14 @@ struct BeforeTripView: View {
                 }
             }
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text("STARTS IN")
-                    .font(.poppins(10, .bold, relativeTo: .caption2))
-                    .tracking(0.9)
-                    .foregroundStyle(.white.opacity(0.55))
-                Text(countdown)
-                    .font(.museoModerno(48))
-                    .contentTransition(.numericText())
-                Text(summary)
-                    .font(.poppins(12, relativeTo: .caption))
-                    .foregroundStyle(.white.opacity(0.62))
+            HStack(alignment: .top) {
+                stat(value: model.days?.count ?? 0, label: "Days")
+                stat(value: model.stays.count, label: "Hotels")
+                stat(value: model.reservations.filter { $0.type != "hotel" }.count, label: "Bookings")
             }
             .foregroundStyle(Color(hex: 0xF5F5F7))
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(16)
+            .padding(20)
             .background(
                 LinearGradient(colors: [.trekHeroTop, .trekHeroBottom], startPoint: .topLeading, endPoint: .bottomTrailing),
                 in: .rect(cornerRadius: 20)
@@ -71,6 +54,19 @@ struct BeforeTripView: View {
                 }
             }
         }
+    }
+
+    private func stat(value: Int, label: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text("\(value)")
+                .font(.museoModerno(44))
+                .contentTransition(.numericText())
+            Text(label.uppercased())
+                .font(.poppins(10, .bold, relativeTo: .caption2))
+                .tracking(0.9)
+                .foregroundStyle(.white.opacity(0.55))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func dayTitle(_ day: TripDay) -> String {

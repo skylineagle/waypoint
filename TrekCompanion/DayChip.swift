@@ -28,7 +28,13 @@ struct DayChip: View {
             .contentShape(.rect(cornerRadius: 18))
         }
         .buttonStyle(.plain)
-        .glassEffect(isSelected ? .regular.tint(.trekAccent).interactive() : .regular.interactive(), in: .rect(cornerRadius: 18))
+        .background {
+            if isSelected {
+                RoundedRectangle(cornerRadius: 18).fill(Color.trekAccent)
+            } else {
+                RoundedRectangle(cornerRadius: 18).fill(Color.trekSecondaryFill)
+            }
+        }
         .accessibilityLabel(accessibilityText)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }

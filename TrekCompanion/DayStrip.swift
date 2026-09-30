@@ -4,28 +4,48 @@ struct DayStrip: View {
     let days: [TripDay]
     let todayID: Int?
     let selectedID: Int?
+    let daysUntilStart: Int?
     let onSelect: (TripDay) -> Void
+    let onOverscrollStart: () -> Void
+
+    private static let upcomingID = -1
+
+    private var anchorID: Int? {
+        selectedID ?? todayID ?? (daysUntilStart == nil ? nil : Self.upcomingID)
+    }
 
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView(.horizontal) {
-                GlassEffectContainer(spacing: 8) {
-                    HStack(spacing: 8) {
-                        ForEach(Array(days.enumerated()), id: \.element.id) { index, day in
-                            DayChip(day: day, number: index + 1, isSelected: day.id == selectedID, isToday: day.id == todayID) {
-                                onSelect(day)
-                            }
-                            .id(day.id)
-                        }
+                HStack(spacing: 8) {
+                    if let daysUntilStart, selectedID == nil {
+                        Color.clear
+                            .containerRelativeFrame(.horizontal) { width, _ in max((width - 120) / 2 - 32, 0) }
+                            .frame(height: 1)
+                        UpcomingChip(daysUntil: daysUntilStart)
+                            .id(Self.upcomingID)
+                            .transition(.opacity)
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 4)
+                    ForEach(Array(days.enumerated()), id: \.element.id) { index, day in
+                        DayChip(day: day, number: index + 1, isSelected: day.id == selectedID, isToday: day.id == todayID) {
+                            onSelect(day)
+                        }
+                        .id(day.id)
+                    }
                 }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 4)
             }
             .scrollIndicators(.hidden)
-            .onAppear { proxy.scrollTo(selectedID ?? todayID, anchor: .center) }
-            .onChange(of: selectedID) { _, id in
-                withAnimation(.smooth) { proxy.scrollTo(id ?? todayID, anchor: .center) }
+            .onScrollGeometryChange(for: Bool.self) { geometry in
+                geometry.contentOffset.x + geometry.contentInsets.leading < -70
+            } action: { _, isPulled in
+                if isPulled, selectedID != nil { onOverscrollStart() }
+            }
+            .sensoryFeedback(.impact, trigger: selectedID == nil)
+            .onAppear { proxy.scrollTo(anchorID, anchor: .center) }
+            .onChange(of: selectedID) {
+                withAnimation(.smooth) { proxy.scrollTo(anchorID, anchor: .center) }
             }
         }
     }

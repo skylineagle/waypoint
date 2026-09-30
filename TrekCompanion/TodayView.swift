@@ -79,7 +79,7 @@ struct TodayView: View {
         } else if let day = model.viewedDay {
             dayContent(day)
         } else if case .before(let daysUntil, let firstDay) = model.phase {
-            BeforeTripView(model: model, daysUntil: daysUntil, firstDay: firstDay)
+            BeforeTripView(model: model, firstDay: firstDay)
         } else {
             ContentUnavailableView("Trip complete", systemImage: "suitcase.rolling.fill", description: Text("Your costs stay in the Costs tab."))
         }
@@ -130,8 +130,9 @@ struct TodayView: View {
                     TodayHeader(eyebrow: eyebrow(day: day), title: day.title ?? "Day \(model.number(of: day))", weather: model.weather[day.id], weatherURL: weatherURL(for: day), isMapShown: $isMapShown)
                 }
                 if !isScrolled {
-                    DayStrip(days: days, todayID: model.todayDay?.id, selectedID: model.viewedDay?.id, onSelect: select)
+                    DayStrip(days: days, todayID: model.todayDay?.id, selectedID: model.viewedDay?.id, daysUntilStart: daysUntilStart, onSelect: select, onOverscrollStart: returnToOverview)
                         .padding(.horizontal, -16)
+                        .padding(.top, 4)
                         .transition(.move(edge: .top).combined(with: .opacity))
                 }
                 if isMapShown, let day = model.viewedDay, !day.stops.isEmpty {
@@ -146,20 +147,46 @@ struct TodayView: View {
         }
     }
 
-    @ViewBuilder
+    private var daysUntilStart: Int? {
+        guard case .before(let daysUntil, _) = model.phase else { return nil }
+        return daysUntil
+    }
+
+    private var jumpTarget: TripDay? {
+        guard case .before(_, let firstDay) = model.phase, firstDay?.id != model.selectedDayID else { return nil }
+        return firstDay
+    }
+
     private var backButton: some View {
-        if model.selectedDayID != nil {
-            Button(model.todayDay == nil ? "Back to overview" : "Back to today", systemImage: "arrow.uturn.backward") {
-                withAnimation(.smooth) { model.selectedDayID = nil }
+        HStack(spacing: 8) {
+            if let jumpTarget {
+                pill("Jump to Day 1", systemImage: "flag.checkered") {
+                    model.selectedDayID = jumpTarget.id
+                }
             }
-            .font(.poppins(14, .semibold, relativeTo: .subheadline))
-            .foregroundStyle(Color.trekText)
-            .padding(.horizontal, 18)
-            .frame(height: 44)
-            .glassEffect(.regular.interactive(), in: .capsule)
-            .padding(.bottom, 12)
-            .transition(.blurReplace.combined(with: .move(edge: .bottom)))
+            if model.selectedDayID != nil {
+                pill(model.todayDay == nil ? "Back to overview" : "Back to today", systemImage: "arrow.uturn.backward") {
+                    model.selectedDayID = nil
+                }
+            }
         }
+        .padding(.bottom, 12)
+    }
+
+    private func pill(_ title: String, systemImage: String, action: @escaping () -> Void) -> some View {
+        Button(title, systemImage: systemImage) {
+            withAnimation(.smooth, action)
+        }
+        .font(.poppins(14, .semibold, relativeTo: .subheadline))
+        .foregroundStyle(Color.trekText)
+        .padding(.horizontal, 18)
+        .frame(height: 44)
+        .glassEffect(.regular.interactive(), in: .capsule)
+        .transition(.blurReplace.combined(with: .move(edge: .bottom)))
+    }
+
+    private func returnToOverview() {
+        withAnimation(.smooth) { model.selectedDayID = nil }
     }
 
     private func select(_ day: TripDay) {
