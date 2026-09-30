@@ -29,6 +29,10 @@ struct TodayView: View {
                     .padding(.horizontal, 16)
                     .padding(.bottom, model.selectedDayID == nil ? 24 : 80)
                 }
+                .refreshable {
+                    await model.load()
+                    await costs.load()
+                }
                 .onScrollPhaseChange { _, phase, context in
                     guard phase == .idle else { return }
                     let geometry = context.geometry
@@ -49,10 +53,6 @@ struct TodayView: View {
             .task(id: model.viewedDay?.id) {
                 guard let day = model.viewedDay else { return }
                 await model.loadExtras(for: day)
-            }
-            .refreshable {
-                await model.load()
-                await costs.load()
             }
             .onChange(of: model.doneIDs) { publish() }
             .onChange(of: model.legs.count) { publish() }

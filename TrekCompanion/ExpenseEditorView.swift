@@ -165,13 +165,13 @@ struct ExpenseEditorView: View {
     private var header: some View {
         VStack(spacing: 14) {
             HStack {
-                circleButton("Cancel", symbol: "xmark", filled: false) { dismiss() }
+                SheetHeaderButton(label: "Cancel", symbol: "xmark", isFilled: false) { dismiss() }
                 Spacer()
                 Text(item == nil ? "New expense" : "Edit expense")
                     .font(.poppins(15, .semibold, relativeTo: .headline))
                     .foregroundStyle(Color.trekText)
                 Spacer()
-                circleButton("Save", symbol: "checkmark", filled: true, action: save)
+                SheetHeaderButton(label: "Save", symbol: "checkmark", isFilled: true, action: save)
                     .disabled(!canSave)
                     .opacity(canSave ? 1 : 0.35)
             }
@@ -217,20 +217,6 @@ struct ExpenseEditorView: View {
         .padding(16)
         .background(category.color.opacity(0.12))
         .animation(.smooth, value: category)
-    }
-
-    @ViewBuilder
-    private func circleButton(_ label: String, symbol: String, filled: Bool, action: @escaping () -> Void) -> some View {
-        let button = Button(label, systemImage: symbol, action: action)
-            .labelStyle(.iconOnly)
-            .font(.system(size: 15, weight: .bold))
-            .buttonBorderShape(.circle)
-            .controlSize(.large)
-        if filled {
-            button.buttonStyle(.glassProminent).tint(Color.trekAccent).foregroundStyle(Color.trekAccentText)
-        } else {
-            button.buttonStyle(.glass).foregroundStyle(Color.trekText)
-        }
     }
 
     private func readReceipt(_ image: UIImage) {

@@ -7,6 +7,7 @@ struct TrekTextField: View {
     var isSecure = false
     var focusOnAppear = false
     var accessibilityLabel: String?
+    var axis = Axis.horizontal
     @FocusState private var isFocused: Bool
     @State private var isRevealed = false
 
@@ -22,7 +23,7 @@ struct TrekTextField: View {
                 if isSecure && !isRevealed {
                     SecureField(placeholder, text: $text)
                 } else {
-                    TextField(placeholder, text: $text)
+                    TextField(placeholder, text: $text, axis: axis)
                 }
             }
             .font(.poppins(15))

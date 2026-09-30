@@ -5,10 +5,12 @@ struct MainTabView: View {
     @State private var tab = MainTab.today
     @State private var today: TodayModel
     @State private var costs: CostsModel
+    @State private var todos: TodosModel
 
     init(trip: Trip) {
         _today = State(initialValue: TodayModel(trip: trip))
         _costs = State(initialValue: CostsModel(trip: trip))
+        _todos = State(initialValue: TodosModel(trip: trip))
     }
 
     private var tripDay: TripDay? {
@@ -25,6 +27,11 @@ struct MainTabView: View {
             Tab("Costs", systemImage: "creditcard", value: MainTab.costs) {
                 CostsView(model: costs)
             }
+            if todos.isAvailable {
+                Tab("To-Dos", systemImage: "checklist", value: MainTab.todos) {
+                    TodosView(model: todos, members: costs.members, meID: costs.meID)
+                }
+            }
             Tab("Settings", systemImage: "gearshape", value: MainTab.settings) {
                 SettingsView()
             }
@@ -33,6 +40,7 @@ struct MainTabView: View {
             if let tripDay { TripStopAccessory(model: today, day: tripDay) }
         }
         .task { await costs.load() }
+        .task { await todos.load() }
         .sheet(isPresented: $app.isAddingExpense) {
             ExpenseEditorView(
                 item: nil,
@@ -51,5 +59,5 @@ struct MainTabView: View {
 }
 
 enum MainTab: Hashable {
-    case today, costs, settings
+    case today, costs, todos, settings
 }

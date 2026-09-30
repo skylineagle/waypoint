@@ -138,6 +138,33 @@ struct TrekClient {
         _ = try await request("POST", "api/trips/\(tripID)/files", body: body, as: SuccessResponse.self)
     }
 
+    func hasTodos() async -> Bool {
+        let plugins = try? await request("GET", "api/plugins", as: PluginList.self).plugins
+        guard plugins?.contains(where: { $0.id == "trip-todos" }) == true else { return false }
+        let addons = try? await request("GET", "api/addons", as: AddonList.self).addons
+        return addons?.contains { $0.id == "packing" && $0.enabled } == true
+    }
+
+    func todos(tripID: Int) async throws -> [TodoItem] {
+        try await request("GET", "api/trips/\(tripID)/todo", as: TodoList.self).items
+    }
+
+    func addTodo(_ input: TodoInput, tripID: Int) async throws -> TodoItem {
+        try await request("POST", "api/trips/\(tripID)/todo", body: try .json(input), as: TodoEnvelope.self).item
+    }
+
+    func updateTodo(id: Int, _ input: TodoInput, tripID: Int) async throws -> TodoItem {
+        try await request("PUT", "api/trips/\(tripID)/todo/\(id)", body: try .json(input), as: TodoEnvelope.self).item
+    }
+
+    func setTodo(id: Int, checked: Bool, tripID: Int) async throws {
+        _ = try await request("PUT", "api/trips/\(tripID)/todo/\(id)", body: try .json(TodoCheck(checked: checked)), as: TodoEnvelope.self)
+    }
+
+    func deleteTodo(id: Int, tripID: Int) async throws {
+        _ = try await request("DELETE", "api/trips/\(tripID)/todo/\(id)", as: SuccessResponse.self)
+    }
+
     private func request<Response: Decodable>(
         _ method: String,
         _ path: String,
@@ -316,6 +343,35 @@ private struct BudgetItemList: Decodable {
 
 private struct BudgetItemEnvelope: Decodable {
     let item: BudgetItem
+}
+
+private struct PluginList: Decodable {
+    struct Plugin: Decodable {
+        let id: String
+    }
+
+    let plugins: [Plugin]
+}
+
+private struct AddonList: Decodable {
+    struct Addon: Decodable {
+        let id: String
+        let enabled: Bool
+    }
+
+    let addons: [Addon]
+}
+
+private struct TodoList: Decodable {
+    let items: [TodoItem]
+}
+
+private struct TodoEnvelope: Decodable {
+    let item: TodoItem
+}
+
+private struct TodoCheck: Encodable {
+    let checked: Bool
 }
 
 private struct RequestBody {
