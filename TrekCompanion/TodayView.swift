@@ -155,7 +155,7 @@ struct TodayView: View {
     }
 
     private var jumpTarget: TripDay? {
-        guard case .before(_, let firstDay) = model.phase, firstDay?.id != model.selectedDayID else { return nil }
+        guard model.selectedDayID == nil, case .before(_, let firstDay) = model.phase else { return nil }
         return firstDay
     }
 
