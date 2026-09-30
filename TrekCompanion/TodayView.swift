@@ -104,8 +104,9 @@ struct TodayView: View {
                     .foregroundStyle(Color.trekSuccess)
                     .padding(.leading, 36)
             }
-        } else if bookings.isEmpty, tonight?.night == nil {
-            ContentUnavailableView("Nothing planned", systemImage: "calendar", description: Text("Add places to this day in TREK."))
+        } else {
+            ContentUnavailableView("No visits planned", systemImage: "calendar", description: Text("Add places to this day in TREK."))
+            ForEach(day.notesItems ?? []) { NoteRow(note: $0) }
         }
         if !bookings.isEmpty {
             sectionTitle("Bookings", badge: nil, trailing: nil)
@@ -113,7 +114,7 @@ struct TodayView: View {
         }
         if let tonight {
             sectionTitle("Tonight", badge: nil, trailing: nil)
-            StayCard(caption: "Hotel · night \(tonight.night) of \(tonight.nights)", stay: tonight.stay)
+            StayCard(caption: "Hotel · night \(tonight.night) of \(tonight.nights)", stay: tonight.stay, isCheckIn: tonight.stay.startDayId == day.id)
         }
         if isToday {
             TodaySpendCard(costs: costs) { app.isAddingExpense = true }

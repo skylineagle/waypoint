@@ -9,7 +9,7 @@ struct TripDay: Decodable, Identifiable {
     let notesItems: [DayNote]?
 
     var stops: [TripStop] {
-        (assignments ?? []).sorted { $0.orderIndex < $1.orderIndex }
+        (assignments ?? []).filter { $0.accommodationId == nil }.sorted { $0.orderIndex < $1.orderIndex }
     }
 }
 
@@ -36,9 +36,15 @@ enum TimelineEntry: Identifiable {
 
 extension TripDay {
     var timeline: [TimelineEntry] {
-        let stops = self.stops.enumerated().map { (position: Double($0.offset), entry: TimelineEntry.stop($0.element, number: $0.offset + 1)) }
-        let notes = (notesItems ?? []).map { (position: $0.sortOrder ?? Double(stops.count), entry: TimelineEntry.note($0)) }
-        return (stops + notes).sorted { $0.position < $1.position }.map(\.entry)
+        let assignments = (assignments ?? []).sorted { $0.orderIndex < $1.orderIndex }
+        var number = 0
+        let stops = assignments.enumerated().compactMap { index, stop -> (position: Double, entry: TimelineEntry)? in
+            guard stop.accommodationId == nil else { return nil }
+            number += 1
+            return (Double(index), .stop(stop, number: number))
+        }
+        let notes = (notesItems ?? []).map { (position: $0.sortOrder ?? Double(assignments.count), entry: TimelineEntry.note($0)) }
+        return (notes + stops).sorted { $0.position < $1.position }.map(\.entry)
     }
 }
 
@@ -48,6 +54,7 @@ struct TripStop: Decodable, Identifiable, Hashable {
     let assignmentTime: String?
     let notes: String?
     let place: StopPlace
+    var accommodationId: Int? = nil
 }
 
 struct StopPlace: Decodable, Hashable {
@@ -110,6 +117,7 @@ struct Stay: Decodable, Identifiable {
     let placeAddress: String?
     let placeLat: Double?
     let placeLng: Double?
+    var checkIn: String? = nil
 
     var coordinate: CLLocationCoordinate2D? {
         guard let placeLat, let placeLng else { return nil }
