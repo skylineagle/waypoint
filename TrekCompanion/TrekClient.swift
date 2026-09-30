@@ -186,6 +186,7 @@ struct TrekClient {
         var request = URLRequest(url: url)
         request.httpMethod = method
         request.httpShouldHandleCookies = false
+        request.cachePolicy = .reloadIgnoringLocalCacheData
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         if let token {
             request.setValue("\(sessionCookie)=\(token)", forHTTPHeaderField: "Cookie")

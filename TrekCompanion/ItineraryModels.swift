@@ -19,6 +19,7 @@ struct DayNote: Decodable, Identifiable, Hashable {
     let time: String?
     let icon: String?
     let sortOrder: Double?
+    let color: String?
 }
 
 enum TimelineEntry: Identifiable {
