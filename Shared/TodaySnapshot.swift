@@ -7,6 +7,7 @@ nonisolated struct TodaySnapshot: Codable, Hashable, Sendable {
         let latitude: Double?
         let longitude: Double?
         let leg: String?
+        var photoName: String? = nil
     }
 
     let tripID: Int
@@ -18,6 +19,11 @@ nonisolated struct TodaySnapshot: Codable, Hashable, Sendable {
     let spentToday: String
     let dailyAverage: String?
     let countdown: String?
+    var coverPhotoName: String? = nil
+
+    var photoName: String? {
+        countdown == nil ? next?.photoName : coverPhotoName
+    }
 
     private static let key = "today-snapshot"
 

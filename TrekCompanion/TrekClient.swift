@@ -38,6 +38,43 @@ struct TrekClient {
         try await request("GET", "api/trips", as: TripList.self).trips
     }
 
+    func trip(id: Int) async throws -> Trip {
+        try await request("GET", "api/trips/\(id)", as: TripEnvelope.self).trip
+    }
+
+    func photo(of place: StopPlace) async throws -> String? {
+        let coordinates = place.lat.flatMap { latitude in place.lng.map { "coords:\(latitude),\($0)" } }
+        guard let id = place.googlePlaceId ?? place.osmId ?? coordinates,
+              let encodedID = id.addingPercentEncoding(withAllowedCharacters: .alphanumerics)
+        else { return nil }
+        var query = URLComponents()
+        query.queryItems = [URLQueryItem(name: "name", value: place.name)]
+        if let latitude = place.lat, let longitude = place.lng {
+            query.queryItems?.append(contentsOf: [
+                URLQueryItem(name: "lat", value: String(latitude)),
+                URLQueryItem(name: "lng", value: String(longitude)),
+            ])
+        }
+        return try await request("GET", "api/maps/place-photo/\(encodedID)?\(query.percentEncodedQuery ?? "")", as: PlacePhoto.self).photoUrl
+    }
+
+    func image(at path: String) async throws -> Data {
+        guard let url = TrekURL.resolve(path, on: account.serverURL)
+        else { throw TrekError("The photo address is invalid.") }
+        if url.scheme == account.serverURL.scheme, url.host == account.serverURL.host, url.port == account.serverURL.port {
+            var (data, status) = try await Self.send("GET", url.absoluteString, serverURL: account.serverURL, token: Account.load()?.token ?? account.token, body: nil)
+            if status == 401 {
+                let token = try await reauthenticate()
+                (data, status) = try await Self.send("GET", url.absoluteString, serverURL: account.serverURL, token: token, body: nil)
+            }
+            try Self.validate(data: data, status: status)
+            return data
+        }
+        let (data, response) = try await URLSession.shared.data(from: url)
+        try Self.validate(data: data, status: (response as? HTTPURLResponse)?.statusCode ?? 0)
+        return data
+    }
+
     func defaultCurrency() async throws -> String? {
         try await request("GET", "api/settings", as: SettingsEnvelope.self).settings.defaultCurrency
     }
@@ -145,11 +182,7 @@ struct TrekClient {
         token: String?,
         body: RequestBody?
     ) async throws -> (Data, Int) {
-        let parts = path.split(separator: "?", maxSplits: 1).map(String.init)
-        var url = serverURL.appending(path: parts[0])
-        if parts.count == 2 {
-            url = URL(string: "\(url.absoluteString)?\(parts[1])") ?? url
-        }
+        guard let url = TrekURL.resolve(path, on: serverURL) else { throw TrekError("The server address is invalid.") }
         var request = URLRequest(url: url)
         request.httpMethod = method
         request.httpShouldHandleCookies = false
@@ -211,6 +244,14 @@ private struct SuccessResponse: Decodable {}
 
 private struct DaysEnvelope: Decodable {
     let days: [TripDay]
+}
+
+private struct TripEnvelope: Decodable {
+    let trip: Trip
+}
+
+private struct PlacePhoto: Decodable {
+    let photoUrl: String?
 }
 
 private struct ReservationsEnvelope: Decodable {

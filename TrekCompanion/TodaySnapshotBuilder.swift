@@ -13,7 +13,7 @@ enum TodaySnapshotBuilder {
                 dayLabel: "Day \(number) of \(today.days?.count ?? number)",
                 dayTitle: day.title ?? "Day \(number)",
                 date: day.date ?? ExpenseDate.today,
-                stops: stops(of: day, legs: today.legs),
+                stops: stops(of: day, legs: today.legs, trip: today.trip),
                 spentToday: spent,
                 dailyAverage: average,
                 countdown: nil
@@ -28,14 +28,15 @@ enum TodaySnapshotBuilder {
                 stops: [],
                 spentToday: spent,
                 dailyAverage: nil,
-                countdown: daysUntil == 1 ? "Tomorrow" : "\(daysUntil) days"
+                countdown: daysUntil == 1 ? "Tomorrow" : "\(daysUntil) days",
+                coverPhotoName: WidgetPhotos.coverName(for: today.trip)
             )
         case .after:
             return nil
         }
     }
 
-    private static func stops(of day: TripDay, legs: [Int: TravelLeg]) -> [TodaySnapshot.Stop] {
+    private static func stops(of day: TripDay, legs: [Int: TravelLeg], trip: Trip) -> [TodaySnapshot.Stop] {
         day.stops.map { stop in
             var legText: String?
             if let leg = legs[stop.id] {
@@ -46,7 +47,8 @@ enum TodaySnapshotBuilder {
                 name: stop.place.name,
                 latitude: stop.place.lat,
                 longitude: stop.place.lng,
-                leg: legText
+                leg: legText,
+                photoName: WidgetPhotos.name(for: stop.place, trip: trip)
             )
         }
     }

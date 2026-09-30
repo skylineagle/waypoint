@@ -68,7 +68,8 @@ extension Font {
 
 enum TrekFonts {
     static func register() {
-        let urls = Bundle.main.urls(forResourcesWithExtension: "ttf", subdirectory: nil) ?? []
+        let urls = (Bundle.main.urls(forResourcesWithExtension: "ttf", subdirectory: nil) ?? [])
+            + (Bundle.main.urls(forResourcesWithExtension: "ttf", subdirectory: "Fonts") ?? [])
         CTFontManagerRegisterFontURLs(urls as CFArray, .process, true, nil)
     }
 }

@@ -34,9 +34,11 @@ final class AppModel {
     }
 
     func signOut() {
+        if let scope = JourneySession.load()?.scope { Task { await JourneyUploader.pause(scope: scope) } }
         account = nil
         isShortcutSetUp = false
         TodaySnapshot.clear()
+        WidgetPhotoStore.clear()
         StopTracker.shared.sync(isActive: false)
         Task { await TripLiveActivity.sync(with: nil) }
     }

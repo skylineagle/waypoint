@@ -7,40 +7,55 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		C10000000000000000000001 /* TrekCompanionShare.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TrekCompanionShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		C10000000000000000000011 /* TrekTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrekCompanion/TrekTheme.swift; sourceTree = "<group>"; };
+		C10000000000000000000012 /* TrekButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrekCompanion/TrekButtonStyle.swift; sourceTree = "<group>"; };
+		C10000000000000000000013 /* Fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = TrekCompanion/Fonts; sourceTree = "<group>"; };
+		C10000000000000000000014 /* AppGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shared/AppGroup.swift; sourceTree = "<group>"; };
 		A10000000000000000000001 /* TrekCompanion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrekCompanion.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B10000000000000000000001 /* TrekCompanionWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TrekCompanionWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXBuildFile section */
+		C1000000000000000000000A /* TrekCompanionShare.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C10000000000000000000001; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		C10000000000000000000021 = {isa = PBXBuildFile; fileRef = C10000000000000000000011; };
+		C10000000000000000000022 = {isa = PBXBuildFile; fileRef = C10000000000000000000012; };
+		C10000000000000000000023 = {isa = PBXBuildFile; fileRef = C10000000000000000000013; };
+		C10000000000000000000024 = {isa = PBXBuildFile; fileRef = C10000000000000000000014; };
 		B1000000000000000000000A /* TrekCompanionWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B10000000000000000000001; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		C10000000000000000000008 = {isa = PBXContainerItemProxy; containerPortal = A10000000000000000000009; proxyType = 1; remoteGlobalIDString = C10000000000000000000007; remoteInfo = TrekCompanionShare; };
 		B10000000000000000000008 = {isa = PBXContainerItemProxy; containerPortal = A10000000000000000000009; proxyType = 1; remoteGlobalIDString = B10000000000000000000007; remoteInfo = TrekCompanionWidgets; };
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		B1000000000000000000000B /* Embed Foundation Extensions */ = {isa = PBXCopyFilesBuildPhase; buildActionMask = 2147483647; dstPath = ""; dstSubfolderSpec = 13; files = (B1000000000000000000000A); name = "Embed Foundation Extensions"; runOnlyForDeploymentPostprocessing = 0; };
+		B1000000000000000000000B /* Embed Foundation Extensions */ = {isa = PBXCopyFilesBuildPhase; buildActionMask = 2147483647; dstPath = ""; dstSubfolderSpec = 13; files = (B1000000000000000000000A, C1000000000000000000000A); name = "Embed Foundation Extensions"; runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		C10000000000000000000009 = {isa = PBXTargetDependency; target = C10000000000000000000007; targetProxy = C10000000000000000000008; };
 		B10000000000000000000009 = {isa = PBXTargetDependency; target = B10000000000000000000007; targetProxy = B10000000000000000000008; };
 /* End PBXTargetDependency section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		C10000000000000000000002 /* TrekCompanionShare */ = {isa = PBXFileSystemSynchronizedRootGroup; path = TrekCompanionShare; sourceTree = "<group>"; };
+		C10000000000000000000003 /* JourneyShared */ = {isa = PBXFileSystemSynchronizedRootGroup; path = JourneyShared; sourceTree = "<group>"; };
 		A10000000000000000000002 /* TrekCompanion */ = {isa = PBXFileSystemSynchronizedRootGroup; path = TrekCompanion; sourceTree = "<group>"; };
 		B10000000000000000000002 /* TrekCompanionWidgets */ = {isa = PBXFileSystemSynchronizedRootGroup; path = TrekCompanionWidgets; sourceTree = "<group>"; };
 		B10000000000000000000003 /* Shared */ = {isa = PBXFileSystemSynchronizedRootGroup; path = Shared; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		C10000000000000000000004 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 		A10000000000000000000003 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 		B10000000000000000000004 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		A10000000000000000000004 = {isa = PBXGroup; children = (A10000000000000000000002 /* TrekCompanion */, B10000000000000000000002 /* TrekCompanionWidgets */, B10000000000000000000003 /* Shared */, A10000000000000000000005 /* Products */); sourceTree = "<group>"; };
-		A10000000000000000000005 /* Products */ = {isa = PBXGroup; children = (A10000000000000000000001 /* TrekCompanion.app */, B10000000000000000000001 /* TrekCompanionWidgets.appex */); name = Products; sourceTree = "<group>"; };
+		A10000000000000000000004 = {isa = PBXGroup; children = (A10000000000000000000002 /* TrekCompanion */, B10000000000000000000002 /* TrekCompanionWidgets */, B10000000000000000000003 /* Shared */, C10000000000000000000002 /* TrekCompanionShare */, C10000000000000000000003 /* JourneyShared */, C10000000000000000000011, C10000000000000000000012, C10000000000000000000013, C10000000000000000000014, A10000000000000000000005 /* Products */); sourceTree = "<group>"; };
+		A10000000000000000000005 /* Products */ = {isa = PBXGroup; children = (A10000000000000000000001 /* TrekCompanion.app */, B10000000000000000000001 /* TrekCompanionWidgets.appex */, C10000000000000000000001 /* TrekCompanionShare.appex */); name = Products; sourceTree = "<group>"; };
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -49,8 +64,8 @@
 			buildConfigurationList = A1000000000000000000000B /* Build configuration list for PBXNativeTarget "TrekCompanion" */;
 			buildPhases = (A10000000000000000000007 /* Sources */, A10000000000000000000003 /* Frameworks */, A10000000000000000000008 /* Resources */, B1000000000000000000000B /* Embed Foundation Extensions */);
 			buildRules = ();
-			dependencies = (B10000000000000000000009);
-			fileSystemSynchronizedGroups = (A10000000000000000000002 /* TrekCompanion */, B10000000000000000000003 /* Shared */);
+			dependencies = (B10000000000000000000009, C10000000000000000000009);
+			fileSystemSynchronizedGroups = (A10000000000000000000002 /* TrekCompanion */, B10000000000000000000003 /* Shared */, C10000000000000000000003 /* JourneyShared */);
 			name = TrekCompanion;
 			productName = TrekCompanion;
 			productReference = A10000000000000000000001 /* TrekCompanion.app */;
@@ -69,6 +84,18 @@
 			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
+		C10000000000000000000007 /* TrekCompanionShare */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C1000000000000000000000C;
+			buildPhases = (C10000000000000000000005, C10000000000000000000004, C10000000000000000000006);
+			buildRules = ();
+			dependencies = ();
+			fileSystemSynchronizedGroups = (C10000000000000000000002, C10000000000000000000003);
+			name = TrekCompanionShare;
+			productName = TrekCompanionShare;
+			productReference = C10000000000000000000001;
+			productType = "com.apple.product-type.app-extension";
+		};
 
 /* Begin PBXProject section */
 		A10000000000000000000009 /* Project object */ = {
@@ -84,21 +111,59 @@
 			productRefGroup = A10000000000000000000005 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
-			targets = (A10000000000000000000006 /* TrekCompanion */, B10000000000000000000007 /* TrekCompanionWidgets */);
+			targets = (A10000000000000000000006 /* TrekCompanion */, B10000000000000000000007 /* TrekCompanionWidgets */, C10000000000000000000007 /* TrekCompanionShare */);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		C10000000000000000000006 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (C10000000000000000000023); runOnlyForDeploymentPostprocessing = 0; };
 		A10000000000000000000008 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 		B10000000000000000000006 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		C10000000000000000000005 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (C10000000000000000000021, C10000000000000000000022, C10000000000000000000024); runOnlyForDeploymentPostprocessing = 0; };
 		A10000000000000000000007 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 		B10000000000000000000005 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		C1000000000000000000000D /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {
+			APPLICATION_EXTENSION_API_ONLY = YES;
+			CODE_SIGN_ENTITLEMENTS = TrekCompanionShare.entitlements;
+			CODE_SIGN_STYLE = Automatic;
+			CURRENT_PROJECT_VERSION = 7;
+			GENERATE_INFOPLIST_FILE = YES;
+			INFOPLIST_FILE = "TrekCompanionShare-Info.plist";
+			INFOPLIST_KEY_CFBundleDisplayName = Waypoint;
+			LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@executable_path/../../Frameworks");
+			MARKETING_VERSION = "1.0";
+			PRODUCT_BUNDLE_IDENTIFIER = dev.horizon.trekcompanion.share;
+			PRODUCT_NAME = "$(TARGET_NAME)";
+			SKIP_INSTALL = YES;
+			SWIFT_APPROACHABLE_CONCURRENCY = YES;
+			SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+			SWIFT_VERSION = "6.0";
+			TARGETED_DEVICE_FAMILY = 1;
+		}; name = Debug; };
+		C1000000000000000000000E /* Release */ = {isa = XCBuildConfiguration; buildSettings = {
+			APPLICATION_EXTENSION_API_ONLY = YES;
+			CODE_SIGN_ENTITLEMENTS = TrekCompanionShare.entitlements;
+			CODE_SIGN_STYLE = Automatic;
+			CURRENT_PROJECT_VERSION = 7;
+			GENERATE_INFOPLIST_FILE = YES;
+			INFOPLIST_FILE = "TrekCompanionShare-Info.plist";
+			INFOPLIST_KEY_CFBundleDisplayName = Waypoint;
+			LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@executable_path/../../Frameworks");
+			MARKETING_VERSION = "1.0";
+			PRODUCT_BUNDLE_IDENTIFIER = dev.horizon.trekcompanion.share;
+			PRODUCT_NAME = "$(TARGET_NAME)";
+			SKIP_INSTALL = YES;
+			SWIFT_APPROACHABLE_CONCURRENCY = YES;
+			SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+			SWIFT_VERSION = "6.0";
+			TARGETED_DEVICE_FAMILY = 1;
+		}; name = Release; };
 		A1000000000000000000000C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -135,7 +200,7 @@
 		"ASSETCATALOG_COMPILER_APPICON_NAME" = AppIcon;
 		"CODE_SIGN_ENTITLEMENTS" = "TrekCompanion.entitlements";
 		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 4;
+		"CURRENT_PROJECT_VERSION" = 7;
 		"ENABLE_PREVIEWS" = YES;
 		"GENERATE_INFOPLIST_FILE" = YES;
 		"INFOPLIST_FILE" = "TrekCompanion-Info.plist";
@@ -163,7 +228,7 @@
 		"ASSETCATALOG_COMPILER_APPICON_NAME" = AppIcon;
 		"CODE_SIGN_ENTITLEMENTS" = "TrekCompanion.entitlements";
 		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 4;
+		"CURRENT_PROJECT_VERSION" = 7;
 		"ENABLE_PREVIEWS" = YES;
 		"GENERATE_INFOPLIST_FILE" = YES;
 		"INFOPLIST_FILE" = "TrekCompanion-Info.plist";
@@ -190,7 +255,7 @@
 	buildSettings = {
 		"CODE_SIGN_ENTITLEMENTS" = "TrekCompanionWidgets.entitlements";
 		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 4;
+		"CURRENT_PROJECT_VERSION" = 7;
 		"GENERATE_INFOPLIST_FILE" = YES;
 		"INFOPLIST_FILE" = "TrekCompanionWidgets-Info.plist";
 		"INFOPLIST_KEY_CFBundleDisplayName" = Waypoint;
@@ -215,7 +280,7 @@
 	buildSettings = {
 		"CODE_SIGN_ENTITLEMENTS" = "TrekCompanionWidgets.entitlements";
 		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 4;
+		"CURRENT_PROJECT_VERSION" = 7;
 		"GENERATE_INFOPLIST_FILE" = YES;
 		"INFOPLIST_FILE" = "TrekCompanionWidgets-Info.plist";
 		"INFOPLIST_KEY_CFBundleDisplayName" = Waypoint;
@@ -239,6 +304,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		C1000000000000000000000C = {isa = XCConfigurationList; buildConfigurations = (C1000000000000000000000D, C1000000000000000000000E); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 		A1000000000000000000000A /* Build configuration list for PBXProject "TrekCompanion" */ = {isa = XCConfigurationList; buildConfigurations = (A1000000000000000000000C /* Debug */, A1000000000000000000000D /* Release */); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 		A1000000000000000000000B /* Build configuration list for PBXNativeTarget "TrekCompanion" */ = {isa = XCConfigurationList; buildConfigurations = (A1000000000000000000000E /* Debug */, A1000000000000000000000F /* Release */); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 		B1000000000000000000000C /* Build configuration list for PBXNativeTarget "TrekCompanionWidgets" */ = {isa = XCConfigurationList; buildConfigurations = (B1000000000000000000000D /* Debug */, B1000000000000000000000E /* Release */); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };

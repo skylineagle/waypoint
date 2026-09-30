@@ -9,7 +9,7 @@ struct TripDay: Decodable, Identifiable {
     let notesItems: [DayNote]?
 
     var stops: [TripStop] {
-        (assignments ?? []).sorted { ($0.assignmentTime ?? "", $0.orderIndex) < ($1.assignmentTime ?? "", $1.orderIndex) }
+        (assignments ?? []).sorted { $0.orderIndex < $1.orderIndex }
     }
 }
 
@@ -55,6 +55,9 @@ struct StopPlace: Decodable, Hashable {
     let lat: Double?
     let lng: Double?
     let address: String?
+    var imageUrl: String? = nil
+    var googlePlaceId: String? = nil
+    var osmId: String? = nil
 
     var coordinate: CLLocationCoordinate2D? {
         guard let lat, let lng else { return nil }

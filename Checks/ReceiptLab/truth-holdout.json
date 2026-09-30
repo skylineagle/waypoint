@@ -1,0 +1,12 @@
+[
+ {"file": "h02-ca-ticket.jpg", "merchant": ["c&a"], "total": 1054.00, "currency": [""], "date": "1981-11-07"},
+ {"file": "h03-ticket-bpa.jpg", "merchant": [], "total": null, "currency": [""], "date": null},
+ {"file": "h04-top1toys.jpg", "merchant": ["jager"], "total": 3.40, "currency": ["", "EUR"], "date": "2020-02-10"},
+ {"file": "h05-wikipedia-food.jpg", "merchant": ["opay"], "total": 70000, "currency": ["NGN"], "date": "2024-09-06"},
+ {"file": "h06-store-png.jpg", "merchant": ["chin h", "meen"], "total": 19.50, "currency": ["", "PGK"], "date": "2013-03-30"},
+ {"file": "h07-sahan-02.jpg", "merchant": ["sahan"], "total": 14.21, "currency": ["", "EUR"], "date": "2021-01-26"},
+ {"file": "h08-bini-01.jpg", "merchant": ["bon bini"], "total": 7.24, "currency": ["", "ANG"], "date": "2019-03-06"},
+ {"file": "h10-vishwanand.jpg", "merchant": ["vishwanand"], "total": 525, "currency": ["", "INR"], "date": "2026-01-28"},
+ {"file": "h11-hk-syp.jpg", "merchant": ["食神麗宮"], "total": 985.0, "currency": ["", "HKD"], "date": "2026-01-11"},
+ {"file": "h12-tesco-1994.jpg", "merchant": ["tesco"], "total": 6.71, "currency": ["GBP"], "date": "1994-04-19"}
+]

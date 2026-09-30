@@ -10,6 +10,8 @@ struct TodayView: View {
     @State private var highlightedID: Int?
     @State private var mapFocusID: Int?
     @State private var isScrolled = false
+    @State private var photoTask: Task<Void, Never>?
+    @AppStorage(AppSettings.widgetPhotosKey, store: AppGroup.defaults) private var isWidgetPhotosEnabled = true
 
     var body: some View {
         NavigationStack {
@@ -54,6 +56,8 @@ struct TodayView: View {
             .onChange(of: model.legs.count) { publish() }
             .onChange(of: costs.todayTotal) { publish() }
             .onChange(of: model.days == nil) { publish() }
+            .onChange(of: model.trip) { publish() }
+            .onChange(of: isWidgetPhotosEnabled) { publish() }
             .onChange(of: scenePhase) { _, phase in
                 StopTracker.shared.sync(isActive: phase == .active)
                 guard phase == .active else { return }
@@ -191,6 +195,16 @@ struct TodayView: View {
         guard model.days != nil else { return }
         let snapshot = TodaySnapshotBuilder.make(today: model, costs: costs)
         snapshot?.save()
+        if snapshot == nil { TodaySnapshot.clear() }
+        photoTask?.cancel()
+        let trip = model.trip
+        let stops = model.todayDay?.stops ?? []
+        photoTask = Task {
+            guard let snapshot else { return }
+            await WidgetPhotos.prepare(trip: trip, stops: stops, snapshot: snapshot)
+            guard !Task.isCancelled else { return }
+            WidgetCenter.shared.reloadTimelines(ofKind: "NextStopWidget")
+        }
         StopTracker.shared.sync(isActive: scenePhase == .active)
         Task {
             await TripLiveActivity.sync(with: snapshot)

@@ -70,6 +70,7 @@ struct CostsView: View {
             .toolbarVisibility(.hidden, for: .navigationBar)
             .contentMargins(.bottom, 72, for: .scrollContent)
             .overlay(alignment: .bottomTrailing) { addButton }
+            .refreshable { await model.load() }
             .sheet(item: $editor) { target in
                 ExpenseEditorView(
                     item: target.item,
@@ -85,7 +86,6 @@ struct CostsView: View {
             .onChange(of: model.unpaidItems.isEmpty) { _, isEmpty in
                 if isEmpty { unpaidOnly = false }
             }
-            .refreshable { await model.load() }
         }
     }
 
@@ -182,13 +182,17 @@ struct CostsView: View {
     }
 
     private var addButton: some View {
-        Menu {
-            Button("Add manually", systemImage: "square.and.pencil") { editor = .new }
-            Button(DocumentScanner.isAvailable ? "Scan receipt" : "Receipt from photos", systemImage: "doc.text.viewfinder") { editor = .scan }
-        } label: {
-            Image(systemName: "plus")
-                .font(.system(size: 18, weight: .semibold))
-                .frame(width: 28, height: 28)
+        Group {
+            if ReceiptParser.isAvailable {
+                Menu {
+                    Button("Add manually", systemImage: "square.and.pencil") { editor = .new }
+                    Button(DocumentScanner.isAvailable ? "Scan receipt" : "Receipt from photos", systemImage: "doc.text.viewfinder") { editor = .scan }
+                } label: {
+                    plusIcon
+                }
+            } else {
+                Button { editor = .new } label: { plusIcon }
+            }
         }
         .buttonStyle(.glass)
         .buttonBorderShape(.circle)
@@ -197,6 +201,12 @@ struct CostsView: View {
         .accessibilityLabel("Add expense")
         .padding(.trailing, 16)
         .padding(.bottom, 12)
+    }
+
+    private var plusIcon: some View {
+        Image(systemName: "plus")
+            .font(.system(size: 18, weight: .semibold))
+            .frame(width: 28, height: 28)
     }
 }
 

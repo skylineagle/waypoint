@@ -17,7 +17,7 @@ enum TripPhase {
 
 @Observable
 final class TodayModel {
-    let trip: Trip
+    private(set) var trip: Trip
     private(set) var days: [TripDay]?
     private(set) var reservations: [Reservation] = []
     private(set) var stays: [Stay] = []
@@ -118,10 +118,12 @@ final class TodayModel {
     func load() async {
         guard let client = TrekClient.current else { return }
         do {
+            async let loadedTrip = client.trip(id: trip.id)
             async let loadedDays = client.days(tripID: trip.id)
             async let loadedReservations = client.reservations(tripID: trip.id)
             async let loadedStays = client.stays(tripID: trip.id)
             days = try await loadedDays
+            trip = (try? await loadedTrip) ?? trip
             reservations = (try? await loadedReservations) ?? []
             stays = (try? await loadedStays) ?? []
             errorMessage = nil

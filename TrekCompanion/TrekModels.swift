@@ -6,6 +6,7 @@ struct Trip: Codable, Identifiable, Hashable {
     let currency: String
     let startDate: String?
     let endDate: String?
+    var coverImage: String? = nil
 }
 
 extension Trip {

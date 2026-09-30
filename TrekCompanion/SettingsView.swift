@@ -1,4 +1,5 @@
 import SwiftUI
+import WidgetKit
 
 private enum SettingsSheet: Identifiable {
     case trip, shortcut
@@ -12,6 +13,7 @@ struct SettingsView: View {
     @State private var sheet: SettingsSheet?
     @AppStorage(AppSettings.liveActivityKey, store: AppGroup.defaults) private var isLiveActivityEnabled = true
     @AppStorage(AppSettings.directionsAppKey, store: AppGroup.defaults) private var directionsApp = DirectionsApp.appleMaps
+    @AppStorage(AppSettings.widgetPhotosKey, store: AppGroup.defaults) private var isWidgetPhotosEnabled = true
 
     private func syncActivity() {
         Task { await TripLiveActivity.sync(with: TodaySnapshot.load()) }
@@ -23,6 +25,14 @@ struct SettingsView: View {
                 Section("Trip") {
                     Button("Change Trip", systemImage: "suitcase") { sheet = .trip }
                     Button("Shortcut Setup", systemImage: "bolt") { sheet = .shortcut }
+                }
+                JourneySettingsSection()
+                Section {
+                    Toggle("Photo backgrounds", isOn: $isWidgetPhotosEnabled)
+                } header: {
+                    Text("Trip widget")
+                } footer: {
+                    Text("Use the next place's photo, or your trip cover before departure.")
                 }
                 Section {
                     Toggle("Start automatically", isOn: $isLiveActivityEnabled)
@@ -68,6 +78,7 @@ struct SettingsView: View {
             }
             .onChange(of: isLiveActivityEnabled) { syncActivity() }
             .onChange(of: directionsApp) { syncActivity() }
+            .onChange(of: isWidgetPhotosEnabled) { WidgetCenter.shared.reloadTimelines(ofKind: "NextStopWidget") }
         }
     }
 }

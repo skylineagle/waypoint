@@ -89,13 +89,15 @@ struct ExpenseEditorView: View {
             header
             ScrollView {
                 VStack(alignment: .leading, spacing: 10) {
-                    ReceiptTile(
-                        image: receiptImage,
-                        savedCount: item?.receipts?.count ?? 0,
-                        isReading: isReadingReceipt,
-                        onScan: DocumentScanner.isAvailable ? { isScanning = true } : nil,
-                        onChoosePhoto: { isPickingPhoto = true }
-                    )
+                    if ReceiptParser.isAvailable {
+                        ReceiptTile(
+                            image: receiptImage,
+                            savedCount: item?.receipts?.count ?? 0,
+                            isReading: isReadingReceipt,
+                            onScan: DocumentScanner.isAvailable ? { isScanning = true } : nil,
+                            onChoosePhoto: { isPickingPhoto = true }
+                        )
+                    }
                     TrekTextField(symbol: "pencil", placeholder: "What was it?", text: $name, accessibilityLabel: "Name")
                     HStack(spacing: 8) {
                         DatePicker("Date", selection: $date, displayedComponents: .date)

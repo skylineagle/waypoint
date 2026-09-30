@@ -1,0 +1,152 @@
+[
+ {
+  "file": "01-italian-supermarket.jpg",
+  "source": "https://commons.wikimedia.org/wiki/File:Italian_supermarket_receipt_showing_value-added_tax_(IVA)_categories.jpg",
+  "merchant": [],
+  "total": 11.85,
+  "currency": [
+   "EUR"
+  ],
+  "date": null
+ },
+ {
+  "file": "02-polish-supermarket.jpg",
+  "source": "https://commons.wikimedia.org/wiki/File:Polish_supermarket_receipt.jpg",
+  "merchant": [
+   "biedronka"
+  ],
+  "total": 8.27,
+  "currency": [
+   "PLN"
+  ],
+  "date": "2020-01-09"
+ },
+ {
+  "file": "03-vienna-grocery.jpg",
+  "source": "https://commons.wikimedia.org/wiki/File:Grocery_Store_Receipt_in_Vienna.jpg",
+  "merchant": [
+   "hofer"
+  ],
+  "total": 22.41,
+  "currency": [
+   "EUR"
+  ],
+  "date": "2024-03-25"
+ },
+ {
+  "file": "04-swiss.jpg",
+  "source": "https://commons.wikimedia.org/wiki/File:ReceiptSwiss.jpg",
+  "merchant": [
+   "berghotel",
+   "scheidegg"
+  ],
+  "total": 54.5,
+  "currency": [
+   "CHF"
+  ],
+  "date": "2007-07-30"
+ },
+ {
+  "file": "05-fressnapf-de.png",
+  "source": "https://commons.wikimedia.org/wiki/File:Kassenzettel_Fressnapf_mit_ausgewiesener_MwSt-Senkung_und_TSE_Transaktionsnummer_12_2020.png",
+  "merchant": [
+   "fressnapf"
+  ],
+  "total": 34.09,
+  "currency": [
+   "EUR"
+  ],
+  "date": "2020-12-04"
+ },
+ {
+  "file": "06-tankquittung-de.jpg",
+  "source": "https://commons.wikimedia.org/wiki/File:Tankquittung_HIT-Tankstelle_Rheinbach_mit_Abschnitt_Technische_Sicherheitseinrichtung,_2020.jpg",
+  "merchant": [
+   "hit"
+  ],
+  "total": 76.64,
+  "currency": [
+   "EUR"
+  ],
+  "date": "2020-11-21"
+ },
+ {
+  "file": "07-korea-supermarket.jpg",
+  "source": "https://commons.wikimedia.org/wiki/File:SK_Korea_tour_首爾_supermarket_official_receipt_computer_print_out_in_Korean_language_only_July-2013.JPG",
+  "merchant": [
+   "동대문"
+  ],
+  "total": 11400,
+  "currency": [
+   "",
+   "KRW"
+  ],
+  "date": "2013-07-13"
+ },
+ {
+  "file": "08-costco-taiwan.jpg",
+  "source": "https://commons.wikimedia.org/wiki/File:TW_Costco_Photo_receipt_20130612.jpg",
+  "merchant": [
+   "costco"
+  ],
+  "total": null,
+  "currency": [
+   "",
+   "TWD"
+  ],
+  "date": null
+ },
+ {
+  "file": "09-lawson-indonesia.jpg",
+  "source": "https://commons.wikimedia.org/wiki/File:Receipt_from_Lawson_in_South_Tangerang,_Indonesia_with_QRIS_CPM_(2025-09-02).jpg",
+  "merchant": [
+   "lawson",
+   "lancar"
+  ],
+  "total": 13000,
+  "currency": [
+   "",
+   "IDR"
+  ],
+  "date": "2025-09-02"
+ },
+ {
+  "file": "10-bca-indonesia.jpg",
+  "source": "https://commons.wikimedia.org/wiki/File:Receipt_from_BCA_payment_terminal_in_South_Tangerang,_Indonesia_(2025-08-28).jpg",
+  "merchant": [
+   "idm",
+   "bintaro"
+  ],
+  "total": 79800,
+  "currency": [
+   "IDR"
+  ],
+  "date": "2025-08-28"
+ },
+ {
+  "file": "11-hk-restaurant.jpg",
+  "source": "https://commons.wikimedia.org/wiki/File:HK_北角_North_Point_長康街_Cheung_Hong_Street_明星海鮮酒家_Star_Seafood_Restaurant_food_bill_Receipt_night_March_2019_SSG.jpg",
+  "merchant": [
+   "海鮮酒家"
+  ],
+  "total": 711.5,
+  "currency": [
+   "",
+   "HKD"
+  ],
+  "date": "2019-03-30"
+ },
+ {
+  "file": "12-california-restaurant.jpg",
+  "source": "https://commons.wikimedia.org/wiki/File:Receipt_California_restaurant_2006.jpg",
+  "merchant": [
+   "boulevard"
+  ],
+  "total": 249.32,
+  "currency": [
+   "",
+   "USD"
+  ],
+  "date": "2006-02-15"
+ }
+]

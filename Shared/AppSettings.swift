@@ -26,6 +26,7 @@ nonisolated enum DirectionsApp: String, CaseIterable, Identifiable, Sendable {
 nonisolated enum AppSettings {
     static let directionsAppKey = "directions-app"
     static let liveActivityKey = "live-activity-enabled"
+    static let widgetPhotosKey = "widget-photos-enabled"
 
     static var directionsApp: DirectionsApp {
         DirectionsApp(rawValue: AppGroup.defaults.string(forKey: directionsAppKey) ?? "") ?? .appleMaps
@@ -33,6 +34,10 @@ nonisolated enum AppSettings {
 
     static var isLiveActivityEnabled: Bool {
         AppGroup.defaults.object(forKey: liveActivityKey) as? Bool ?? true
+    }
+
+    static var isWidgetPhotosEnabled: Bool {
+        AppGroup.defaults.object(forKey: widgetPhotosKey) as? Bool ?? true
     }
 
     static func directionsLink(latitude: Double, longitude: Double) -> URL {
