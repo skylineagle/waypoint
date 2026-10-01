@@ -132,12 +132,12 @@
 			APPLICATION_EXTENSION_API_ONLY = YES;
 			CODE_SIGN_ENTITLEMENTS = TrekCompanionShare.entitlements;
 			CODE_SIGN_STYLE = Automatic;
-			CURRENT_PROJECT_VERSION = 10;
+			CURRENT_PROJECT_VERSION = 11;
 			GENERATE_INFOPLIST_FILE = YES;
 			INFOPLIST_FILE = "TrekCompanionShare-Info.plist";
 			INFOPLIST_KEY_CFBundleDisplayName = Waypoint;
 			LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@executable_path/../../Frameworks");
-			MARKETING_VERSION = "1.0";
+			MARKETING_VERSION = "1.1.0";
 			PRODUCT_BUNDLE_IDENTIFIER = dev.horizon.trekcompanion.share;
 			PRODUCT_NAME = "$(TARGET_NAME)";
 			SKIP_INSTALL = YES;
@@ -150,12 +150,12 @@
 			APPLICATION_EXTENSION_API_ONLY = YES;
 			CODE_SIGN_ENTITLEMENTS = TrekCompanionShare.entitlements;
 			CODE_SIGN_STYLE = Automatic;
-			CURRENT_PROJECT_VERSION = 10;
+			CURRENT_PROJECT_VERSION = 11;
 			GENERATE_INFOPLIST_FILE = YES;
 			INFOPLIST_FILE = "TrekCompanionShare-Info.plist";
 			INFOPLIST_KEY_CFBundleDisplayName = Waypoint;
 			LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@executable_path/../../Frameworks");
-			MARKETING_VERSION = "1.0";
+			MARKETING_VERSION = "1.1.0";
 			PRODUCT_BUNDLE_IDENTIFIER = dev.horizon.trekcompanion.share;
 			PRODUCT_NAME = "$(TARGET_NAME)";
 			SKIP_INSTALL = YES;
@@ -200,7 +200,7 @@
 		"ASSETCATALOG_COMPILER_APPICON_NAME" = AppIcon;
 		"CODE_SIGN_ENTITLEMENTS" = "TrekCompanion.entitlements";
 		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 10;
+		"CURRENT_PROJECT_VERSION" = 11;
 		"ENABLE_PREVIEWS" = YES;
 		"GENERATE_INFOPLIST_FILE" = YES;
 		"INFOPLIST_FILE" = "TrekCompanion-Info.plist";
@@ -212,7 +212,7 @@
 			"$(inherited)",
 			"@executable_path/Frameworks",
 		);
-		"MARKETING_VERSION" = "1.0";
+		"MARKETING_VERSION" = "1.1.0";
 		"PRODUCT_BUNDLE_IDENTIFIER" = "dev.horizon.trekcompanion";
 		"PRODUCT_NAME" = "$(TARGET_NAME)";
 		"SWIFT_APPROACHABLE_CONCURRENCY" = YES;
@@ -228,7 +228,7 @@
 		"ASSETCATALOG_COMPILER_APPICON_NAME" = AppIcon;
 		"CODE_SIGN_ENTITLEMENTS" = "TrekCompanion.entitlements";
 		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 10;
+		"CURRENT_PROJECT_VERSION" = 11;
 		"ENABLE_PREVIEWS" = YES;
 		"GENERATE_INFOPLIST_FILE" = YES;
 		"INFOPLIST_FILE" = "TrekCompanion-Info.plist";
@@ -240,7 +240,7 @@
 			"$(inherited)",
 			"@executable_path/Frameworks",
 		);
-		"MARKETING_VERSION" = "1.0";
+		"MARKETING_VERSION" = "1.1.0";
 		"PRODUCT_BUNDLE_IDENTIFIER" = "dev.horizon.trekcompanion";
 		"PRODUCT_NAME" = "$(TARGET_NAME)";
 		"SWIFT_APPROACHABLE_CONCURRENCY" = YES;
@@ -255,7 +255,7 @@
 	buildSettings = {
 		"CODE_SIGN_ENTITLEMENTS" = "TrekCompanionWidgets.entitlements";
 		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 10;
+		"CURRENT_PROJECT_VERSION" = 11;
 		"GENERATE_INFOPLIST_FILE" = YES;
 		"INFOPLIST_FILE" = "TrekCompanionWidgets-Info.plist";
 		"INFOPLIST_KEY_CFBundleDisplayName" = Waypoint;
@@ -264,7 +264,7 @@
 			"@executable_path/Frameworks",
 			"@executable_path/../../Frameworks",
 		);
-		"MARKETING_VERSION" = "1.0";
+		"MARKETING_VERSION" = "1.1.0";
 		"PRODUCT_BUNDLE_IDENTIFIER" = "dev.horizon.trekcompanion.widgets";
 		"PRODUCT_NAME" = "$(TARGET_NAME)";
 		"SKIP_INSTALL" = YES;
@@ -280,7 +280,7 @@
 	buildSettings = {
 		"CODE_SIGN_ENTITLEMENTS" = "TrekCompanionWidgets.entitlements";
 		"CODE_SIGN_STYLE" = Automatic;
-		"CURRENT_PROJECT_VERSION" = 10;
+		"CURRENT_PROJECT_VERSION" = 11;
 		"GENERATE_INFOPLIST_FILE" = YES;
 		"INFOPLIST_FILE" = "TrekCompanionWidgets-Info.plist";
 		"INFOPLIST_KEY_CFBundleDisplayName" = Waypoint;
@@ -289,7 +289,7 @@
 			"@executable_path/Frameworks",
 			"@executable_path/../../Frameworks",
 		);
-		"MARKETING_VERSION" = "1.0";
+		"MARKETING_VERSION" = "1.1.0";
 		"PRODUCT_BUNDLE_IDENTIFIER" = "dev.horizon.trekcompanion.widgets";
 		"PRODUCT_NAME" = "$(TARGET_NAME)";
 		"SKIP_INSTALL" = YES;
