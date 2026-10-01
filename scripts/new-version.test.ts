@@ -1,11 +1,12 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
-import { chmod, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { chmod, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { bumpVersion, main } from "./new-version";
 
 const originalDirectory = process.cwd();
 const originalPath = process.env.PATH;
+const scriptPath = join(import.meta.dir, "new-version.ts");
 let work: string;
 
 function git(...args: string[]): string {
@@ -29,13 +30,23 @@ beforeEach(async () => {
 const args = Bun.argv.slice(2);
 const option = (name: string) => args[args.indexOf(name) + 1]!;
 await Bun.write(".asc/commands", (await Bun.file(".asc/commands").text().catch(() => "")) + args.join(" ") + "\\n");
-if (args[0] === "versions") console.log(JSON.stringify({ items: process.env.RELEASE_STATE ? [{ attributes: { appStoreState: process.env.RELEASE_STATE } }] : [] }));
+console.error("ASC diagnostic noise");
+const listKey = process.env.LIST_FORMAT ?? "data";
+if (args[0] === "versions") console.log(JSON.stringify({ [listKey]: process.env.RELEASE_STATE ? [{ attributes: { appStoreState: process.env.RELEASE_STATE } }] : [] }));
 if (args[0] === "metadata") await Bun.write(option("--dir") + "/version/" + option("--version") + "/en-US.json", JSON.stringify({ description: "Existing description", whatsNew: "Old notes" }));
-if (args[0] === "builds") console.log(JSON.stringify({ items: await Bun.file(".asc/uploaded").exists() ? [{ id: "exact-build", attributes: { processingState: "VALID" } }] : [] }));
+if (args[0] === "builds") console.log(JSON.stringify({ [listKey]: await Bun.file(".asc/uploaded").exists() ? [{ id: "exact-build", attributes: { processingState: "VALID" } }] : [] }));
+if (args[0] === "release" && !await Bun.file(option("--metadata-dir") + "/version/" + option("--version") + "/en-US.json").exists()) { console.error("no metadata .json files found"); process.exit(1); }
+if (args[0] === "release" && args.includes("--dry-run")) {
+  console.log(JSON.stringify({ status: "error", failedStep: "validate_readiness", error: "build not attached", steps: [{ name: "validate_readiness", details: { report: { checks: [{ severity: "error", id: process.env.EXTRA_STAGE_BLOCKER ? "screenshots.required.missing" : "build.required.missing" }] } } }] }));
+  process.exit(1);
+}
 if (args[0] === "validate" && process.env.FAIL_VALIDATION) process.exit(1);
 `);
   await writeFile(join(work, "bin/codex"), `#!/usr/bin/env bun
 const args = Bun.argv.slice(2);
+console.log("Codex stdout noise");
+console.error("Codex stderr noise");
+if (process.env.FAIL_CODEX) { console.error("Codex failed to authenticate"); process.exit(13); }
 await Bun.write(args[args.indexOf("--output-last-message") + 1]!, "Your upcoming bookings now have reminders.");
 `);
   await chmod(join(work, "bin/asc"), 0o755);
@@ -52,6 +63,9 @@ afterEach(async () => {
   process.env.PATH = originalPath;
   delete process.env.FAIL_VALIDATION;
   delete process.env.RELEASE_STATE;
+  delete process.env.LIST_FORMAT;
+  delete process.env.FAIL_CODEX;
+  delete process.env.EXTRA_STAGE_BLOCKER;
   await rm(work, { recursive: true, force: true });
 });
 
@@ -72,7 +86,7 @@ test("automatic notes need a baseline and dry run leaves the checkout unchanged"
 
 test("validation blocks submission; resume reuses the exact build and notes", async () => {
   process.env.FAIL_VALIDATION = "1";
-  await expect(main(["minor", "--since", "HEAD"])).rejects.toThrow("validate failed");
+  await expect(main(["minor", "--since", "HEAD"])).rejects.toThrow("App Store validation failed");
   const project = await readFile("TrekCompanion.xcodeproj/project.pbxproj", "utf8");
   expect(project.match(/1\.1\.0/g)?.length).toBe(2);
   const notes = JSON.parse(await readFile("metadata/version/1.1.0/en-US.json", "utf8")) as { description: string; whatsNew: string };
@@ -83,20 +97,112 @@ test("validation blocks submission; resume reuses the exact build and notes", as
   const commands = await readFile(".asc/commands", "utf8");
   expect(commands.match(/^upload$/gm)?.length).toBe(1);
   expect(commands).toContain("--build-number 11");
+  expect(commands).toContain("--metadata-dir metadata --confirm");
   expect(commands).toContain("review submit --app 6817039570 --version 1.1.0 --build-id exact-build --dry-run");
   expect(commands).toContain("review submit --app 6817039570 --version 1.1.0 --build-id exact-build --confirm");
   expect(git("tag", "--list")).toBe("release/v1.1.0");
   await expect(main(["--resume"])).rejects.toThrow("already submitted");
 });
 
-test("resume rejects source changes and an existing review submission", async () => {
+test("resume rejects source changes when rebuilding and an existing review submission", async () => {
   process.env.FAIL_VALIDATION = "1";
   await expect(main(["patch", "--notes", "Booking reminders."])).rejects.toThrow();
+  await rm(".asc/uploaded");
   await writeFile("changed.swift", "changed source");
   await expect(main(["--resume"])).rejects.toThrow("Source changed");
   await rm("changed.swift");
+  await writeFile(".asc/uploaded", "");
   delete process.env.FAIL_VALIDATION;
   process.env.RELEASE_STATE = "WAITING_FOR_REVIEW";
   await expect(main(["--resume"])).rejects.toThrow("existing submission");
   expect(await readFile(".asc/commands", "utf8")).not.toContain("review submit");
+});
+
+test("resume with an uploaded build allows local source changes without rebuilding", async () => {
+  process.env.FAIL_VALIDATION = "1";
+  await expect(main(["patch", "--notes", "Booking reminders."])).rejects.toThrow("App Store validation failed");
+  await writeFile("changed.swift", "local changes after upload");
+  delete process.env.FAIL_VALIDATION;
+  await main(["--resume"]);
+  expect((await readFile(".asc/commands", "utf8")).match(/^upload$/gm)?.length).toBe(1);
+  expect(await readFile("changed.swift", "utf8")).toBe("local changes after upload");
+});
+
+test("staging dry-run still blocks unrelated readiness failures", async () => {
+  process.env.EXTRA_STAGE_BLOCKER = "1";
+  await expect(main(["patch", "--notes", "Booking reminders."])).rejects.toThrow("Staging plan failed");
+  const commands = await readFile(".asc/commands", "utf8");
+  expect(commands).not.toContain("--metadata-dir metadata --confirm");
+  expect(commands).not.toContain("review submit");
+});
+
+test("landing and script changes are ignored when starting and resuming; app changes still block", async () => {
+  await mkdir("landing");
+  await writeFile("landing/index.html", "original landing");
+  await writeFile("landing/styles.css", "original styles");
+  await writeFile("scripts/helper.ts", "original helper");
+  await writeFile("scripts/check.ts", "original check");
+  git("add", "landing", "scripts");
+  git("-c", "user.name=Release check", "-c", "user.email=check@example.com", "commit", "-qm", "Landing source");
+  await writeFile("landing/index.html", "staged landing");
+  git("add", "landing/index.html");
+  await writeFile("landing/styles.css", "unstaged styles");
+  await writeFile("landing/untracked.html", "new landing");
+  await writeFile("scripts/helper.ts", "staged helper");
+  git("add", "scripts/helper.ts");
+  await writeFile("scripts/check.ts", "unstaged check");
+  await writeFile("scripts/untracked.ts", "new script");
+  await writeFile("changed.swift", "app change");
+  await expect(main(["patch", "--notes", "Booking reminders."])).rejects.toThrow("Commit your changes");
+  await rm("changed.swift");
+  process.env.FAIL_VALIDATION = "1";
+  await expect(main(["patch", "--notes", "Booking reminders."])).rejects.toThrow("App Store validation failed");
+  await writeFile("landing/index.html", "more landing changes");
+  await writeFile("scripts/helper.ts", "more script changes");
+  delete process.env.FAIL_VALIDATION;
+  await main(["--resume"]);
+  expect(git("tag", "--list")).toBe("release/v1.0.1");
+  expect(await readFile("landing/index.html", "utf8")).toBe("more landing changes");
+  expect(await readFile("scripts/helper.ts", "utf8")).toBe("more script changes");
+});
+
+test("quiet output hides child stdout and stderr; verbose streams them", async () => {
+  const invoke = (verbose: boolean) => Bun.spawnSync([process.execPath, "--eval",
+    `import { main } from ${JSON.stringify(scriptPath)}; await main(${JSON.stringify(["patch", "--since", "HEAD", "--dry-run", ...(verbose ? ["--verbose"] : [])])});`,
+  ], { env: { ...process.env }, stdin: "ignore", stdout: "pipe", stderr: "pipe" });
+  const quiet = invoke(false);
+  expect(quiet.exitCode).toBe(0);
+  expect(quiet.stdout.toString()).toContain("Generating release notes");
+  expect(quiet.stdout.toString()).not.toContain("Codex stdout noise");
+  expect(quiet.stderr.toString()).not.toContain("Codex stderr noise");
+  const [logName] = await readdir(".asc/logs");
+  const log = await readFile(`.asc/logs/${logName}`, "utf8");
+  expect(log).toContain("Codex stdout noise");
+  expect(log).toContain("Codex stderr noise");
+  const verbose = invoke(true);
+  expect(verbose.exitCode).toBe(0);
+  expect(verbose.stdout.toString()).toContain("Codex stdout noise");
+  expect(verbose.stderr.toString()).toContain("Codex stderr noise");
+  const release = Bun.spawnSync([process.execPath, "--eval",
+    `import { main } from ${JSON.stringify(scriptPath)}; await main(["patch", "--notes", "Booking reminders."]);`,
+  ], { env: { ...process.env }, stdin: "ignore", stdout: "pipe", stderr: "pipe" });
+  expect(release.exitCode).toBe(0);
+  expect(release.stdout.toString()).toContain("Submitted 1.0.1 for App Store review");
+  expect(release.stdout.toString()).not.toContain("ASC diagnostic noise");
+  expect(release.stderr.toString()).toBe("");
+});
+
+test("generation failure points to the log and original command, without resume advice", async () => {
+  process.env.FAIL_CODEX = "1";
+  await expect(main(["patch", "--since", "HEAD"])).rejects.toThrow("Generating release notes failed.");
+  await expect(main(["patch", "--since", "HEAD"])).rejects.toThrow("rerun your original command");
+  const logs = await readdir(".asc/logs");
+  expect(await readFile(`.asc/logs/${logs[0]}`, "utf8")).toContain("Codex failed to authenticate");
+  expect(git("status", "--porcelain")).toBe("");
+});
+
+test("legacy items responses are also supported", async () => {
+  process.env.LIST_FORMAT = "items";
+  await main(["patch", "--notes", "Booking reminders."]);
+  expect(git("tag", "--list")).toBe("release/v1.0.1");
 });
