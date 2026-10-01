@@ -9,7 +9,10 @@ ARCHIVE=.asc/artifacts/TrekCompanion.xcarchive
 IPA=.asc/artifacts/TrekCompanion.ipa
 NOTES=${1:-"$(git log -1 --pretty=%s)"}
 
-BUILD=$(asc builds next-build-number --app "$APP_ID" --platform IOS | sed -E 's/.*"nextBuildNumber":"([0-9]+)".*/\1/')
+BUILD=$(asc builds next-build-number --app "$APP_ID" --platform IOS --output json | plutil -extract nextBuildNumber raw -o - -)
+case "$BUILD" in
+  ''|*[!0-9]*|0) echo "Could not resolve a valid build number." >&2; exit 1 ;;
+esac
 echo "› Build number $BUILD (app, widgets and share extension)"
 sed -i '' -E "s/(\"?CURRENT_PROJECT_VERSION\"? = )[0-9]+;/\1$BUILD;/" TrekCompanion.xcodeproj/project.pbxproj
 
