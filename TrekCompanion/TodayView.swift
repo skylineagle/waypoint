@@ -21,30 +21,7 @@ struct TodayView: View {
                     .padding(.bottom, 4)
                     .background(Color.trekBackground)
                     .zIndex(1)
-            ScrollViewReader { proxy in
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 12) {
-                        content
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, model.selectedDayID == nil ? 24 : 80)
-                }
-                .refreshable {
-                    await model.load()
-                    await costs.load()
-                }
-                .onScrollPhaseChange { _, phase, context in
-                    guard phase == .idle else { return }
-                    let geometry = context.geometry
-                    let scrolled = geometry.contentOffset.y + geometry.contentInsets.top > 12
-                    guard scrolled != isScrolled else { return }
-                    withAnimation(.smooth) { isScrolled = scrolled }
-                }
-                .onChange(of: highlightedID) { _, id in
-                    guard let id else { return }
-                    withAnimation(.smooth) { proxy.scrollTo(id, anchor: .center) }
-                }
-            }
+                pages
             }
             .overlay(alignment: .bottom) { backButton }
             .background(Color.trekBackground)
@@ -70,6 +47,70 @@ struct TodayView: View {
                 model.reloadDone()
             }
         }
+    }
+
+    @ViewBuilder
+    private var pages: some View {
+        if model.errorMessage == nil, let days = model.days, model.viewedDay != nil {
+            ScrollView(.horizontal) {
+                LazyHStack(spacing: 0) {
+                    ForEach(days) { day in
+                        dayScroll { dayContent(day) }
+                            .containerRelativeFrame(.horizontal)
+                    }
+                }
+                .scrollTargetLayout()
+            }
+            .scrollTargetBehavior(.paging)
+            .scrollIndicators(.hidden)
+            .scrollPosition(id: pagedDayID)
+            .onChange(of: model.viewedDay?.id) {
+                withAnimation(.smooth) { isScrolled = false }
+            }
+        } else {
+            dayScroll { content }
+        }
+    }
+
+    private var pagedDayID: Binding<Int?> {
+        Binding {
+            model.viewedDay?.id
+        } set: { id in
+            guard let day = model.days?.first(where: { $0.id == id }) else { return }
+            select(day)
+        }
+    }
+
+    private func dayScroll(@ViewBuilder content: @escaping () -> some View) -> some View {
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    content()
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, model.selectedDayID == nil ? 24 : 80)
+            }
+            .refreshable {
+                await model.load()
+                await costs.load()
+            }
+            .onScrollGeometryChange(for: Bool?.self, of: stripVisibility) { _, scrolled in
+                guard let scrolled, scrolled != isScrolled else { return }
+                withAnimation(.smooth) { isScrolled = scrolled }
+            }
+            .onChange(of: highlightedID) { _, id in
+                guard let id else { return }
+                withAnimation(.smooth) { proxy.scrollTo(id, anchor: .center) }
+            }
+        }
+    }
+
+    private func stripVisibility(_ geometry: ScrollGeometry) -> Bool? {
+        let offset = geometry.contentOffset.y + geometry.contentInsets.top
+        let spareHeight = geometry.contentSize.height - geometry.containerSize.height
+        if offset < 4 { return false }
+        if offset > 48, spareHeight > 160 { return true }
+        return nil
     }
 
     @ViewBuilder

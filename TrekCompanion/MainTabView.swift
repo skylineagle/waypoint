@@ -21,7 +21,7 @@ struct MainTabView: View {
     var body: some View {
         @Bindable var app = app
         TabView(selection: $tab.animation(.smooth)) {
-            Tab("Today", systemImage: "sun.max", value: MainTab.today) {
+            Tab("Itinerary", systemImage: "point.bottomleft.forward.to.point.topright.scurvepath", value: MainTab.today) {
                 TodayView(model: today, costs: costs)
             }
             Tab("Costs", systemImage: "creditcard", value: MainTab.costs) {

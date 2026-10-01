@@ -9,13 +9,14 @@ struct TodayMapView: View {
     let onSelect: (TripStop) -> Void
     @State private var position = MapCameraPosition.automatic
     @State private var selectedID: Int?
+    @Namespace private var mapScope
 
     private var coordinates: [CLLocationCoordinate2D] {
         stops.compactMap(\.place.coordinate)
     }
 
     var body: some View {
-        Map(position: $position, selection: $selectedID) {
+        Map(position: $position, selection: $selectedID, scope: mapScope) {
             UserAnnotation {
                 Circle()
                     .fill(Color(.systemBlue))
@@ -36,10 +37,12 @@ struct TodayMapView: View {
             }
         }
         .mapStyle(.standard(pointsOfInterest: .excludingAll))
-        .mapControls {
-            MapUserLocationButton()
-            MapCompass()
+        .mapControls { MapCompass() }
+        .overlay(alignment: .bottomTrailing) {
+            MapUserLocationButton(scope: mapScope)
+                .padding(10)
         }
+        .mapScope(mapScope)
         .clipShape(.rect(cornerRadius: 20))
         .overlay(RoundedRectangle(cornerRadius: 20).strokeBorder(Color.trekBorder))
         .onAppear { focusOnNext(animated: false) }
