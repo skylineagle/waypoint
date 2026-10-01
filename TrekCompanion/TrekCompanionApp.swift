@@ -20,6 +20,7 @@ struct TrekCompanionApp: App {
                 .onOpenURL { url in
                     if url.host() == "add-expense" { model.isAddingExpense = true }
                     if url.host() == "converter" { model.openConverter(from: url) }
+                    if let tab = MainTab(link: url) { model.tab = tab }
                     if let directions = AppSettings.resolveDirectionsLink(url) { UIApplication.shared.open(directions) }
                 }
                 .onChange(of: scenePhase) {

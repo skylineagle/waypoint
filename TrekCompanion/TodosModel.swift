@@ -21,6 +21,7 @@ final class TodosModel {
     private(set) var isAvailable = false
     private(set) var items: [TodoItem]?
     private(set) var errorMessage: String?
+    private(set) var meID: Int?
 
     init(trip: Trip) {
         self.trip = trip
@@ -70,13 +71,33 @@ final class TodosModel {
     func load() async {
         guard let client = TrekClient.current else { return }
         isAvailable = await client.hasTodos()
-        guard isAvailable else { return }
+        guard isAvailable else {
+            await syncReminders()
+            return
+        }
         do {
-            items = try await client.todos(tripID: trip.id)
+            async let loadedItems = client.todos(tripID: trip.id)
+            async let loadedMe = client.currentUserID()
+            items = try await loadedItems
+            meID = try? await loadedMe
             errorMessage = nil
+            await syncReminders()
         } catch {
             errorMessage = error.localizedDescription
         }
+    }
+
+    func syncReminders() async {
+        let mine = (items ?? []).filter { !$0.isDone && ($0.assignedUserId == nil || $0.assignedUserId == meID) }
+        let todoEvents = mine.compactMap { item in
+            ExpenseDate.date(from: item.dueDate).map {
+                ReminderEvent(id: "todo-\(item.id)", moment: .due, date: $0, title: item.name, body: "")
+            }
+        }
+        await ReminderScheduler.update([
+            .todos: todoEvents,
+            .countdown: TripReminderEvents.countdown(trip, openTodos: items == nil ? nil : openCount),
+        ])
     }
 
     func save(_ input: TodoInput, editing item: TodoItem?) async throws {
@@ -93,6 +114,7 @@ final class TodosModel {
             updated.append(saved)
         }
         items = updated
+        await syncReminders()
     }
 
     func toggle(_ item: TodoItem) async {
@@ -101,6 +123,7 @@ final class TodosModel {
         items?[index].checked = isDone ? 1 : 0
         do {
             try await client.setTodo(id: item.id, checked: isDone, tripID: trip.id)
+            await syncReminders()
         } catch {
             errorMessage = error.localizedDescription
             await load()
@@ -112,6 +135,7 @@ final class TodosModel {
         items?.removeAll { $0.id == item.id }
         do {
             try await client.deleteTodo(id: item.id, tripID: trip.id)
+            await syncReminders()
         } catch {
             errorMessage = error.localizedDescription
             await load()

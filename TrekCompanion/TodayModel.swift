@@ -130,6 +130,11 @@ final class TodayModel {
             reservations = (try? await loadedReservations) ?? []
             stays = (try? await loadedStays) ?? []
             errorMessage = nil
+            await ReminderScheduler.update([
+                .bookings: TripReminderEvents.bookings(reservations),
+                .stays: TripReminderEvents.stays(stays, days: days ?? []),
+                .brief: TripReminderEvents.briefs(days ?? []),
+            ])
         } catch {
             errorMessage = error.localizedDescription
             return

@@ -26,6 +26,13 @@ struct SettingsView: View {
                     Button("Change Trip", systemImage: "suitcase") { sheet = .trip }
                     Button("Shortcut Setup", systemImage: "bolt") { sheet = .shortcut }
                 }
+                Section {
+                    NavigationLink {
+                        NotificationsView()
+                    } label: {
+                        Label("Notifications", systemImage: "bell.badge")
+                    }
+                }
                 JourneySettingsSection()
                 Section {
                     Toggle("Photo backgrounds", isOn: $isWidgetPhotosEnabled)

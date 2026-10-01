@@ -138,6 +138,7 @@ final class JourneyUploader: NSObject, URLSessionDataDelegate {
                 let galleryPhotos = (try? JSONDecoder().decode(Response.self, from: bytes))?.photos ?? []
                 let confirmed = galleryPhotos.count == 1
                 var link: (entryID: Int, photoID: Int)?
+                var stuckUpload: JourneyUpload?
                 let state = JourneyStore.result(status: status, confirmed: confirmed, error: error != nil)
                 try store.update(ids.upload) { upload in
                     guard let index = upload.photos.firstIndex(where: {
@@ -147,11 +148,13 @@ final class JourneyUploader: NSObject, URLSessionDataDelegate {
                     if let state {
                         upload.photos[index].state = state
                         upload.photos[index].message = Self.message(status: status, state: state)
+                        stuckUpload = upload
                     } else {
                         if let entryID = upload.photos[index].entryID, let photo = galleryPhotos.first { link = (entryID, photo.id) }
                         upload.photos.remove(at: index)
                     }
                 }
+                if let stuckUpload { JourneyNotice.post(for: stuckUpload) }
                 if let link, let account = JourneySession.load() {
                     try? await JourneyAPI(session: account).link(galleryPhoto: link.photoID, toEntry: link.entryID)
                 }

@@ -2,7 +2,6 @@ import SwiftUI
 
 struct MainTabView: View {
     @Environment(AppModel.self) private var app
-    @State private var tab = MainTab.today
     @State private var today: TodayModel
     @State private var costs: CostsModel
     @State private var todos: TodosModel
@@ -14,13 +13,13 @@ struct MainTabView: View {
     }
 
     private var tripDay: TripDay? {
-        guard tab == .today, today.selectedDayID == nil, case .during(let day, _) = today.phase, !day.stops.isEmpty else { return nil }
+        guard app.tab == .today, today.selectedDayID == nil, case .during(let day, _) = today.phase, !day.stops.isEmpty else { return nil }
         return day
     }
 
     var body: some View {
         @Bindable var app = app
-        TabView(selection: $tab.animation(.smooth)) {
+        TabView(selection: $app.tab.animation(.smooth)) {
             Tab("Itinerary", systemImage: "point.bottomleft.forward.to.point.topright.scurvepath", value: MainTab.today) {
                 TodayView(model: today, costs: costs)
             }
@@ -41,6 +40,7 @@ struct MainTabView: View {
         }
         .task { await costs.load() }
         .task { await todos.load() }
+        .environment(todos)
         .sheet(isPresented: $app.isAddingExpense) {
             ExpenseEditorView(
                 item: nil,
@@ -58,6 +58,11 @@ struct MainTabView: View {
     }
 }
 
-enum MainTab: Hashable {
+enum MainTab: String, Hashable {
     case today, costs, todos, settings
+
+    init?(link: URL) {
+        guard link.scheme == "trekcompanion", let tab = MainTab(rawValue: link.host() ?? "") else { return nil }
+        self = tab
+    }
 }

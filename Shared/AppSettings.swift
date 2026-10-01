@@ -27,6 +27,14 @@ nonisolated enum AppSettings {
     static let directionsAppKey = "directions-app"
     static let liveActivityKey = "live-activity-enabled"
     static let widgetPhotosKey = "widget-photos-enabled"
+    static let todoReminderDaysKey = "todo-reminder-days"
+    static let todoReminderMinuteKey = "todo-reminder-minute"
+    static let defaultTodoReminderMinute = 9 * 60
+    static let flightLeadMinutesKey = "flight-lead-minutes"
+    static let bookingLeadMinutesKey = "booking-lead-minutes"
+    static let flightCheckInKey = "flight-check-in-reminder"
+    static let morningMinuteKey = "morning-minute"
+    static let defaultMorningMinute = 8 * 60
 
     static var directionsApp: DirectionsApp {
         DirectionsApp(rawValue: AppGroup.defaults.string(forKey: directionsAppKey) ?? "") ?? .appleMaps
@@ -38,6 +46,30 @@ nonisolated enum AppSettings {
 
     static var isWidgetPhotosEnabled: Bool {
         AppGroup.defaults.object(forKey: widgetPhotosKey) as? Bool ?? true
+    }
+
+    static var flightLeadMinutes: Int {
+        AppGroup.defaults.object(forKey: flightLeadMinutesKey) as? Int ?? 180
+    }
+
+    static var bookingLeadMinutes: Int {
+        AppGroup.defaults.object(forKey: bookingLeadMinutesKey) as? Int ?? 60
+    }
+
+    static var isFlightCheckInEnabled: Bool {
+        AppGroup.defaults.object(forKey: flightCheckInKey) as? Bool ?? true
+    }
+
+    static var morningMinute: Int {
+        AppGroup.defaults.object(forKey: morningMinuteKey) as? Int ?? defaultMorningMinute
+    }
+
+    static var todoReminderDays: Int {
+        AppGroup.defaults.object(forKey: todoReminderDaysKey) as? Int ?? 1
+    }
+
+    static var todoReminderMinute: Int {
+        AppGroup.defaults.object(forKey: todoReminderMinuteKey) as? Int ?? defaultTodoReminderMinute
     }
 
     static func directionsLink(latitude: Double, longitude: Double) -> URL {

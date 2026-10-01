@@ -16,6 +16,7 @@ final class AppModel {
     }
 
     var shortcutCheck = ShortcutCheck.idle
+    var tab = MainTab.today
     var isAddingExpense = false
     var isConverting = false
     var converterAmount = 100.0
@@ -38,6 +39,7 @@ final class AppModel {
         account = nil
         isShortcutSetUp = false
         TodaySnapshot.clear()
+        Task { await ReminderScheduler.clear() }
         WidgetPhotoStore.clear()
         StopTracker.shared.sync(isActive: false)
         Task { await TripLiveActivity.sync(with: nil) }

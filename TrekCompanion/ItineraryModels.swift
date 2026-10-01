@@ -82,6 +82,7 @@ struct Reservation: Decodable, Identifiable {
     let dayId: Int?
     let location: String?
     let confirmationNumber: String?
+    var status: String? = nil
 
     var time: String? {
         guard let reservationTime, let index = reservationTime.firstIndex(of: "T") else { return nil }
@@ -118,6 +119,7 @@ struct Stay: Decodable, Identifiable {
     let placeLat: Double?
     let placeLng: Double?
     var checkIn: String? = nil
+    var checkOut: String? = nil
 
     var coordinate: CLLocationCoordinate2D? {
         guard let placeLat, let placeLng else { return nil }
