@@ -187,11 +187,20 @@ sup a {
   text-align: center;
 }
 
-.gradient-text {
-  background: linear-gradient(90deg, #ffb36b 0%, #ff6f91 32%, #b38cff 66%, #67e8f9 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+.headline-dim {
+  color: var(--muted);
+}
+
+.inline-link {
+  color: inherit;
+  -webkit-text-fill-color: currentColor;
+  text-decoration: underline;
+  text-decoration-thickness: 0.06em;
+  text-underline-offset: 0.14em;
+}
+
+.dot.dot-accent {
+  background: var(--green);
 }
 
 .link {
@@ -472,15 +481,7 @@ sup a {
 }
 
 .aurora {
-  position: absolute;
-  inset: -35% -90%;
-  background:
-    radial-gradient(38% 30% at 32% 42%, rgba(99, 102, 241, 0.55), transparent 70%),
-    radial-gradient(30% 26% at 70% 36%, rgba(34, 211, 238, 0.32), transparent 70%),
-    radial-gradient(40% 34% at 52% 72%, rgba(168, 85, 247, 0.42), transparent 70%),
-    radial-gradient(22% 18% at 58% 20%, rgba(255, 140, 90, 0.28), transparent 70%);
-  filter: blur(30px);
-  pointer-events: none;
+  display: none;
 }
 
 @supports (animation-timeline: scroll()) {
@@ -617,13 +618,6 @@ sup a {
   isolation: isolate;
 }
 
-.gallery-item::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: radial-gradient(46% 60% at 62% 78%, color-mix(in srgb, var(--tone) 34%, transparent), transparent 72%);
-}
 
 .gallery-item.tone-violet { --tone: var(--violet); }
 .gallery-item.tone-green { --tone: var(--green); }
@@ -657,7 +651,7 @@ sup a {
 .gallery-phone {
   position: absolute;
   top: 64px;
-  left: 62%;
+  left: max(62%, 570px);
   width: 310px;
   translate: -50% 0;
   transition: translate 1.2s var(--ease);
@@ -875,7 +869,7 @@ sup a {
 }
 
 .callout {
-  --y: 0.705;
+  --y: 0.745;
   position: absolute;
   top: calc(50% + var(--phone-w) * var(--phone-ratio) * (var(--y) - 0.5));
   display: flex;
@@ -912,7 +906,7 @@ sup a {
 }
 
 .callout-bottom {
-  --y: 0.765;
+  --y: 0.81;
 }
 
 @supports (animation-timeline: view()) {
@@ -1199,9 +1193,7 @@ sup a {
   grid-column: span 2;
   grid-row: span 2;
   min-height: 640px;
-  background:
-    radial-gradient(60% 50% at 80% 90%, rgba(99, 102, 241, 0.3), transparent 70%),
-    var(--tile);
+  background: var(--tile);
 }
 
 .tile-total .tile-copy {
@@ -1343,9 +1335,7 @@ sup a {
   gap: 64px;
   padding-inline: 56px;
   padding-bottom: 0;
-  background:
-    radial-gradient(50% 60% at 85% 100%, rgba(255, 159, 10, 0.26), transparent 70%),
-    var(--tile);
+  background: var(--tile);
 }
 
 .tile-receipt .tile-copy {
@@ -1420,9 +1410,7 @@ sup a {
 
 .tile-currency {
   grid-column: span 2;
-  background:
-    radial-gradient(50% 80% at 90% 20%, rgba(48, 209, 88, 0.18), transparent 70%),
-    var(--tile);
+  background: var(--tile);
 }
 
 .tile-currency .currency {
@@ -1949,4 +1937,9 @@ sup a {
     translate: 0 0;
     scale: 1;
   }
+}
+
+.statement .inline-link {
+  color: var(--text);
+  -webkit-text-fill-color: var(--text);
 }

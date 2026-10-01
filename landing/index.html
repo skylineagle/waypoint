@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Waypoint — Your TREK trip companion</title>
-    <meta name="description" content="Waypoint is the iPhone app for your self-hosted TREK server. Today's stops, the walk between them, a Live Activity, widgets, receipt scanning and who owes whom." />
+    <meta name="description" content="Waypoint is the iPhone app for your self-hosted TREK server. The itinerary, the walk between stops, a Live Activity, widgets, receipt scanning and who owes whom." />
     <meta name="theme-color" content="#000000" />
     <meta name="color-scheme" content="dark" />
     <meta name="apple-itunes-app" content="app-id=6817039570" />
@@ -38,7 +38,7 @@
         <a class="localnav-title" href="#top">Waypoint</a>
         <div class="localnav-menu">
           <ul class="localnav-links">
-            <li><a href="#today">Today</a></li>
+            <li><a href="#itinerary">Itinerary</a></li>
             <li><a href="#live">Live Activity</a></li>
             <li><a href="#costs">Costs</a></li>
             <li><a href="#journey">Journey</a></li>
@@ -55,14 +55,13 @@
         <div class="hero-sticky">
           <div class="hero-copy">
             <h1 id="hero-title" class="hero-eyebrow">Waypoint</h1>
-            <p class="hero-headline">Your TREK trip.<br /><span class="gradient-text">Now it travels with you.</span></p>
+            <p class="hero-headline"><span class="headline-dim">Plan it in TREK.</span><br />Travel it with Waypoint.</p>
             <div class="hero-cta">
               <a class="button" href="https://apps.apple.com/app/id6817039570">Download</a>
               <a class="link" href="#trek">Works with your TREK server <svg class="icon-chevron"><use href="#i-chevron" /></svg></a>
             </div>
           </div>
           <div class="hero-stage">
-            <div class="aurora" aria-hidden="true"></div>
             <div class="phone hero-phone hero-phone-left">
               <img src="./media/costs.webp" width="860" height="1870" alt="Costs tab: ₪25,034 spent on a trip to Japan, with who owes whom." />
             </div>
@@ -107,7 +106,7 @@
               <div class="phone gallery-phone"><img src="./media/journey.webp" width="860" height="1870" alt="Send to Journey: photos grouped under Meiji Jingu, Shibuya Scramble Crossing, Sensō-ji, Nakamise and Tokyo Skytree." loading="lazy" /></div>
             </li>
             <li class="gallery-item tone-yellow">
-              <p class="gallery-caption">The trip's to-dos, <strong>with priorities and due dates.</strong></p>
+              <p class="gallery-caption">The trip's to-dos, <strong>with due-date notifications.</strong></p>
               <div class="phone gallery-phone"><img src="./media/todos.webp" width="860" height="1870" alt="To-Dos: overdue, upcoming and undated tasks for the trip." loading="lazy" /></div>
             </li>
           </ul>
@@ -120,11 +119,11 @@
         </div>
       </section>
 
-      <section class="section story" id="today" aria-labelledby="today-title">
+      <section class="section story" id="itinerary" aria-labelledby="itinerary-title">
         <div class="viewport-content section-head">
-          <p class="eyebrow tone-violet reveal">Today</p>
-          <h2 id="today-title" class="section-headline reveal">The day you’re<br />actually in.</h2>
-          <p class="intro reveal">Waypoint opens on today. <strong>Your stops in order, the walk or ride between them, the booking that’s coming up and the bed you sleep in tonight.</strong> The rest of the trip is a swipe away.</p>
+          <p class="eyebrow tone-violet reveal">Itinerary</p>
+          <h2 id="itinerary-title" class="section-headline reveal">Your whole trip.<br />One day at a time.</h2>
+          <p class="intro reveal">The itinerary opens on today. <strong>Stops in order, how to get between them, the booking coming up and tonight’s bed.</strong> Every other day is a swipe away.</p>
         </div>
         <div class="story-layout viewport-content" data-story>
           <div class="story-chapters">
@@ -175,7 +174,7 @@
         <div class="zoom" data-zoom>
           <div class="zoom-sticky">
             <div class="phone zoom-phone">
-              <img src="./media/lock.webp" width="860" height="1870" alt="Lock Screen with a Waypoint Live Activity: up next Ueno Park, 38 min by transit, with Go, Done and Expense buttons." loading="lazy" />
+              <img src="./media/lock.webp" width="860" height="1870" alt="Lock Screen with a Waypoint Live Activity: up next Tokyo National Museum, 8 min walk, with Go, Done and Expense buttons." loading="lazy" />
             </div>
             <ul class="zoom-callouts" aria-hidden="true">
               <li class="callout callout-left">Next stop and how to get there</li>
@@ -315,12 +314,13 @@
         <div class="viewport-content todos-layout">
           <div class="todos-copy">
             <p class="eyebrow tone-yellow reveal">To-Dos</p>
-            <h2 id="todos-title" class="section-headline section-headline-medium reveal">The to-do list<br />comes along.</h2>
-            <p class="intro reveal">Tickets to buy, luggage to forward, a sushi counter to decide on. <strong>The trip’s to-dos from TREK, with priorities, due dates and who’s on it.</strong> Tick them off wherever you are.</p>
+            <h2 id="todos-title" class="section-headline section-headline-medium reveal">TREK to-do lists,<br />with notifications.</h2>
+            <p class="intro reveal">Tickets to buy, luggage to forward, a sushi counter to decide on. <strong>Your TREK to-dos, with priorities, due dates and who’s on it,</strong> and a notification when one comes due. Tick them off wherever you are.</p>
             <ul class="chips reveal" aria-label="What a to-do carries">
               <li><span class="flag flag-red"></span>P1 · Overdue</li>
               <li><span class="flag flag-blue"></span>Due Thu, 8 Oct</li>
               <li><span class="dot"></span>Assigned to you</li>
+              <li><span class="dot dot-accent"></span>Notifies you when due</li>
             </ul>
           </div>
           <div class="phone todos-phone reveal-rise"><img src="./media/todos.webp" width="860" height="1870" alt="To-Dos: 8 open, 6 done, grouped into overdue, upcoming and no date." loading="lazy" /></div>
@@ -328,11 +328,10 @@
       </section>
 
       <section class="section trek" id="trek" aria-labelledby="trek-title">
-        <div class="aurora aurora-trek" aria-hidden="true"></div>
         <div class="viewport-content">
           <svg class="trek-mark reveal" aria-hidden="true"><use href="#i-trek" /></svg>
-          <h2 id="trek-title" class="section-headline reveal">Built for TREK.</h2>
-          <p class="statement"><span>Waypoint is the iPhone companion to TREK, the open‑source trip planner you host yourself. Plan the trip on the web with the people you travel with. Then put it in your pocket.</span></p>
+          <h2 id="trek-title" class="section-headline reveal">Built for <a class="inline-link" href="https://github.com/mauriceboe/TREK">TREK</a>.</h2>
+          <p class="statement"><span>Waypoint is the iPhone companion to <a class="inline-link" href="https://github.com/mauriceboe/TREK">TREK</a>, the open‑source trip planner you host yourself. Plan the trip on the web with the people you travel with. Then put it in your pocket.</span></p>
 
           <ol class="steps">
             <li class="step reveal-tile">
