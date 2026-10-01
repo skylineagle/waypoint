@@ -370,7 +370,6 @@ sup a {
   --radius: 16.2%;
   position: relative;
   aspect-ratio: 1 / var(--phone-ratio);
-  padding: 2.6%;
   border: 3px solid transparent;
   border-radius: var(--radius) / calc(var(--radius) / var(--phone-ratio));
   background:
@@ -404,8 +403,10 @@ sup a {
 
 .phone > img,
 .phone > video {
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  inset: calc(2.6% / var(--phone-ratio)) 2.6%;
+  width: 95.8%;
+  height: calc(100% - 5.2% / var(--phone-ratio));
   object-fit: cover;
   border-radius: 13.6% / calc(13.6% / var(--phone-ratio));
   background: #000;
@@ -814,10 +815,6 @@ sup a {
 }
 
 .story-phone > img {
-  position: absolute;
-  inset: 2.6%;
-  width: 94.8%;
-  height: 94.8%;
   opacity: 0;
   scale: 1.03;
   transition: opacity 0.7s var(--ease), scale 0.9s var(--ease);
