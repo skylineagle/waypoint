@@ -27,6 +27,7 @@ final class TodayModel {
     private(set) var errorMessage: String?
     private(set) var doneIDs: Set<Int>
     var selectedDayID: Int?
+    var isMapShown = false
     private var loadedDayIDs: Set<Int> = []
 
     private var doneKey: String { TodaySnapshot.doneKey(tripID: trip.id) }
@@ -86,6 +87,10 @@ final class TodayModel {
             .filter { $0.dayId == day.id || ($0.dayId == nil && $0.date == day.date) }
             .filter { $0.type != "hotel" }
             .sorted { ($0.time ?? "") < ($1.time ?? "") }
+    }
+
+    func dayBookings(on day: TripDay) -> DayBookings {
+        DayBookings(stops: day.stops, bookings: bookings(on: day))
     }
 
     func stay(for day: TripDay) -> (stay: Stay, night: Int, nights: Int)? {

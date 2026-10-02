@@ -6,9 +6,12 @@ struct TodayMapView: View {
     let doneIDs: Set<Int>
     let nextID: Int?
     var focusID: Int?
+    var coveredTop: CGFloat = 0
+    var coveredBottom: CGFloat = 0
     let onSelect: (TripStop) -> Void
     @State private var position = MapCameraPosition.automatic
     @State private var selectedID: Int?
+    @State private var height: CGFloat = 0
     @Namespace private var mapScope
 
     private var coordinates: [CLLocationCoordinate2D] {
@@ -43,11 +46,12 @@ struct TodayMapView: View {
                 .padding(10)
         }
         .mapScope(mapScope)
-        .clipShape(.rect(cornerRadius: 20))
-        .overlay(RoundedRectangle(cornerRadius: 20).strokeBorder(Color.trekBorder))
+        .onGeometryChange(for: CGFloat.self, of: \.size.height) { height = $0 }
+        .onChange(of: height == 0) { focusOnNext(animated: false) }
         .onAppear { focusOnNext(animated: false) }
         .onChange(of: framedStops.map(\.id)) { focusOnNext(animated: true) }
         .onChange(of: focusID) { _, id in focus(on: id, animated: true) }
+        .onChange(of: coveredBottom) { refocus() }
         .onChange(of: selectedID) { _, id in
             guard let id, let stop = stops.first(where: { $0.id == id }) else { return }
             focus(on: id, animated: true)
@@ -56,12 +60,20 @@ struct TodayMapView: View {
         }
     }
 
+    private func refocus() {
+        if let focusID {
+            focus(on: focusID, animated: true)
+        } else {
+            focusOnNext(animated: true)
+        }
+    }
+
     private func focus(on id: Int?, animated: Bool) {
         guard let coordinate = stops.first(where: { $0.id == id })?.place.coordinate else {
             position = .automatic
             return
         }
-        move(to: .camera(MapCamera(centerCoordinate: coordinate, distance: 2200)), animated: animated)
+        move(to: .region(visibleRegion(center: coordinate, span: MKCoordinateSpan(latitudeDelta: 0.012, longitudeDelta: 0.012))), animated: animated)
     }
 
     private var framedStops: [TripStop] {
@@ -77,11 +89,22 @@ struct TodayMapView: View {
         }
         let latitudes = framed.map(\.latitude)
         let longitudes = framed.map(\.longitude)
-        let region = MKCoordinateRegion(
+        let region = visibleRegion(
             center: CLLocationCoordinate2D(latitude: (latitudes.min()! + latitudes.max()!) / 2, longitude: (longitudes.min()! + longitudes.max()!) / 2),
             span: MKCoordinateSpan(latitudeDelta: max((latitudes.max()! - latitudes.min()!) * 1.8, 0.004), longitudeDelta: max((longitudes.max()! - longitudes.min()!) * 1.8, 0.004))
         )
         move(to: .region(region), animated: animated)
+    }
+
+    private func visibleRegion(center: CLLocationCoordinate2D, span: MKCoordinateSpan) -> MKCoordinateRegion {
+        let visibleHeight = height - coveredTop - coveredBottom
+        guard height > 0, visibleHeight > 0 else { return MKCoordinateRegion(center: center, span: span) }
+        let latitudeDelta = span.latitudeDelta * height / visibleHeight
+        let shift = latitudeDelta * (coveredBottom - coveredTop) / 2 / height
+        return MKCoordinateRegion(
+            center: CLLocationCoordinate2D(latitude: center.latitude - shift, longitude: center.longitude),
+            span: MKCoordinateSpan(latitudeDelta: latitudeDelta, longitudeDelta: span.longitudeDelta)
+        )
     }
 
     private func move(to camera: MapCameraPosition, animated: Bool) {

@@ -5,6 +5,7 @@ struct UpNextCard: View {
     let number: Int
     let total: Int
     let leg: TravelLeg?
+    var booking: Reservation?
     let onDone: () -> Void
 
     private var directionsTitle: String {
@@ -14,10 +15,13 @@ struct UpNextCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("UP NEXT · \(number) OF \(total)")
-                .font(.poppins(10, .bold, relativeTo: .caption2))
-                .tracking(0.9)
-                .foregroundStyle(.white.opacity(0.55))
+            HStack(spacing: 6) {
+                Text("UP NEXT · \(number) OF \(total)")
+                    .font(.poppins(10, .bold, relativeTo: .caption2))
+                    .tracking(0.9)
+                    .foregroundStyle(.white.opacity(0.55))
+                if let booking { BookedBadge(reservation: booking) }
+            }
             Text(stop.place.name)
                 .font(.poppins(20, .bold, relativeTo: .title2))
                 .padding(.top, 3)

@@ -1,3 +1,4 @@
+import SwiftUI
 import Foundation
 import Observation
 
@@ -120,7 +121,7 @@ final class TodosModel {
     func toggle(_ item: TodoItem) async {
         guard let client = TrekClient.current, let index = items?.firstIndex(of: item) else { return }
         let isDone = !item.isDone
-        items?[index].checked = isDone ? 1 : 0
+        withAnimation(.smooth) { items?[index].checked = isDone ? 1 : 0 }
         do {
             try await client.setTodo(id: item.id, checked: isDone, tripID: trip.id)
             await syncReminders()

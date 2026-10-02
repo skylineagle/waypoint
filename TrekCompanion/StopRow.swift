@@ -7,6 +7,7 @@ struct StopRow: View {
 
     let stop: TripStop
     let number: Int
+    var booking: Reservation?
     let state: StopState
     var isHighlighted = false
     @State private var isExpanded = false
@@ -26,11 +27,15 @@ struct StopRow: View {
                 TimelineDot(number: number, state: state)
             }
 
+            HStack(alignment: .center, spacing: 8) {
             VStack(alignment: .leading, spacing: 2) {
-                Text(stop.place.name)
-                    .font(.poppins(isDone ? 13 : 14, isDone ? .medium : .semibold))
-                    .foregroundStyle(isDone ? Color.trekMuted : Color.trekText)
-                    .strikethrough(isDone, color: Color.trekFaint)
+                HStack(spacing: 6) {
+                    Text(stop.place.name)
+                        .font(.poppins(isDone ? 13 : 14, isDone ? .medium : .semibold))
+                        .foregroundStyle(isDone ? Color.trekMuted : Color.trekText)
+                        .strikethrough(isDone, color: Color.trekFaint)
+                    if let booking, !isDone { BookedBadge(reservation: booking) }
+                }
                 if !isDone, let detail = stop.notes ?? stop.place.address {
                     Text(detail)
                         .font(.poppins(11.5, relativeTo: .caption))
@@ -40,6 +45,18 @@ struct StopRow: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+            if !isDone {
+                Button("Directions to \(stop.place.name)", systemImage: "arrow.triangle.turn.up.right.diamond.fill") {
+                    Directions.open(to: stop.place)
+                }
+                .labelStyle(.iconOnly)
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(Color.trekText)
+                .frame(width: 34, height: 34)
+                .background(Color.trekSecondaryFill, in: .circle)
+                .buttonStyle(.plain)
+            }
+            }
             .padding(.horizontal, isDone ? 2 : 11)
             .padding(.vertical, isDone ? 3 : 9)
             .background(isDone ? Color.clear : Color.trekCard, in: .rect(cornerRadius: 14))
@@ -51,12 +68,6 @@ struct StopRow: View {
             }
             .contentShape(.rect)
             .onTapGesture { withAnimation(.snappy) { isExpanded.toggle() } }
-            .contextMenu {
-                Button("Directions", systemImage: "arrow.triangle.turn.up.right.diamond") { Directions.open(to: stop.place) }
-                if let onToggle {
-                    Button(isDone ? "Mark as not done" : "Mark as done", systemImage: "checkmark.circle", action: onToggle)
-                }
-            }
         }
         .animation(.smooth, value: isHighlighted)
     }

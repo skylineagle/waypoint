@@ -6,7 +6,7 @@ struct AddExpenseIntent: AppIntent {
     static let description = IntentDescription("Adds a Wallet payment to the costs of your selected Trek trip.")
 
     @Parameter(title: "Amount")
-    var amount: Double?
+    var amount: IntentCurrencyAmount?
 
     @Parameter(title: "Merchant")
     var merchant: String?
@@ -23,17 +23,19 @@ struct AddExpenseIntent: AppIntent {
         guard let amount else {
             return .result(dialog: "TREK shortcut is ready.")
         }
+        let totalPrice = NSDecimalNumber(decimal: amount.amount).doubleValue
         let name = merchant ?? "Apple Pay"
         let category = merchant == nil ? CostCategory.other : await ExpenseCategorizer.category(for: name)
         var expense = ExpenseInput(
             name: name,
             category: category.rawValue,
-            totalPrice: amount,
+            totalPrice: totalPrice,
+            currency: amount.currencyCode,
             note: ExpenseInput.applePayNote,
             expenseDate: ExpenseDate.today
         )
         if let meID = try? await client.currentUserID() {
-            expense.payers = [ExpenseInput.PayerInput(userId: meID, amount: amount)]
+            expense.payers = [ExpenseInput.PayerInput(userId: meID, amount: totalPrice)]
         }
         _ = try await client.addExpense(expense, tripID: trip.id)
         return .result(dialog: "Added \(name) to \(trip.title) as \(category.label).")

@@ -6,6 +6,7 @@ struct DayTimeline: View {
     let doneIDs: Set<Int>
     let nextID: Int?
     let legs: [Int: TravelLeg]
+    let bookings: DayBookings
     let highlightedID: Int?
     let onSelect: (TripStop) -> Void
     let onToggle: ((TripStop) -> Void)?
@@ -17,9 +18,10 @@ struct DayTimeline: View {
                 case .note(let note):
                     NoteRow(note: note)
                 case .stop(let stop, let number):
-                    if number > 1, let leg = legs[stop.id], stop.id != nextID, !doneIDs.contains(stop.id) {
+                    if let journey = bookings.journeys[stop.id] {
+                        JourneyLegLabel(reservation: journey)
+                    } else if number > 1, let leg = legs[stop.id], stop.id != nextID, !doneIDs.contains(stop.id) {
                         TravelLegLabel(leg: leg)
-                            .padding(.leading, 36)
                     }
                     row(stop: stop, number: number)
                         .id(stop.id)
@@ -42,11 +44,11 @@ struct DayTimeline: View {
             HStack(alignment: .top, spacing: 10) {
                 TimelineDot(number: number, state: .next)
                     .padding(.top, 14)
-                UpNextCard(stop: stop, number: number, total: stopCount, leg: legs[stop.id]) { onToggle?(stop) }
+                UpNextCard(stop: stop, number: number, total: stopCount, leg: legs[stop.id], booking: bookings.stopBookings[stop.id]) { onToggle?(stop) }
                     .onTapGesture { onSelect(stop) }
             }
         } else {
-            StopRow(stop: stop, number: number, state: doneIDs.contains(stop.id) ? .done : .upcoming, isHighlighted: stop.id == highlightedID, onToggle: onToggle.map { toggle in { toggle(stop) } })
+            StopRow(stop: stop, number: number, booking: bookings.stopBookings[stop.id], state: doneIDs.contains(stop.id) ? .done : .upcoming, isHighlighted: stop.id == highlightedID, onToggle: onToggle.map { toggle in { toggle(stop) } })
             .onTapGesture { onSelect(stop) }
         }
     }

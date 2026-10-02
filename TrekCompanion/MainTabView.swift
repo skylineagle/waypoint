@@ -13,7 +13,7 @@ struct MainTabView: View {
     }
 
     private var tripDay: TripDay? {
-        guard app.tab == .today, today.selectedDayID == nil, case .during(let day, _) = today.phase, !day.stops.isEmpty else { return nil }
+        guard app.tab == .today, today.selectedDayID == nil, !today.isMapShown, case .during(let day, _) = today.phase, !day.stops.isEmpty else { return nil }
         return day
     }
 

@@ -6,10 +6,10 @@ struct TodayView: View {
     @Environment(\.scenePhase) private var scenePhase
     let model: TodayModel
     let costs: CostsModel
-    @AppStorage("today-map-shown") private var isMapShown = false
     @State private var highlightedID: Int?
     @State private var mapFocusID: Int?
     @State private var isScrolled = false
+    @State private var sheetHeight: CGFloat = 160
     @State private var photoTask: Task<Void, Never>?
     @AppStorage(AppSettings.widgetPhotosKey, store: AppGroup.defaults) private var isWidgetPhotosEnabled = true
 
@@ -19,13 +19,26 @@ struct TodayView: View {
                 pinnedHeader
                     .padding(.horizontal, 16)
                     .padding(.bottom, 4)
-                    .background(Color.trekBackground)
+                    .background {
+                        if model.isMapShown {
+                            mapHeaderFade.padding(.bottom, -40).ignoresSafeArea(edges: .top)
+                        } else {
+                            Color.trekBackground
+                        }
+                    }
                     .zIndex(1)
-                pages
+                if model.isMapShown {
+                    Spacer()
+                } else {
+                    pages
+                }
             }
             .overlay(alignment: .bottom) { backButton }
+            .background { fullscreenMap }
             .background(Color.trekBackground)
             .toolbarVisibility(.hidden, for: .navigationBar)
+            .toolbarVisibility(model.isMapShown ? .hidden : .visible, for: .tabBar)
+            .sheet(isPresented: mapSheetShown) { timelineSheet }
             .task { await model.load() }
             .task(id: model.viewedDay?.id) {
                 guard let day = model.viewedDay else { return }
@@ -55,7 +68,7 @@ struct TodayView: View {
             ScrollView(.horizontal) {
                 LazyHStack(spacing: 0) {
                     ForEach(days) { day in
-                        dayScroll { dayContent(day) }
+                        dayScroll(nextID: nextID(on: day)) { dayContent(day) }
                             .containerRelativeFrame(.horizontal)
                     }
                 }
@@ -68,7 +81,7 @@ struct TodayView: View {
                 withAnimation(.smooth) { isScrolled = false }
             }
         } else {
-            dayScroll { content }
+            dayScroll(nextID: nil) { content }
         }
     }
 
@@ -81,11 +94,18 @@ struct TodayView: View {
         }
     }
 
-    private func dayScroll(@ViewBuilder content: @escaping () -> some View) -> some View {
+    private func nextID(on day: TripDay) -> Int? {
+        model.isToday(day) ? model.nextStop(on: day)?.id : nil
+    }
+
+    private func dayScroll(nextID: Int?, @ViewBuilder content: @escaping () -> some View) -> some View {
         ScrollViewReader { proxy in
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
                     content()
+                    if nextID != nil {
+                        Color.clear.containerRelativeFrame(.vertical) { height, _ in height * 0.5 }
+                    }
                 }
                 .padding(.horizontal, 16)
                 .padding(.bottom, model.selectedDayID == nil ? 24 : 80)
@@ -98,11 +118,18 @@ struct TodayView: View {
                 guard let scrolled, scrolled != isScrolled else { return }
                 withAnimation(.smooth) { isScrolled = scrolled }
             }
+            .onAppear { scrollToNext(nextID, proxy: proxy, animated: false) }
+            .onChange(of: nextID) { _, id in scrollToNext(id, proxy: proxy, animated: true) }
             .onChange(of: highlightedID) { _, id in
                 guard let id else { return }
                 withAnimation(.smooth) { proxy.scrollTo(id, anchor: .center) }
             }
         }
+    }
+
+    private func scrollToNext(_ id: Int?, proxy: ScrollViewProxy, animated: Bool) {
+        guard let id else { return }
+        withAnimation(animated ? .smooth : nil) { proxy.scrollTo(id, anchor: .top) }
     }
 
     private func stripVisibility(_ geometry: ScrollGeometry) -> Bool? {
@@ -133,14 +160,15 @@ struct TodayView: View {
         let isToday = model.isToday(day)
         let stops = day.stops
         let next = isToday ? model.nextStop(on: day) : nil
-        let bookings = model.bookings(on: day)
+        let dayBookings = model.dayBookings(on: day)
+        let bookings = dayBookings.loose
         let tonight = model.stay(for: day)
         let onToggle: ((TripStop) -> Void)? = isToday ? { toggleDone($0) } : nil
         let remaining = stops.count - stops.filter { model.doneIDs.contains($0.id) }.count
 
         if !stops.isEmpty {
             sectionTitle(isToday ? "Today's plan" : "Plan", badge: badge(for: day), trailing: isToday ? "\(remaining) left" : "\(stops.count) stops")
-            DayTimeline(entries: day.timeline, stopCount: stops.count, doneIDs: model.doneIDs, nextID: next?.id, legs: model.legs, highlightedID: highlightedID, onSelect: { mapFocusID = $0.id }, onToggle: onToggle)
+            DayTimeline(entries: day.timeline, stopCount: stops.count, doneIDs: model.doneIDs, nextID: next?.id, legs: model.legs, bookings: dayBookings, highlightedID: highlightedID, onSelect: { mapFocusID = $0.id }, onToggle: onToggle)
             if isToday, next == nil {
                 Label("Day complete", systemImage: "checkmark.seal.fill")
                     .font(.poppins(15, .semibold))
@@ -170,23 +198,64 @@ struct TodayView: View {
         if model.errorMessage == nil, let days = model.days, !days.isEmpty {
             VStack(spacing: 10) {
                 if let day = model.viewedDay {
-                    TodayHeader(eyebrow: eyebrow(day: day), title: day.title ?? "Day \(model.number(of: day))", weather: model.weather[day.id], weatherURL: weatherURL(for: day), isMapShown: $isMapShown)
+                    TodayHeader(eyebrow: eyebrow(day: day), title: day.title ?? "Day \(model.number(of: day))", weather: model.weather[day.id], weatherURL: weatherURL(for: day), isMapShown: Binding { model.isMapShown } set: { model.isMapShown = $0 })
                 }
-                if !isScrolled {
-                    DayStrip(days: days, segments: model.segments, todayID: model.todayDay?.id, selectedID: model.viewedDay?.id, daysUntilStart: daysUntilStart, onSelect: select, onOverscrollStart: returnToOverview)
-                        .padding(.horizontal, -16)
+                if !isScrolled || model.isMapShown {
+                    DayStrip(days: days, segments: model.segments, todayID: model.todayDay?.id, selectedID: model.viewedDay?.id, daysUntilStart: daysUntilStart, onSelect: select, onOverscrollStart: returnToOverview, inset: model.isMapShown ? 6 : 16)
+                        .padding(.vertical, model.isMapShown ? 2 : 0)
+                        .clipShape(.rect(cornerRadius: model.isMapShown ? 24 : 0))
+                        .glassEffect(model.isMapShown ? .regular : .identity, in: .rect(cornerRadius: 24))
+                        .padding(.horizontal, model.isMapShown ? 0 : -16)
                         .padding(.top, 4)
                         .transition(.move(edge: .top).combined(with: .opacity))
                 }
-                if isMapShown, let day = model.viewedDay, !day.stops.isEmpty {
-                    TodayMapView(stops: day.stops, doneIDs: model.doneIDs, nextID: model.isToday(day) ? model.nextStop(on: day)?.id : nil, focusID: mapFocusID) { stop in
-                        highlight(stop)
-                    }
-                    .id(day.id)
-                    .frame(height: 260)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                }
             }
+        }
+    }
+
+    @ViewBuilder
+    private var fullscreenMap: some View {
+        if model.isMapShown, let day = model.viewedDay {
+            TodayMapView(stops: day.stops, doneIDs: model.doneIDs, nextID: nextID(on: day), focusID: mapFocusID, coveredTop: 210, coveredBottom: sheetHeight) { stop in
+                highlight(stop)
+            }
+            .id(day.id)
+            .ignoresSafeArea()
+            .transition(.opacity)
+        }
+    }
+
+    private var mapHeaderFade: LinearGradient {
+        LinearGradient(stops: [.init(color: Color.trekBackground, location: 0), .init(color: Color.trekBackground.opacity(0.85), location: 0.55), .init(color: Color.trekBackground.opacity(0), location: 1)], startPoint: .top, endPoint: .bottom)
+    }
+
+    private var mapSheetShown: Binding<Bool> {
+        Binding { model.isMapShown && model.viewedDay != nil } set: { model.isMapShown = $0 }
+    }
+
+    @ViewBuilder
+    private var timelineSheet: some View {
+        if let day = model.viewedDay {
+            let isToday = model.isToday(day)
+            let remaining = day.stops.filter { !model.doneIDs.contains($0.id) }.count
+            MapTimelineSheet(
+                caption: isToday ? "Today · \(day.stops.count - remaining) of \(day.stops.count) done" : "Plan",
+                trailing: isToday ? "\(remaining) left" : "\(day.stops.count) stops",
+                stops: day.stops,
+                doneIDs: isToday ? model.doneIDs : [],
+                nextID: nextID(on: day),
+                legs: model.legs,
+                journeys: model.dayBookings(on: day).journeys,
+                onSelect: { mapFocusID = $0.id },
+                onToggle: isToday ? { toggleDone($0) } : nil
+            )
+                .id(day.id)
+                .onGeometryChange(for: CGFloat.self, of: \.size.height) { sheetHeight = $0 }
+                .presentationDetents([.height(150), .medium, .large])
+                .presentationBackground { Color.trekBackground.opacity(0.6) }
+                .presentationBackgroundInteraction(.enabled(upThrough: .medium))
+                .presentationDragIndicator(.visible)
+                .interactiveDismissDisabled()
         }
     }
 

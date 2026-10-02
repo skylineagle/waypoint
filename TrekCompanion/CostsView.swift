@@ -40,9 +40,6 @@ struct CostsView: View {
                     if model.isShared {
                         SplitSummary(model: model, onShowUnpaid: showUnpaid).plainListRow()
                     }
-                    CurrencyConverterCard(converter: model.converter)
-                        .redacted(reason: model.items == nil ? .placeholder : [])
-                        .plainListRow()
                     CostsTabPicker(selection: $tab, tabs: tabs).plainListRow()
                 }
 

@@ -11,14 +11,9 @@ struct BookingRow: View {
         return parts.joined(separator: " · ")
     }
 
-    private var webURL: URL? {
-        guard let account = Account.load() else { return nil }
-        return URL(string: "\(account.serverURL.absoluteString)/trips/\(reservation.tripId)?tab=\(reservation.webTab)")
-    }
-
     var body: some View {
         Button {
-            if let webURL { openURL(webURL) }
+            if let webURL = reservation.webURL { openURL(webURL) }
         } label: {
             content
         }

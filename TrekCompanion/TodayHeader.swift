@@ -37,7 +37,7 @@ struct TodayHeader: View {
                     .glassEffect(.regular.interactive())
                     .accessibilityHint("Opens the weather for your next stop")
                 }
-                Button(isMapShown ? "Hide map" : "Show map", systemImage: isMapShown ? "map.fill" : "map") {
+                Button(isMapShown ? "Show list" : "Show map", systemImage: isMapShown ? "list.bullet" : "map") {
                     withAnimation(.smooth(duration: 0.35)) { isMapShown.toggle() }
                 }
                 .labelStyle(.iconOnly)

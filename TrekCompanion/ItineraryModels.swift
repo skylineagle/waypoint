@@ -73,6 +73,15 @@ struct StopPlace: Decodable, Hashable {
     }
 }
 
+struct ReservationEndpoint: Decodable, Hashable {
+    let role: String
+    let name: String
+    let lat: Double
+    let lng: Double
+
+    var coordinate: CLLocationCoordinate2D { CLLocationCoordinate2D(latitude: lat, longitude: lng) }
+}
+
 struct Reservation: Decodable, Identifiable {
     let id: Int
     let tripId: Int
@@ -83,10 +92,26 @@ struct Reservation: Decodable, Identifiable {
     let location: String?
     let confirmationNumber: String?
     var status: String? = nil
+    var reservationEndTime: String? = nil
+    var assignmentId: Int? = nil
+    var placeId: Int? = nil
+    var endpoints: [ReservationEndpoint]? = nil
 
-    var time: String? {
-        guard let reservationTime, let index = reservationTime.firstIndex(of: "T") else { return nil }
-        return String(reservationTime[reservationTime.index(after: index)...].prefix(5))
+    var time: String? { Self.clockTime(reservationTime) }
+    var endTime: String? { Self.clockTime(reservationEndTime) }
+
+    var isTransport: Bool { webTab == "transports" }
+
+    var arrival: ReservationEndpoint? { endpoints?.first { $0.role == "to" } }
+
+    var webURL: URL? {
+        guard let account = Account.load() else { return nil }
+        return URL(string: "\(account.serverURL.absoluteString)/trips/\(tripId)?tab=\(webTab)")
+    }
+
+    private static func clockTime(_ value: String?) -> String? {
+        guard let value, let index = value.firstIndex(of: "T") else { return nil }
+        return String(value[value.index(after: index)...].prefix(5))
     }
 
     var date: String? {

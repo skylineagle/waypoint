@@ -8,6 +8,7 @@ struct DayStrip: View {
     let daysUntilStart: Int?
     let onSelect: (TripDay) -> Void
     let onOverscrollStart: () -> Void
+    var inset: CGFloat = 16
 
     private static let upcomingID = -1
 
@@ -34,7 +35,7 @@ struct DayStrip: View {
                         .id(day.id)
                     }
                 }
-                .padding(.horizontal, 16)
+                .padding(.horizontal, inset)
                 .padding(.vertical, 4)
             }
             .scrollIndicators(.hidden)

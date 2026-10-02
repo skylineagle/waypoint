@@ -54,7 +54,7 @@ Screenshots use trips planned in TREK and captured on an iPhone simulator. You c
 | Stop progress | Mark stops done yourself, or let location-based visit detection do it after you spend time there. |
 | Shared expenses | Add and edit expenses, choose who paid and who shares the cost, browse categories and spending insights, and see who owes whom. |
 | Receipt scanning | Scan or select a receipt to extract its merchant, amount, currency, and date on the device, then review it before saving. |
-| Apple Pay shortcut | Set up a personal Transaction automation in Shortcuts to add payments to your selected trip. |
+| Apple Pay shortcut | Add Waypoint - TREK Expenses. It records a payment whenever any Wallet card is tapped. |
 | Currency conversion | Convert between your display currency and the trip currency, using rates from Frankfurter. |
 | To-dos | Create, edit, and complete tasks with priorities, due dates, assignees, and filters for your tasks or a list. |
 | Reminders | Configure local notifications for to-dos, bookings, check-in and check-out, morning plans, and the countdown to departure. |
@@ -71,7 +71,7 @@ Receipt scanning requires Apple Intelligence to be available on the device. Manu
 2. Install [Waypoint from the App Store](https://apps.apple.com/app/id6817039570), or [build it from source](#build-from-source).
 3. Enter your TREK server's address and sign in with your email and password. Waypoint also supports TREK's MFA verification-code step.
 4. Choose the trip you want to use. You can switch later in **Settings → Change Trip**.
-5. Finish the shortcut setup. To log Apple Pay payments automatically, create a **Transaction** automation in Shortcuts, select your cards, choose **Run Immediately**, and run **Waypoint - TREK costs**.
+5. Finish the shortcut setup. **Add Shortcut** installs **Waypoint - TREK Expenses**, which runs when any card is tapped.
 
 Your server must be reachable from the iPhone. Use an HTTPS address for your server. Waypoint uses TREK's API directly; it does not host a server or create a separate Waypoint account. The current sign-in flow uses password login, so a server configured for SSO-only login will need a supported password sign-in option.
 
