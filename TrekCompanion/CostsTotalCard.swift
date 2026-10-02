@@ -2,6 +2,7 @@ import SwiftUI
 
 struct CostsTotalCard: View {
     let model: CostsModel
+    let onShowUnpaid: () -> Void
 
     private var currency: String { model.converter.displayCurrency }
 
@@ -22,11 +23,7 @@ struct CostsTotalCard: View {
                     .foregroundStyle(Color(hex: 0xF5F5F7, alpha: 0.62))
             }
             if model.isShared {
-                HStack(spacing: 14) {
-                    stat("Your share", model.myShare.money(currency, fractionDigits: 0...0))
-                    stat("You paid", model.myPaid.money(currency, fractionDigits: 0...0))
-                }
-                .padding(.top, 10)
+                shareBar.padding(.top, 10)
             }
             HStack(spacing: 14) {
                 if model.hasStarted {
@@ -35,7 +32,10 @@ struct CostsTotalCard: View {
                 }
                 stat(nil, "\(model.items?.count ?? 0) expenses")
             }
-            .padding(.top, model.isShared ? 4 : 10)
+            .padding(.top, model.isShared ? 6 : 10)
+            if !model.unpaidItems.isEmpty {
+                unpaidButton.padding(.top, 10)
+            }
         }
         .foregroundStyle(Color(hex: 0xF5F5F7))
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -46,6 +46,48 @@ struct CostsTotalCard: View {
         )
         .overlay(RoundedRectangle(cornerRadius: 20).strokeBorder(Color.trekHeroEdge))
         .animation(.smooth, value: model.total)
+    }
+
+    private var shareBar: some View {
+        let total = max(model.total, 0.01)
+        let shareFraction = min(max(model.myShare / total, 0), 1)
+        return VStack(spacing: 6) {
+            GeometryReader { proxy in
+                Capsule()
+                    .fill(Color(hex: 0xF5F5F7, alpha: 0.22))
+                    .overlay(alignment: .leading) {
+                        Capsule()
+                            .fill(Color(hex: 0xF5F5F7))
+                            .frame(width: proxy.size.width * shareFraction)
+                    }
+            }
+            .frame(height: 8)
+            HStack {
+                stat("Your share", model.myShare.money(currency, fractionDigits: 0...0))
+                Spacer(minLength: 8)
+                stat("Others", max(model.total - model.myShare, 0).money(currency, fractionDigits: 0...0))
+            }
+        }
+        .animation(.smooth, value: model.myShare)
+    }
+
+    private var unpaidButton: some View {
+        Button(action: onShowUnpaid) {
+            HStack(spacing: 8) {
+                Image(systemName: "exclamationmark.circle.fill")
+                    .foregroundStyle(Color.trekWarning)
+                Text("\(model.unpaidItems.count) expenses need a payer")
+                    .foregroundStyle(Color(hex: 0xF5F5F7, alpha: 0.72))
+                Spacer(minLength: 8)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(Color(hex: 0xF5F5F7, alpha: 0.5))
+            }
+            .font(.poppins(11.5, relativeTo: .caption))
+            .contentShape(.rect)
+        }
+        .buttonStyle(.borderless)
+        .accessibilityHint("Shows the expenses so you can set who paid")
     }
 
     private func stat(_ label: String?, _ value: String) -> some View {

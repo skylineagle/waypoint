@@ -34,12 +34,9 @@ struct CostsView: View {
             List {
                 Section {
                     CostsHeader(trip: model.trip).plainListRow()
-                    CostsTotalCard(model: model)
+                    CostsTotalCard(model: model, onShowUnpaid: showUnpaid)
                         .redacted(reason: model.items == nil ? .placeholder : [])
                         .plainListRow()
-                    if model.isShared {
-                        SplitSummary(model: model, onShowUnpaid: showUnpaid).plainListRow()
-                    }
                     CostsTabPicker(selection: $tab, tabs: tabs).plainListRow()
                 }
 
