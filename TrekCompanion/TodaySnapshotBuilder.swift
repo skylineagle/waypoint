@@ -48,7 +48,8 @@ enum TodaySnapshotBuilder {
                 latitude: stop.place.lat,
                 longitude: stop.place.lng,
                 leg: legText,
-                photoName: WidgetPhotos.name(for: stop.place, trip: trip)
+                photoName: WidgetPhotos.name(for: stop.place, trip: trip),
+                category: stop.place.category
             )
         }
     }

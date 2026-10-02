@@ -19,12 +19,12 @@ struct StopRow: View {
         HStack(alignment: isDone ? .center : .top, spacing: 10) {
             if let onToggle {
                 Button(action: onToggle) {
-                    TimelineDot(number: number, state: state)
+                    TimelineDot(number: number, state: state, category: stop.place.category)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(isDone ? "Mark \(stop.place.name) not done" : "Mark \(stop.place.name) done")
             } else {
-                TimelineDot(number: number, state: state)
+                TimelineDot(number: number, state: state, category: stop.place.category)
             }
 
             HStack(alignment: .center, spacing: 8) {

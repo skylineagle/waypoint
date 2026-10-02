@@ -92,7 +92,7 @@ struct MapTimelineSheet: View {
         let state: StopRow.StopState = stop.id == nextID ? .next : doneIDs.contains(stop.id) ? .done : .upcoming
         let isNext = state == .next
         return HStack(spacing: 10) {
-            TimelineDot(number: number, state: state, isOnGlass: true)
+            TimelineDot(number: number, state: state, category: stop.place.category, isOnGlass: true)
             HStack(spacing: 10) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(stop.place.name)

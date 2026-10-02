@@ -21,9 +21,14 @@ struct TripActivityLockScreenView: View {
                     Text(upNextLine)
                         .font(.system(size: 12))
                         .foregroundStyle(.white.opacity(0.65))
-                    Text(state.nextName ?? "Day complete")
-                        .font(.system(size: 19, weight: .bold))
-                        .lineLimit(1)
+                    HStack(spacing: 8) {
+                        if let category = state.nextCategory {
+                            StopCategoryBadge(category: category, size: 26)
+                        }
+                        Text(state.nextName ?? "Day complete")
+                            .font(.system(size: 19, weight: .bold))
+                            .lineLimit(1)
+                    }
                 }
                 Spacer()
                 VStack(alignment: .trailing, spacing: 0) {

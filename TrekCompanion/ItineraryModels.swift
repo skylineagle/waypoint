@@ -66,6 +66,7 @@ struct StopPlace: Decodable, Hashable {
     var imageUrl: String? = nil
     var googlePlaceId: String? = nil
     var osmId: String? = nil
+    var category: StopCategory? = nil
 
     var coordinate: CLLocationCoordinate2D? {
         guard let lat, let lng else { return nil }

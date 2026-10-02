@@ -8,6 +8,7 @@ nonisolated struct TodaySnapshot: Codable, Hashable, Sendable {
         let longitude: Double?
         let leg: String?
         var photoName: String? = nil
+        var category: StopCategory? = nil
     }
 
     let tripID: Int
@@ -79,6 +80,7 @@ nonisolated struct TodaySnapshot: Codable, Hashable, Sendable {
         TripActivityAttributes.ContentState(
             nextName: next?.name,
             nextLeg: next?.leg,
+            nextCategory: next?.category,
             position: position,
             total: stops.count,
             doneCount: doneCount,

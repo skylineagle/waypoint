@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MapStopPin: View {
     let number: Int
+    let category: StopCategory?
     let isDone: Bool
     let isNext: Bool
 
@@ -16,7 +17,7 @@ struct MapStopPin: View {
         }
         .foregroundStyle(.white)
         .frame(width: isNext ? 30 : 24, height: isNext ? 30 : 24)
-        .overlay(Circle().strokeBorder(.white, lineWidth: 2))
+        .overlay(Circle().strokeBorder(category?.tint ?? .white, lineWidth: 2))
         .background(Circle().fill(Color(hex: 0x111827).opacity(isNext ? 0.18 : 0)).padding(-7))
         .shadow(color: .black.opacity(0.25), radius: 3, y: 2)
     }

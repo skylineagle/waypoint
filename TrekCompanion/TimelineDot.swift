@@ -3,6 +3,7 @@ import SwiftUI
 struct TimelineDot: View {
     let number: Int
     let state: StopRow.StopState
+    var category: StopCategory?
     var isOnGlass = false
 
     var body: some View {
@@ -12,6 +13,9 @@ struct TimelineDot: View {
                 Image(systemName: "checkmark")
                     .font(.system(size: 13, weight: .bold))
                     .foregroundStyle(Color.trekSuccess)
+            } else if let category {
+                Circle().fill(category.tint.opacity(state == .next ? 0.3 : 0.14))
+                categoryIcon(category)
             } else {
                 if state == .next {
                     Circle().fill(Color.trekAccent)
@@ -28,5 +32,11 @@ struct TimelineDot: View {
         }
         .frame(width: 26, height: 26)
         .background(isOnGlass ? .clear : Color.trekBackground)
+    }
+
+    private func categoryIcon(_ category: StopCategory) -> some View {
+        Image(systemName: category.symbol)
+            .font(.system(size: 11, weight: .semibold))
+            .foregroundStyle(category.tint)
     }
 }

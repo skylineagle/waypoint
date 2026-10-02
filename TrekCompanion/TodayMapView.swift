@@ -33,7 +33,7 @@ struct TodayMapView: View {
             ForEach(Array(stops.enumerated()), id: \.element.id) { index, stop in
                 if let coordinate = stop.place.coordinate {
                     Annotation(stop.place.name, coordinate: coordinate) {
-                        MapStopPin(number: index + 1, isDone: doneIDs.contains(stop.id), isNext: stop.id == nextID)
+                        MapStopPin(number: index + 1, category: stop.place.category, isDone: doneIDs.contains(stop.id), isNext: stop.id == nextID)
                     }
                     .tag(stop.id)
                 }

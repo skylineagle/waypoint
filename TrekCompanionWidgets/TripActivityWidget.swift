@@ -25,10 +25,15 @@ struct TripActivityWidget: Widget {
                 }
                 DynamicIslandExpandedRegion(.bottom) {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text(context.state.nextName ?? "Day complete")
-                            .font(.title3.bold())
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.8)
+                        HStack(spacing: 8) {
+                            if let category = context.state.nextCategory {
+                                StopCategoryBadge(category: category)
+                            }
+                            Text(context.state.nextName ?? "Day complete")
+                                .font(.title3.bold())
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.8)
+                        }
                         StopProgressBar(done: context.state.doneCount, total: context.state.total)
                         TripActivityActions(state: context.state)
                     }

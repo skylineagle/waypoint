@@ -42,7 +42,7 @@ struct DayTimeline: View {
     private func row(stop: TripStop, number: Int) -> some View {
         if stop.id == nextID {
             HStack(alignment: .top, spacing: 10) {
-                TimelineDot(number: number, state: .next)
+                TimelineDot(number: number, state: .next, category: stop.place.category)
                     .padding(.top, 14)
                 UpNextCard(stop: stop, number: number, total: stopCount, leg: legs[stop.id], booking: bookings.stopBookings[stop.id]) { onToggle?(stop) }
                     .onTapGesture { onSelect(stop) }
