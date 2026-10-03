@@ -1,3 +1,4 @@
+import CoreSpotlight
 import SwiftUI
 
 @main
@@ -25,6 +26,9 @@ struct TrekCompanionApp: App {
                     if let id = BookingLink.reservationID(in: url) { model.openedBookingID = id }
                     if let tab = MainTab(link: url) { model.tab = tab }
                     if let directions = AppSettings.resolveDirectionsLink(url) { UIApplication.shared.open(directions) }
+                }
+                .onContinueUserActivity(CSSearchableItemActionType) { activity in
+                    if let target = SpotlightIndex.target(of: activity) { model.open(target) }
                 }
                 .onChange(of: scenePhase) {
                     if scenePhase == .active {

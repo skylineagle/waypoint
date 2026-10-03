@@ -11,6 +11,8 @@ struct DayTimeline: View {
     let highlightedID: Int?
     let onSelect: (TripStop) -> Void
     let onShowOnMap: (TripStop) -> Void
+    let lookAroundIDs: Set<Int>
+    let onLookAround: (TripStop) -> Void
     let onToggle: ((TripStop) -> Void)?
 
     var body: some View {
@@ -38,6 +40,9 @@ struct DayTimeline: View {
                         }
                         Button("Directions", systemImage: "arrow.triangle.turn.up.right.diamond.fill") { Directions.open(to: stop.place) }
                         Button("Show on map", systemImage: "map") { onShowOnMap(stop) }
+                        if lookAroundIDs.contains(stop.id) {
+                            Button("Look Around", systemImage: "binoculars") { onLookAround(stop) }
+                        }
                     }
                 }
             }
@@ -81,6 +86,11 @@ struct DayTimeline: View {
         Button("Show on map", systemImage: "map") { onShowOnMap(stop) }
             .labelStyle(.iconOnly)
             .tint(Color(hex: 0x64748B))
+        if lookAroundIDs.contains(stop.id) {
+            Button("Look Around", systemImage: "binoculars") { onLookAround(stop) }
+                .labelStyle(.iconOnly)
+                .tint(Color(hex: 0x7C3AED))
+        }
     }
 
     @ViewBuilder

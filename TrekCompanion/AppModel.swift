@@ -23,6 +23,7 @@ final class AppModel {
     var editingExpense: ExpenseLink?
     var converterAmount = 100.0
     var openedBookingID: Int?
+    var openedStop: SpotlightIndex.Target?
 
     func select(_ trip: Trip?) {
         guard var latest = Account.load() else { return }
@@ -45,6 +46,13 @@ final class AppModel {
         editingExpense = ExpenseLink(id: id)
     }
 
+    func open(_ target: SpotlightIndex.Target) {
+        switch target {
+        case .booking(let id): openedBookingID = id
+        case .stop: tab = .today; openedStop = target
+        }
+    }
+
     func signOut() {
         if let scope = JourneySession.load()?.scope { Task { await JourneyUploader.pause(scope: scope) } }
         account = nil
@@ -52,6 +60,7 @@ final class AppModel {
         TodaySnapshot.clear()
         Task { await ReminderScheduler.clear() }
         WidgetPhotoStore.clear()
+        SpotlightIndex.clear()
         StopTracker.shared.sync(isActive: false)
         Task { await TripLiveActivity.sync(with: nil) }
     }

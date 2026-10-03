@@ -49,7 +49,9 @@ struct TodayMapView: View {
         .mapScope(mapScope)
         .onGeometryChange(for: CGFloat.self, of: \.size.height) { height = $0 }
         .onChange(of: height == 0) { focusOnNext(animated: false) }
-        .onAppear { focusOnNext(animated: false) }
+        .onAppear {
+            if let focusID { focus(on: focusID, animated: false) } else { focusOnNext(animated: false) }
+        }
         .onChange(of: framedStops.map(\.id)) { focusOnNext(animated: true) }
         .onChange(of: focusID) { _, id in focus(on: id, animated: true) }
         .onChange(of: coveredBottom) { refocus() }

@@ -26,6 +26,7 @@ final class TodayModel {
     private(set) var weather: [Int: DayWeather] = [:]
     private(set) var legs: [Int: TravelLeg] = [:]
     private(set) var stationLegs: [Int: TravelLeg] = [:]
+    private(set) var lookAroundScenes: [Int: MKLookAroundScene] = [:]
     private(set) var errorMessage: String?
     private(set) var doneIDs: Set<Int>
     var selectedDayID: Int?
@@ -152,6 +153,7 @@ final class TodayModel {
             files = (try? await loadedFiles) ?? []
             stays = (try? await loadedStays) ?? []
             errorMessage = nil
+            await SpotlightIndex.update(trip: trip, days: days ?? [], reservations: reservations)
             await ReminderScheduler.update([
                 .bookings: TripReminderEvents.bookings(reservations),
                 .stays: TripReminderEvents.stays(stays, days: days ?? []),
@@ -183,6 +185,10 @@ final class TodayModel {
             origin = destination
         }
         legs.merge(computed) { $1 }
+        for stop in day.stops {
+            guard let coordinate = stop.place.coordinate else { continue }
+            lookAroundScenes[stop.id] = try? await MKLookAroundSceneRequest(coordinate: coordinate).scene
+        }
         if let anchor = day.stops.compactMap(\.place.coordinate).first ?? stay(for: day)?.stay.coordinate, let date = day.date {
             weather[day.id] = try? await TrekClient.current?.weather(latitude: anchor.latitude, longitude: anchor.longitude, date: date)
         }

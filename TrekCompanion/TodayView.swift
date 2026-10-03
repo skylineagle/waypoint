@@ -1,3 +1,4 @@
+import MapKit
 import SwiftUI
 import WidgetKit
 
@@ -14,6 +15,7 @@ struct TodayView: View {
     @State private var sheetHeight: CGFloat = 160
     @State private var photoTask: Task<Void, Never>?
     @State private var undoStop: TripStop?
+    @State private var lookAroundScene: MKLookAroundScene?
     @AppStorage(AppSettings.widgetPhotosKey, store: AppGroup.defaults) private var isWidgetPhotosEnabled = true
 
     var body: some View {
@@ -43,11 +45,13 @@ struct TodayView: View {
             .toolbarVisibility(.hidden, for: .navigationBar)
             .toolbarVisibility(model.isMapShown ? .hidden : .visible, for: .tabBar)
             .sheet(isPresented: mapSheetShown) { timelineSheet }
+            .lookAroundViewer(isPresented: Binding { lookAroundScene != nil } set: { if !$0 { lookAroundScene = nil } }, initialScene: lookAroundScene)
             .task { await model.load() }
             .task(id: model.viewedDay?.id) {
                 guard let day = model.viewedDay else { return }
                 await model.loadExtras(for: day)
             }
+            .task(id: app.openedStop) { await showOpenedStop() }
             .onChange(of: model.doneIDs) { publish() }
             .onChange(of: model.legs.count) { publish() }
             .onChange(of: costs.todayTotal) { publish() }
@@ -158,7 +162,7 @@ struct TodayView: View {
 
         if !stops.isEmpty {
             sectionTitle(isToday ? "Today's plan" : "Plan", badge: badge(for: day), trailing: isToday ? "\(remaining) left" : "\(stops.count) stops")
-            DayTimeline(entries: day.timeline, stopCount: stops.count, doneIDs: model.doneIDs, nextID: next?.id, legs: model.legs, bookings: dayBookings, highlightedID: highlightedID, onSelect: { mapFocusID = $0.id }, onShowOnMap: showOnMap, onToggle: onToggle)
+            DayTimeline(entries: day.timeline, stopCount: stops.count, doneIDs: model.doneIDs, nextID: next?.id, legs: model.legs, bookings: dayBookings, highlightedID: highlightedID, onSelect: { mapFocusID = $0.id }, onShowOnMap: showOnMap, lookAroundIDs: Set(model.lookAroundScenes.keys), onLookAround: { lookAroundScene = model.lookAroundScenes[$0.id] }, onToggle: onToggle)
             if isToday, next == nil {
                 Label("Day complete", systemImage: "checkmark.seal.fill")
                     .font(.poppins(15, .semibold))
@@ -285,6 +289,18 @@ struct TodayView: View {
         .frame(height: 44)
         .glassEffect(.regular.interactive(), in: .capsule)
         .transition(reduceMotion ? AnyTransition(.opacity) : AnyTransition(.blurReplace.combined(with: .move(edge: .bottom))))
+    }
+
+    private func showOpenedStop() async {
+        guard case .stop(let dayID, let stopID) = app.openedStop else { return }
+        defer { app.openedStop = nil }
+        if model.days == nil { await model.load() }
+        guard let day = model.days?.first(where: { $0.id == dayID }) else { return }
+        withAnimation(.smooth) {
+            model.selectedDayID = model.isToday(day) ? nil : day.id
+            model.isMapShown = true
+            mapFocusID = stopID
+        }
     }
 
     private func returnToOverview() {
