@@ -23,17 +23,14 @@ struct BookingButton<Content: View>: View {
     }
 
     private func open() {
-        guard !files.isEmpty, let client = TrekClient.current else {
+        guard !files.isEmpty else {
             if let url = reservation.webURL { openURL(url) }
             return
         }
         isOpening = true
         Task {
             defer { isOpening = false }
-            var urls: [URL] = []
-            for file in files {
-                if let url = try? await client.localCopy(of: file) { urls.append(url) }
-            }
+            let urls = await model.localFiles(for: reservation)
             guard let first = urls.first else {
                 if let url = reservation.webURL { openURL(url) }
                 return

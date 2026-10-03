@@ -16,6 +16,7 @@ struct PackingView: View {
     let model: PackingModel
     @State private var editor: PackingEditorTarget?
     @State private var collapsed: Set<String> = []
+    @State private var showsPacked: Set<String> = []
 
     var body: some View {
         List {
@@ -23,10 +24,19 @@ struct PackingView: View {
             ForEach(model.categories) { category in
                 Section {
                     if !collapsed.contains(category.id) {
-                        ForEach(category.items) { item in
-                            row(for: item, tint: PackingCategoryStyle(category: category.name).color)
+                        let tint = PackingCategoryStyle(category: category.name).color
+                        ForEach(category.unpackedItems) { item in
+                            row(for: item, tint: tint)
                         }
                         quickAddRow(category: category.name)
+                        if category.packedCount > 0 {
+                            packedFoldRow(for: category)
+                            if showsPacked.contains(category.id) {
+                                ForEach(category.packedItems) { item in
+                                    row(for: item, tint: tint)
+                                }
+                            }
+                        }
                     }
                 } header: {
                     PackingCategoryHeader(category: category, isCollapsed: collapsed.contains(category.id)) {
@@ -111,11 +121,22 @@ struct PackingView: View {
         }
     }
 
+    private func packedFoldRow(for category: PackingCategory) -> some View {
+        PackingFoldRow(packedCount: category.packedCount, isExpanded: showsPacked.contains(category.id)) {
+            withAnimation(.smooth) {
+                if showsPacked.contains(category.id) { showsPacked.remove(category.id) } else { showsPacked.insert(category.id) }
+            }
+        }
+        .environment(\.layoutDirection, category.name.isRightToLeft ? .rightToLeft : .leftToRight)
+        .listRowBackground(Color.trekCard)
+    }
+
     private func quickAddRow(category: String?) -> some View {
         TodoQuickAddRow(placeholder: "Add item") { name in
             let category = category == PackingModel.uncategorized ? nil : category
             try? await model.save(PackingInput(name: name, category: category, quantity: 1), editing: nil)
         }
+        .environment(\.layoutDirection, (category ?? "").isRightToLeft ? .rightToLeft : .leftToRight)
         .listRowBackground(Color.trekCard)
     }
 

@@ -108,6 +108,7 @@ struct Reservation: Decodable, Identifiable {
     var reservationEndTime: String? = nil
     var assignmentId: Int? = nil
     var placeId: Int? = nil
+    var accommodationPlaceId: Int? = nil
     var endpoints: [ReservationEndpoint]? = nil
 
     var time: String? { Self.clockTime(reservationTime) }
@@ -116,6 +117,12 @@ struct Reservation: Decodable, Identifiable {
     var isTransport: Bool { webTab == "transports" }
 
     var arrival: ReservationEndpoint? { endpoints?.first { $0.role == "to" } }
+
+    var departure: ReservationEndpoint? { endpoints?.first { $0.role == "from" } }
+
+    var startDate: Date? { reservationTime.flatMap { TripReminderEvents.wallClock.date(from: String($0.prefix(16))) } }
+
+    var endDate: Date? { reservationEndTime.flatMap { TripReminderEvents.wallClock.date(from: String($0.prefix(16))) } }
 
     var webURL: URL? {
         guard let account = Account.load() else { return nil }

@@ -25,6 +25,7 @@ final class TodayModel {
     private(set) var segments: [TripSegment] = []
     private(set) var weather: [Int: DayWeather] = [:]
     private(set) var legs: [Int: TravelLeg] = [:]
+    private(set) var stationLegs: [Int: TravelLeg] = [:]
     private(set) var errorMessage: String?
     private(set) var doneIDs: Set<Int>
     var selectedDayID: Int?
@@ -94,6 +95,15 @@ final class TodayModel {
         files.filter { $0.belongs(to: reservation) }
     }
 
+    func localFiles(for reservation: Reservation) async -> [URL] {
+        guard let client = TrekClient.current else { return [] }
+        var urls: [URL] = []
+        for file in files(for: reservation) {
+            if let url = try? await client.localCopy(of: file) { urls.append(url) }
+        }
+        return urls
+    }
+
     func dayBookings(on day: TripDay) -> DayBookings {
         DayBookings(stops: day.stops, bookings: bookings(on: day))
     }
@@ -161,7 +171,11 @@ final class TodayModel {
         guard loadedDayIDs.insert(day.id).inserted else { return }
         var origin = previousNightStay(before: day)?.coordinate
         var computed: [Int: TravelLeg] = [:]
+        let journeys = dayBookings(on: day).journeys
         for stop in day.stops {
+            if let journey = journeys[stop.id], let origin, let station = journey.departure?.coordinate {
+                stationLegs[journey.id] = await Self.leg(from: origin, to: station)
+            }
             guard let destination = stop.place.coordinate else { continue }
             if let origin, let leg = await Self.leg(from: origin, to: destination) {
                 computed[stop.id] = leg

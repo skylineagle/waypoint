@@ -7,6 +7,9 @@ struct PackingCategory: Identifiable {
 
     var id: String { name }
     var packedCount: Int { items.count(where: \.isPacked) }
+    var leftCount: Int { items.count - packedCount }
+    var unpackedItems: [PackingItem] { items.filter { !$0.isPacked } }
+    var packedItems: [PackingItem] { items.filter(\.isPacked) }
 }
 
 @Observable
@@ -30,7 +33,7 @@ final class PackingModel {
 
     var categories: [PackingCategory] {
         Dictionary(grouping: items ?? []) { $0.category ?? Self.uncategorized }
-            .map { PackingCategory(name: $0.key, items: $0.value.sorted { !$0.isPacked && $1.isPacked }) }
+            .map { PackingCategory(name: $0.key, items: $0.value) }
             .sorted { $0.name < $1.name }
     }
 

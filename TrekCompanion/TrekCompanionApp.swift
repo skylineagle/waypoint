@@ -21,6 +21,7 @@ struct TrekCompanionApp: App {
                     if url.host() == "add-expense" { model.isAddingExpense = true }
                     if url.host() == "converter" { model.openConverter(from: url) }
                     if url.host() == "edit-expense" { model.openExpense(from: url) }
+                    if let id = BookingLink.reservationID(in: url) { model.openedBookingID = id }
                     if let tab = MainTab(link: url) { model.tab = tab }
                     if let directions = AppSettings.resolveDirectionsLink(url) { UIApplication.shared.open(directions) }
                 }

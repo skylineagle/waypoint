@@ -13,8 +13,14 @@ struct TodoQuickAddRow: View {
                 .foregroundStyle(Color.trekFaint)
                 .frame(width: 22)
                 .accessibilityHidden(true)
-            TextField(placeholder, text: $name)
+            TextField("", text: $name)
+                .background(alignment: .leading) {
+                    if name.isEmpty {
+                        Text(placeholder).foregroundStyle(Color.trekFaint)
+                    }
+                }
                 .font(.poppins(14))
+                .accessibilityLabel(placeholder)
                 .foregroundStyle(Color.trekText)
                 .focused($isFocused)
                 .submitLabel(.done)

@@ -52,10 +52,11 @@ final class StopTracker: NSObject, CLLocationManagerDelegate {
 
     nonisolated func locationManager(_ manager: CLLocationManager, didVisit visit: CLVisit) {
         let stay = visit.departureDate.timeIntervalSince(visit.arrivalDate)
+        let arrival = visit.arrivalDate
         let location = CLLocation(latitude: visit.coordinate.latitude, longitude: visit.coordinate.longitude)
         let accuracy = visit.horizontalAccuracy
         let hasLeft = visit.departureDate != .distantFuture
-        MainActor.assumeIsolated { self.handleVisit(at: location, accuracy: accuracy, stay: stay, hasLeft: hasLeft) }
+        MainActor.assumeIsolated { self.handleVisit(at: location, accuracy: accuracy, arrival: arrival, stay: stay, hasLeft: hasLeft) }
     }
 
     nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: any Error) {}
@@ -77,16 +78,25 @@ final class StopTracker: NSObject, CLLocationManagerDelegate {
         Task { await TripLiveActivity.startAutomatically(with: snapshot) }
         let step = StopVisits.step(visit, places: places(in: snapshot), at: location, dwell: Self.dwell)
         visit = step.visit
-        if let id = step.done { markDone(id, in: snapshot) }
+        let isHereChanged = StopHere.save(step.visit.map { StopHere(stopID: $0.stopID, since: $0.since) })
+        if let id = step.done {
+            markDone(id, in: snapshot)
+        } else if isHereChanged {
+            Task { await TripLiveActivity.sync(with: snapshot) }
+        }
     }
 
-    private func handleVisit(at location: CLLocation, accuracy: CLLocationAccuracy, stay: TimeInterval, hasLeft: Bool) {
+    private func handleVisit(at location: CLLocation, accuracy: CLLocationAccuracy, arrival: Date, stay: TimeInterval, hasLeft: Bool) {
         guard let snapshot = TodaySnapshot.load() else { return }
         Task { await TripLiveActivity.startAutomatically(with: snapshot) }
-        guard hasLeft, stay >= Self.dwell else { return }
         let reach = min(max(StopVisits.radius, accuracy), 200)
-        if let id = StopVisits.nearest(to: location, in: places(in: snapshot), within: reach) {
+        guard let id = StopVisits.nearest(to: location, in: places(in: snapshot), within: reach) else { return }
+        if !hasLeft {
+            if StopHere.save(StopHere(stopID: id, since: arrival)) { Task { await TripLiveActivity.sync(with: snapshot) } }
+        } else if stay >= Self.dwell {
             markDone(id, in: snapshot)
+        } else if StopHere.save(nil) {
+            Task { await TripLiveActivity.sync(with: snapshot) }
         }
     }
 

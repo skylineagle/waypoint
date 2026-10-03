@@ -50,6 +50,7 @@ struct MainTabView: View {
         .task { await todos.load() }
         .environment(todos)
         .environment(today)
+        .bookingFilesPreview(model: today)
         .sheet(isPresented: $app.isAddingExpense) {
             ExpenseEditorView(
                 item: nil,

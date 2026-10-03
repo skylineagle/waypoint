@@ -11,6 +11,20 @@ nonisolated struct TripActivityAttributes: ActivityAttributes {
         let doneCount: Int
         let spentToday: String
         let directionsURL: URL?
+        var nextBookedAt: Date? = nil
+        var leaveBy: Date? = nil
+        var here: Here? = nil
+        var journey: TripJourney? = nil
+        var nextTicketURL: URL? = nil
+    }
+
+    struct Here: Codable, Hashable, Sendable {
+        let name: String
+        var category: StopCategory? = nil
+        let since: Date
+        let thenName: String?
+        let thenLeaveBy: Date?
+        let ticketURL: URL?
     }
 
     let tripTitle: String

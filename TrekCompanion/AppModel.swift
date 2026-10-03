@@ -21,6 +21,7 @@ final class AppModel {
     var isConverting = false
     var editingExpense: ExpenseLink?
     var converterAmount = 100.0
+    var openedBookingID: Int?
 
     func select(_ trip: Trip?) {
         guard var latest = Account.load() else { return }

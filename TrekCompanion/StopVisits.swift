@@ -34,7 +34,7 @@ nonisolated enum StopVisits {
         }
         if here == visit.stopID {
             visit.lastSeen = now
-            return visit.lastSeen.timeIntervalSince(visit.since) >= dwell ? (nil, visit.stopID) : (visit, nil)
+            return (visit, nil)
         }
         return (arrival, visit.lastSeen.timeIntervalSince(visit.since) >= dwell ? visit.stopID : nil)
     }

@@ -1,7 +1,7 @@
 import Foundation
 
 enum TripReminderEvents {
-    private static let wallClock: DateFormatter = {
+    static let wallClock: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateFormat = "yyyy-MM-dd'T'HH:mm"
@@ -64,7 +64,7 @@ enum TripReminderEvents {
         return [ReminderEvent(id: "trip-\(trip.id)", moment: .tripStart, date: start, title: trip.title, body: body)]
     }
 
-    private static func moment(_ day: String?, time: String) -> Date? {
+    static func moment(_ day: String?, time: String) -> Date? {
         day.flatMap { wallClock.date(from: "\($0.prefix(10))T\(time.prefix(5))") }
     }
 }

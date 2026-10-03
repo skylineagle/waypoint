@@ -25,7 +25,7 @@ step = StopVisits.step(step.visit, places: places, at: at(35.7150, minute: 5), d
 check(step.visit == nil && step.done == nil, "leaving early marks nothing")
 
 step = StopVisits.step(visit(1, from: 0, to: 4), places: places, at: at(35.7101, minute: 11), dwell: 600)
-check(step.visit == nil && step.done == 1, "being seen there past the dwell marks it done")
+check(step.visit?.stopID == 1 && step.done == nil, "staying past the dwell keeps you at the stop until you leave")
 
 step = StopVisits.step(visit(1, from: 0, to: 4), places: places, at: at(35.7150, minute: 30), dwell: 600)
 check(step.visit == nil && step.done == nil, "a late fix elsewhere does not count as staying")

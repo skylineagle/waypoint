@@ -9,6 +9,10 @@ nonisolated struct TodaySnapshot: Codable, Hashable, Sendable {
         let leg: String?
         var photoName: String? = nil
         var category: StopCategory? = nil
+        var bookedAt: Date? = nil
+        var leaveBy: Date? = nil
+        var journey: TripJourney? = nil
+        var ticketURL: URL? = nil
     }
 
     let tripID: Int
@@ -55,6 +59,17 @@ nonisolated struct TodaySnapshot: Codable, Hashable, Sendable {
         return stops.first { !done.contains($0.id) }
     }
 
+    var here: (stop: Stop, since: Date)? {
+        guard let here = StopHere.load(), !doneIDs.contains(here.stopID),
+              let stop = stops.first(where: { $0.id == here.stopID })
+        else { return nil }
+        return (stop, here.since)
+    }
+
+    var current: Stop? {
+        here?.stop ?? next
+    }
+
     var doneCount: Int {
         let done = doneIDs
         return stops.filter { done.contains($0.id) }.count
@@ -77,7 +92,7 @@ nonisolated struct TodaySnapshot: Codable, Hashable, Sendable {
     }
 
     var activityState: TripActivityAttributes.ContentState {
-        TripActivityAttributes.ContentState(
+        var state = TripActivityAttributes.ContentState(
             nextName: next?.name,
             nextLeg: next?.leg,
             nextCategory: next?.category,
@@ -85,8 +100,25 @@ nonisolated struct TodaySnapshot: Codable, Hashable, Sendable {
             total: stops.count,
             doneCount: doneCount,
             spentToday: spentToday,
-            directionsURL: directionsURL
+            directionsURL: directionsURL,
+            nextBookedAt: next?.bookedAt,
+            leaveBy: next?.leaveBy,
+            journey: next?.journey,
+            nextTicketURL: next?.ticketURL
         )
+        if let here {
+            let done = doneIDs
+            let then = stops.first { !done.contains($0.id) && $0.id != here.stop.id }
+            state.here = TripActivityAttributes.Here(
+                name: here.stop.name,
+                category: here.stop.category,
+                since: here.since,
+                thenName: then?.journey?.title ?? then?.name,
+                thenLeaveBy: then?.journey?.leaveBy ?? then?.leaveBy,
+                ticketURL: here.stop.ticketURL
+            )
+        }
+        return state
     }
 
     static let preview = TodaySnapshot(
