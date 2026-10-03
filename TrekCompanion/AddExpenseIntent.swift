@@ -16,28 +16,11 @@ struct AddExpenseIntent: AppIntent {
     }
 
     @MainActor
-    func perform() async throws -> some IntentResult & ProvidesDialog {
-        guard let client = TrekClient.current, let trip = client.account.trip else {
-            throw TrekError("Open Waypoint and finish setup first.")
-        }
+    func perform() async throws -> some IntentResult & ProvidesDialog & ShowsSnippetView {
         guard let amount else {
-            return .result(dialog: "TREK shortcut is ready.")
+            return .result(dialog: "TREK shortcut is ready.", view: nil as ExpenseAddedSnippet?)
         }
-        let totalPrice = NSDecimalNumber(decimal: amount.amount).doubleValue
-        let name = merchant ?? "Apple Pay"
-        let category = merchant == nil ? CostCategory.other : await ExpenseCategorizer.category(for: name)
-        var expense = ExpenseInput(
-            name: name,
-            category: category.rawValue,
-            totalPrice: totalPrice,
-            currency: amount.currencyCode,
-            note: ExpenseInput.applePayNote,
-            expenseDate: ExpenseDate.today
-        )
-        if let meID = try? await client.currentUserID() {
-            expense.payers = [ExpenseInput.PayerInput(userId: meID, amount: totalPrice)]
-        }
-        _ = try await client.addExpense(expense, tripID: trip.id)
-        return .result(dialog: "Added \(name) to \(trip.title) as \(category.label).")
+        let logged = try await ExpenseLog.add(amount, name: merchant, note: ExpenseInput.applePayNote)
+        return .result(dialog: logged.dialog, view: logged.snippet)
     }
 }

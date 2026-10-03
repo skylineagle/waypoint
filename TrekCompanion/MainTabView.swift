@@ -52,6 +52,10 @@ struct MainTabView: View {
             )
             .presentationDragIndicator(.visible)
         }
+        .sheet(item: $app.editingExpense) { link in
+            ExpenseLinkEditor(link: link, costs: costs)
+                .presentationDragIndicator(.visible)
+        }
         .sheet(isPresented: $app.isConverting) {
             ConverterSheet(converter: costs.converter, amount: app.converterAmount)
         }

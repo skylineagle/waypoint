@@ -19,6 +19,7 @@ final class AppModel {
     var tab = MainTab.today
     var isAddingExpense = false
     var isConverting = false
+    var editingExpense: ExpenseLink?
     var converterAmount = 100.0
 
     func select(_ trip: Trip?) {
@@ -32,6 +33,14 @@ final class AppModel {
             .queryItems?.first { $0.name == "amount" }?.value.flatMap(Double.init)
         converterAmount = amount.flatMap { $0 > 0 ? $0 : nil } ?? 100
         isConverting = true
+    }
+
+    func openExpense(from url: URL) {
+        guard let id = URLComponents(url: url, resolvingAgainstBaseURL: false)?
+            .queryItems?.first(where: { $0.name == "id" })?.value.flatMap(Int.init)
+        else { return }
+        tab = .costs
+        editingExpense = ExpenseLink(id: id)
     }
 
     func signOut() {
