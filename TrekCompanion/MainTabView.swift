@@ -5,15 +5,17 @@ struct MainTabView: View {
     @State private var today: TodayModel
     @State private var costs: CostsModel
     @State private var todos: TodosModel
+    @State private var packing: PackingModel
 
     init(trip: Trip) {
         _today = State(initialValue: TodayModel(trip: trip))
         _costs = State(initialValue: CostsModel(trip: trip))
         _todos = State(initialValue: TodosModel(trip: trip))
+        _packing = State(initialValue: PackingModel(trip: trip))
     }
 
     private var tripDay: TripDay? {
-        guard app.tab == .today, today.selectedDayID == nil, !today.isMapShown, case .during(let day, _) = today.phase, !day.stops.isEmpty else { return nil }
+        guard app.tab != .today || (today.selectedDayID == nil && !today.isMapShown), case .during(let day, _) = today.phase, !day.stops.isEmpty else { return nil }
         return day
     }
 
@@ -27,8 +29,8 @@ struct MainTabView: View {
                 CostsView(model: costs)
             }
             if todos.isAvailable {
-                Tab("To-Dos", systemImage: "checklist", value: MainTab.todos) {
-                    TodosView(model: todos, members: costs.members, meID: costs.meID)
+                Tab("Lists", systemImage: "checklist", value: MainTab.todos) {
+                    ListsView(todos: todos, packing: packing, members: costs.members, meID: costs.meID)
                 }
             }
             Tab("Settings", systemImage: "gearshape", value: MainTab.settings) {
@@ -36,8 +38,14 @@ struct MainTabView: View {
             }
         }
         .tabViewBottomAccessory(isEnabled: tripDay != nil) {
-            if let tripDay { TripStopAccessory(model: today, day: tripDay) }
+            if let tripDay {
+                TripStopAccessory(model: today, day: tripDay) {
+                    today.selectedDayID = nil
+                    app.tab = .today
+                }
+            }
         }
+        .tabBarMinimizeBehavior(.onScrollDown)
         .task { await costs.load() }
         .task { await todos.load() }
         .environment(todos)

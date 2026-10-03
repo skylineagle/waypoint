@@ -20,6 +20,22 @@ struct TodoEditorView: View {
     @State private var isNamingList = false
     @State private var newListName = ""
     @State private var contentHeight: CGFloat = 520
+    @State private var isConfirmingDelete = false
+    @State private var isConfirmingDiscard = false
+    private let original: Fields
+
+    private struct Fields: Equatable {
+        var name: String
+        var description: String
+        var list: String?
+        var dueDate: Date?
+        var assigneeID: Int?
+        var priority: TodoPriority
+    }
+
+    private var hasChanges: Bool {
+        original != Fields(name: name, description: description, list: list, dueDate: dueDate, assigneeID: assigneeID, priority: priority)
+    }
 
     init(
         item: TodoItem?,
@@ -35,12 +51,21 @@ struct TodoEditorView: View {
         self.meID = meID
         self.onSave = onSave
         self.onDelete = onDelete
-        _name = State(initialValue: item?.name ?? "")
-        _description = State(initialValue: item?.description ?? "")
-        _list = State(initialValue: item?.category)
-        _dueDate = State(initialValue: ExpenseDate.date(from: item?.dueDate))
-        _assigneeID = State(initialValue: item?.assignedUserId)
-        _priority = State(initialValue: item?.todoPriority ?? .none)
+        let fields = Fields(
+            name: item?.name ?? "",
+            description: item?.description ?? "",
+            list: item?.category,
+            dueDate: ExpenseDate.date(from: item?.dueDate),
+            assigneeID: item?.assignedUserId,
+            priority: item?.todoPriority ?? .none
+        )
+        original = fields
+        _name = State(initialValue: fields.name)
+        _description = State(initialValue: fields.description)
+        _list = State(initialValue: fields.list)
+        _dueDate = State(initialValue: fields.dueDate)
+        _assigneeID = State(initialValue: fields.assigneeID)
+        _priority = State(initialValue: fields.priority)
     }
 
     private var canSave: Bool {
@@ -68,13 +93,12 @@ struct TodoEditorView: View {
                     .font(.poppins(13, relativeTo: .footnote))
                     .foregroundStyle(Color.trekDanger)
             }
+            Button(item == nil ? "Add to-do" : "Save to-do", action: save)
+                .buttonStyle(TrekButtonStyle())
+                .disabled(!canSave)
+                .padding(.top, 8)
             if item != nil {
-                Button("Delete to-do", role: .destructive) {
-                    Task {
-                        await onDelete()
-                        dismiss()
-                    }
-                }
+                Button("Delete to-do", role: .destructive) { isConfirmingDelete = true }
                 .font(.poppins(15, .semibold))
                 .foregroundStyle(Color.trekDanger)
                 .frame(maxWidth: .infinity, minHeight: 44)
@@ -87,6 +111,21 @@ struct TodoEditorView: View {
         .background(Color.trekBackground)
         .presentationDetents([.height(contentHeight)])
         .presentationDragIndicator(.visible)
+        .interactiveDismissDisabled(hasChanges)
+        .confirmationDialog("Delete this to-do?", isPresented: $isConfirmingDelete, titleVisibility: .visible) {
+            Button("Delete To-Do", role: .destructive) {
+                Task {
+                    await onDelete()
+                    dismiss()
+                }
+            }
+        } message: {
+            Text("It's removed from the trip for everyone.")
+        }
+        .confirmationDialog("Discard your changes?", isPresented: $isConfirmingDiscard, titleVisibility: .visible) {
+            Button("Discard Changes", role: .destructive) { dismiss() }
+            Button("Keep Editing", role: .cancel) {}
+        }
         .alert("New list", isPresented: $isNamingList) {
             TextField("List name", text: $newListName)
             Button("Cancel", role: .cancel) {}
@@ -99,15 +138,16 @@ struct TodoEditorView: View {
 
     private var header: some View {
         HStack {
-            SheetHeaderButton(label: "Cancel", symbol: "xmark", isFilled: false) { dismiss() }
+            SheetHeaderButton(label: "Cancel", symbol: "xmark", isFilled: false) {
+                if hasChanges { isConfirmingDiscard = true } else { dismiss() }
+            }
             Spacer()
             Text(item == nil ? "New to-do" : "Edit to-do")
                 .font(.poppins(15, .semibold, relativeTo: .headline))
                 .foregroundStyle(Color.trekText)
             Spacer()
-            SheetHeaderButton(label: "Save", symbol: "checkmark", isFilled: true, action: save)
-                .disabled(!canSave)
-                .opacity(canSave ? 1 : 0.35)
+            SheetHeaderButton(label: "Cancel", symbol: "xmark", isFilled: false) {}
+                .hidden()
         }
         .padding(.bottom, 4)
     }

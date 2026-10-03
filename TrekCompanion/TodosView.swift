@@ -28,77 +28,48 @@ struct TodosView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            List {
+        List {
+            Section {
+                filterChips.plainListRow()
+            }
+            status
+            ForEach(sections) { section in
                 Section {
-                    header.plainListRow()
-                    filterChips.plainListRow()
-                }
-                status
-                ForEach(sections) { section in
-                    Section {
-                        ForEach(section.items) { item in
-                            row(for: item)
-                        }
-                        if section.id == sections.last(where: { $0.title != "Done" })?.id {
-                            quickAddRow
-                        }
-                    } header: {
-                        sectionHeader(section)
+                    ForEach(section.items) { item in
+                        row(for: item)
                     }
-                }
-                if model.items != nil, !sections.contains(where: { $0.title != "Done" }) {
-                    Section { quickAddRow }
+                    if section.id == sections.last(where: { $0.title != "Done" })?.id {
+                        quickAddRow
+                    }
+                } header: {
+                    sectionHeader(section)
                 }
             }
-            .listStyle(.insetGrouped)
-            .listSectionSpacing(10)
-            .scrollContentBackground(.hidden)
-            .background(Color.trekBackground)
-            .toolbarVisibility(.hidden, for: .navigationBar)
-            .scrollDismissesKeyboard(.interactively)
-            .contentMargins(.bottom, 72, for: .scrollContent)
-            .overlay(alignment: .bottomTrailing) { addButton }
-            .refreshable { await model.load() }
-            .animation(.smooth, value: model.items)
-            .sheet(item: $editor) { target in
-                TodoEditorView(
-                    item: target.item,
-                    lists: model.lists,
-                    members: members,
-                    meID: meID,
-                    onSave: { try await model.save($0, editing: target.item) },
-                    onDelete: { if let item = target.item { await model.delete(item) } }
-                )
+            if model.items != nil, !sections.contains(where: { $0.title != "Done" }) {
+                Section { quickAddRow }
             }
         }
-    }
-
-    private var header: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text("To-Dos")
-                .font(.poppins(26, .bold, relativeTo: .largeTitle))
-                .foregroundStyle(Color.trekText)
-            Text("\(model.openCount) open · \(model.doneCount) done")
-                .font(.poppins(13, relativeTo: .subheadline))
-                .foregroundStyle(Color.trekMuted)
+        .listStyle(.insetGrouped)
+        .listSectionSpacing(10)
+        .scrollContentBackground(.hidden)
+        .scrollDismissesKeyboard(.interactively)
+        .contentMargins(.top, 0, for: .scrollContent)
+        .contentMargins(.bottom, 72, for: .scrollContent)
+        .overlay(alignment: .bottomTrailing) {
+            ListsAddButton(label: "New to-do") { editor = .new }
         }
-        .padding(.horizontal, 4)
-    }
-
-    private var addButton: some View {
-        Button { editor = .new } label: {
-            Image(systemName: "plus")
-                .font(.system(size: 18, weight: .semibold))
-                .frame(width: 28, height: 28)
+        .refreshable { await model.load() }
+        .animation(.smooth, value: model.items)
+        .sheet(item: $editor) { target in
+            TodoEditorView(
+                item: target.item,
+                lists: model.lists,
+                members: members,
+                meID: meID,
+                onSave: { try await model.save($0, editing: target.item) },
+                onDelete: { if let item = target.item { await model.delete(item) } }
+            )
         }
-        .buttonStyle(.glass)
-        .buttonBorderShape(.circle)
-        .controlSize(.regular)
-        .tint(Color.trekAccent)
-        .accessibilityLabel("New to-do")
-        .padding(.trailing, 16)
-        .padding(.bottom, 12)
     }
 
     private var filterChips: some View {

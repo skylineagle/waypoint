@@ -15,7 +15,7 @@ struct TodaySpendCard: View {
                     .foregroundStyle(Color.trekText)
                     .monospacedDigit()
                 if costs.hasStarted {
-                    Text("avg \(costs.dailyAverage.money(currency, fractionDigits: 0...0)) / day")
+                    Text("avg \(costs.dailyAverage.money(currency, fractionDigits: 0...0)) / trip day")
                         .font(.poppins(11, relativeTo: .caption2))
                         .foregroundStyle(Color.trekMuted)
                 }

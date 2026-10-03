@@ -12,6 +12,25 @@ struct DayStrip: View {
 
     private static let upcomingID = -1
 
+    private struct Run: Identifiable {
+        let segment: TripSegment?
+        var days: [(day: TripDay, number: Int)]
+
+        var id: Int { days[0].day.id }
+    }
+
+    private var runs: [Run] {
+        days.enumerated().reduce(into: []) { runs, element in
+            let number = element.offset + 1
+            let segment = segments.first { $0.covers(dayNumber: number) }
+            if let last = runs.last, last.segment?.id == segment?.id {
+                runs[runs.count - 1].days.append((element.element, number))
+            } else {
+                runs.append(Run(segment: segment, days: [(element.element, number)]))
+            }
+        }
+    }
+
     private var anchorID: Int? {
         selectedID ?? todayID ?? (daysUntilStart == nil ? nil : Self.upcomingID)
     }
@@ -28,11 +47,33 @@ struct DayStrip: View {
                             .id(Self.upcomingID)
                             .transition(.opacity)
                     }
-                    ForEach(Array(days.enumerated()), id: \.element.id) { index, day in
-                        DayChip(day: day, number: index + 1, segment: segments.first { $0.covers(dayNumber: index + 1) }, isSelected: day.id == selectedID, isToday: day.id == todayID) {
-                            onSelect(day)
+                    ForEach(runs) { run in
+                        HStack(spacing: 8) {
+                            ForEach(run.days, id: \.day.id) { item in
+                                DayChip(day: item.day, number: item.number, segment: run.segment, isSelected: item.day.id == selectedID, isToday: item.day.id == todayID) {
+                                    onSelect(item.day)
+                                }
+                                .id(item.day.id)
+                            }
                         }
-                        .id(day.id)
+                        .padding(.top, 18)
+                        .padding(.bottom, 7)
+                        .overlay(alignment: .topLeading) {
+                            if let segment = run.segment {
+                                Text(segment.name)
+                                    .font(.poppins(11, .semibold, relativeTo: .caption2))
+                                    .foregroundStyle(segment.tint ?? Color.trekMuted)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.7)
+                                    .padding(.leading, 4)
+                                    .accessibilityHidden(true)
+                            }
+                        }
+                        .overlay(alignment: .bottom) {
+                            if let tint = run.segment?.tint {
+                                Capsule().fill(tint).frame(height: 3).padding(.horizontal, 6)
+                            }
+                        }
                     }
                 }
                 .padding(.horizontal, inset)

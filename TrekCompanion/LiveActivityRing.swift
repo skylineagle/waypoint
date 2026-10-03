@@ -19,6 +19,7 @@ struct LiveActivityRing: View {
                     .stroke(isRunning ? Color.trekSuccess : Color.trekMuted, style: StrokeStyle(lineWidth: 2.5, lineCap: .round))
                     .rotationEffect(.degrees(-90))
             }
+            .minimumHitArea(around: 32)
             .sensoryFeedback(.impact(weight: .light), trigger: isRunning)
     }
 }

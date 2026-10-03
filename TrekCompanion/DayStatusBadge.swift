@@ -18,6 +18,6 @@ struct DayStatusBadge: View {
         .foregroundStyle(isLive ? Color.trekSuccess : Color.trekTextSecondary)
         .padding(.horizontal, 9)
         .padding(.vertical, 4)
-        .glassEffect(isLive ? .regular.tint(.trekSuccess.opacity(0.18)) : .regular, in: .capsule)
+        .background(isLive ? Color.trekSuccess.opacity(0.16) : Color.trekSecondaryFill, in: .capsule)
     }
 }

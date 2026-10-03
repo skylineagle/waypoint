@@ -26,6 +26,9 @@ struct ExpenseEditorView: View {
     @State private var isPickingPhoto = false
     @State private var pickedPhoto: PhotosPickerItem?
     @State private var isReadingReceipt = false
+    @State private var isConfirmingDelete = false
+    @State private var isConfirmingDiscard = false
+    private let original: Fields
     @FocusState private var isAmountFocused: Bool
 
     init(
@@ -44,19 +47,41 @@ struct ExpenseEditorView: View {
         self.startsScanning = startsScanning
         self.onSave = onSave
         self.onDelete = onDelete
-        _name = State(initialValue: item?.name ?? "")
-        _amount = State(initialValue: item?.totalPrice)
-        _currency = State(initialValue: (item?.currency ?? converter.tripCurrency).uppercased())
-        _category = State(initialValue: item?.costCategory ?? .food)
-        _date = State(initialValue: ExpenseDate.date(from: item?.expenseDate) ?? .now)
-        _note = State(initialValue: item?.note ?? "")
         let existingPayer = item?.payers?.first { $0.amount != 0 }?.userId
-        _payerID = State(initialValue: item == nil ? meID : existingPayer)
-        if let item {
-            _splitIDs = State(initialValue: Set((item.members ?? []).map(\.userId)))
-        } else {
-            _splitIDs = State(initialValue: Set(members.map(\.id)))
-        }
+        let fields = Fields(
+            name: item?.name ?? "",
+            amount: item?.totalPrice,
+            currency: (item?.currency ?? converter.tripCurrency).uppercased(),
+            category: item?.costCategory ?? .food,
+            date: ExpenseDate.date(from: item?.expenseDate) ?? .now,
+            note: item?.note ?? "",
+            payerID: item == nil ? meID : existingPayer,
+            splitIDs: item.map { Set(($0.members ?? []).map(\.userId)) } ?? Set(members.map(\.id))
+        )
+        original = fields
+        _name = State(initialValue: fields.name)
+        _amount = State(initialValue: fields.amount)
+        _currency = State(initialValue: fields.currency)
+        _category = State(initialValue: fields.category)
+        _date = State(initialValue: fields.date)
+        _note = State(initialValue: fields.note)
+        _payerID = State(initialValue: fields.payerID)
+        _splitIDs = State(initialValue: fields.splitIDs)
+    }
+
+    private struct Fields: Equatable {
+        var name: String
+        var amount: Double?
+        var currency: String
+        var category: CostCategory
+        var date: Date
+        var note: String
+        var payerID: Int?
+        var splitIDs: Set<Int>
+    }
+
+    private var hasChanges: Bool {
+        receiptImage != nil || original != Fields(name: name, amount: amount, currency: currency, category: category, date: date, note: note, payerID: payerID, splitIDs: splitIDs)
     }
 
     private var isShared: Bool {
@@ -129,16 +154,26 @@ struct ExpenseEditorView: View {
                 .buttonStyle(TrekButtonStyle())
                 .disabled(!canSave)
             if item != nil {
-                Button("Delete expense", role: .destructive) {
-                    Task {
-                        await onDelete()
-                        dismiss()
-                    }
-                }
+                Button("Delete expense", role: .destructive) { isConfirmingDelete = true }
                 .font(.poppins(15, .semibold))
                 .foregroundStyle(Color.trekDanger)
                 .frame(minHeight: 36)
             }
+        }
+        .interactiveDismissDisabled(hasChanges)
+        .confirmationDialog("Delete this expense?", isPresented: $isConfirmingDelete, titleVisibility: .visible) {
+            Button("Delete Expense", role: .destructive) {
+                Task {
+                    await onDelete()
+                    dismiss()
+                }
+            }
+        } message: {
+            Text("It's removed from the trip for everyone.")
+        }
+        .confirmationDialog("Discard your changes?", isPresented: $isConfirmingDiscard, titleVisibility: .visible) {
+            Button("Discard Changes", role: .destructive) { dismiss() }
+            Button("Keep Editing", role: .cancel) {}
         }
         .fullScreenCover(isPresented: $isScanning) {
             DocumentScanner(onScan: readReceipt).ignoresSafeArea()
@@ -165,15 +200,13 @@ struct ExpenseEditorView: View {
     private var header: some View {
         VStack(spacing: 14) {
             HStack {
-                SheetHeaderButton(label: "Cancel", symbol: "xmark", isFilled: false) { dismiss() }
-                Spacer()
+                SheetHeaderButton(label: "Cancel", symbol: "xmark", isFilled: false, action: cancel)
                 Text(item == nil ? "New expense" : "Edit expense")
                     .font(.poppins(15, .semibold, relativeTo: .headline))
                     .foregroundStyle(Color.trekText)
-                Spacer()
-                SheetHeaderButton(label: "Save", symbol: "checkmark", isFilled: true, action: save)
-                    .disabled(!canSave)
-                    .opacity(canSave ? 1 : 0.35)
+                    .frame(maxWidth: .infinity)
+                SheetHeaderButton(label: "Cancel", symbol: "xmark", isFilled: false) {}
+                    .hidden()
             }
             HStack(spacing: 10) {
                 Image(systemName: category.symbol)
@@ -217,6 +250,10 @@ struct ExpenseEditorView: View {
         .padding(16)
         .background(category.color.opacity(0.12))
         .animation(.smooth, value: category)
+    }
+
+    private func cancel() {
+        if hasChanges { isConfirmingDiscard = true } else { dismiss() }
     }
 
     private func readReceipt(_ image: UIImage) {

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct TodoQuickAddRow: View {
+    var placeholder = "New to-do"
     let onAdd: (String) async -> Void
     @State private var name = ""
     @FocusState private var isFocused: Bool
@@ -12,7 +13,7 @@ struct TodoQuickAddRow: View {
                 .foregroundStyle(Color.trekFaint)
                 .frame(width: 22)
                 .accessibilityHidden(true)
-            TextField("New to-do", text: $name)
+            TextField(placeholder, text: $name)
                 .font(.poppins(14))
                 .foregroundStyle(Color.trekText)
                 .focused($isFocused)

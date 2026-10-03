@@ -1,3 +1,4 @@
+import NaturalLanguage
 import CoreText
 import SwiftUI
 import UIKit
@@ -58,7 +59,7 @@ extension Font {
         case .medium: "Poppins-Medium"
         default: "Poppins-Regular"
         }
-        return .custom(name, size: size, relativeTo: style)
+        return .custom(name, size: max(size, 11), relativeTo: style)
     }
 
     static func museoModerno(_ size: CGFloat) -> Font {
@@ -71,5 +72,25 @@ enum TrekFonts {
         let urls = (Bundle.main.urls(forResourcesWithExtension: "ttf", subdirectory: nil) ?? [])
             + (Bundle.main.urls(forResourcesWithExtension: "ttf", subdirectory: "Fonts") ?? [])
         CTFontManagerRegisterFontURLs(urls as CFArray, .process, true, nil)
+    }
+}
+
+extension View {
+    func minimumHitArea(around size: CGFloat) -> some View {
+        contentShape(.rect.inset(by: -max(44 - size, 0) / 2))
+    }
+}
+
+extension View {
+    func naturalDirection(of text: String) -> some View {
+        frame(maxWidth: .infinity, alignment: .leading)
+            .environment(\.layoutDirection, text.isRightToLeft ? .rightToLeft : .leftToRight)
+    }
+}
+
+extension String {
+    var isRightToLeft: Bool {
+        guard let language = NLLanguageRecognizer.dominantLanguage(for: self) else { return false }
+        return Locale.Language(identifier: language.rawValue).characterDirection == .rightToLeft
     }
 }

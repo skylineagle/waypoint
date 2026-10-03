@@ -33,7 +33,7 @@ struct TripActivityLockScreenView: View {
                 Spacer()
                 VStack(alignment: .trailing, spacing: 0) {
                     Text(state.spentToday).font(.system(size: 17, weight: .bold))
-                    Text("today").font(.system(size: 10.5)).foregroundStyle(.white.opacity(0.55))
+                    Text("today").font(.system(size: 11)).foregroundStyle(.white.opacity(0.55))
                 }
             }
             StopProgressBar(done: state.doneCount, total: state.total)

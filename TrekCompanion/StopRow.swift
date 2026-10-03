@@ -11,21 +11,12 @@ struct StopRow: View {
     let state: StopState
     var isHighlighted = false
     @State private var isExpanded = false
-    var onToggle: (() -> Void)?
 
     private var isDone: Bool { state == .done }
 
     var body: some View {
         HStack(alignment: isDone ? .center : .top, spacing: 10) {
-            if let onToggle {
-                Button(action: onToggle) {
-                    TimelineDot(number: number, state: state, category: stop.place.category)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(isDone ? "Mark \(stop.place.name) not done" : "Mark \(stop.place.name) done")
-            } else {
-                TimelineDot(number: number, state: state, category: stop.place.category)
-            }
+            TimelineDot(number: number, state: state, category: stop.place.category)
 
             HStack(alignment: .center, spacing: 8) {
             VStack(alignment: .leading, spacing: 2) {
@@ -34,6 +25,7 @@ struct StopRow: View {
                         .font(.poppins(isDone ? 13 : 14, isDone ? .medium : .semibold))
                         .foregroundStyle(isDone ? Color.trekMuted : Color.trekText)
                         .strikethrough(isDone, color: Color.trekFaint)
+                        .accessibilityValue(isDone ? "Done" : "")
                     if let booking, !isDone { BookedBadge(reservation: booking) }
                 }
                 if !isDone, let detail = stop.notes ?? stop.place.address {
@@ -54,6 +46,7 @@ struct StopRow: View {
                 .foregroundStyle(Color.trekText)
                 .frame(width: 34, height: 34)
                 .background(Color.trekSecondaryFill, in: .circle)
+                .minimumHitArea(around: 34)
                 .buttonStyle(.plain)
             }
             }

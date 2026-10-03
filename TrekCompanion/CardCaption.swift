@@ -8,5 +8,6 @@ struct CardCaption: View {
             .font(.poppins(10, .bold, relativeTo: .caption2))
             .tracking(0.9)
             .foregroundStyle(Color.trekFaint)
+            .fixedSize(horizontal: false, vertical: true)
     }
 }

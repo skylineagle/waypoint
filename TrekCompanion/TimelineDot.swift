@@ -13,6 +13,7 @@ struct TimelineDot: View {
                 Image(systemName: "checkmark")
                     .font(.system(size: 13, weight: .bold))
                     .foregroundStyle(Color.trekSuccess)
+                    .accessibilityHidden(true)
             } else if let category {
                 Circle().fill(category.tint.opacity(state == .next ? 0.3 : 0.14))
                 categoryIcon(category)
@@ -38,5 +39,6 @@ struct TimelineDot: View {
         Image(systemName: category.symbol)
             .font(.system(size: 11, weight: .semibold))
             .foregroundStyle(category.tint)
+            .accessibilityHidden(true)
     }
 }

@@ -165,6 +165,26 @@ struct TrekClient {
         _ = try await request("DELETE", "api/trips/\(tripID)/todo/\(id)", as: SuccessResponse.self)
     }
 
+    func packingItems(tripID: Int) async throws -> [PackingItem] {
+        try await request("GET", "api/trips/\(tripID)/packing", as: PackingList.self).items
+    }
+
+    func addPackingItem(_ input: PackingInput, tripID: Int) async throws -> PackingItem {
+        try await request("POST", "api/trips/\(tripID)/packing", body: try .json(input), as: PackingEnvelope.self).item
+    }
+
+    func updatePackingItem(id: Int, _ input: PackingInput, tripID: Int) async throws -> PackingItem {
+        try await request("PUT", "api/trips/\(tripID)/packing/\(id)", body: try .json(input), as: PackingEnvelope.self).item
+    }
+
+    func setPackingItem(id: Int, checked: Bool, tripID: Int) async throws {
+        _ = try await request("PUT", "api/trips/\(tripID)/packing/\(id)", body: try .json(TodoCheck(checked: checked)), as: PackingEnvelope.self)
+    }
+
+    func deletePackingItem(id: Int, tripID: Int) async throws {
+        _ = try await request("DELETE", "api/trips/\(tripID)/packing/\(id)", as: SuccessResponse.self)
+    }
+
     private func request<Response: Decodable>(
         _ method: String,
         _ path: String,
@@ -368,6 +388,14 @@ private struct TodoList: Decodable {
 
 private struct TodoEnvelope: Decodable {
     let item: TodoItem
+}
+
+private struct PackingList: Decodable {
+    let items: [PackingItem]
+}
+
+private struct PackingEnvelope: Decodable {
+    let item: PackingItem
 }
 
 private struct TodoCheck: Encodable {

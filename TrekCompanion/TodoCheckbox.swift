@@ -1,18 +1,19 @@
 import SwiftUI
 
 struct TodoCheckbox: View {
-    let item: TodoItem
+    let isDone: Bool
+    var tint = Color.trekSuccess
     let onToggle: () -> Void
     @State private var isCompleting = false
 
-    private var isChecked: Bool { item.isDone || isCompleting }
+    private var isChecked: Bool { isDone || isCompleting }
 
     var body: some View {
         Button(action: toggle) {
             ZStack {
                 Circle().strokeBorder(Color.trekFaint, lineWidth: 1.6)
                 if isChecked {
-                    Circle().fill(Color.trekSuccess)
+                    Circle().fill(tint)
                         .transition(.scale(scale: 0.2).combined(with: .opacity))
                     Image(systemName: "checkmark")
                         .font(.system(size: 11, weight: .bold))
@@ -30,7 +31,7 @@ struct TodoCheckbox: View {
     }
 
     private func toggle() {
-        guard !item.isDone else { return onToggle() }
+        guard !isDone else { return onToggle() }
         isCompleting = true
         Task {
             try? await Task.sleep(for: .seconds(0.9))

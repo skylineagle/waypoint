@@ -18,7 +18,7 @@ struct CostsInsightsView: View {
                     currency: model.converter.displayCurrency,
                     onSelect: onSelectCategory
                 )
-                if !model.dailyTotals.isEmpty {
+                if model.dailyTotals.contains(where: { $0.amount > 0 }) {
                     DailySpendCard(days: model.dailyTotals, currency: model.converter.displayCurrency)
                 }
             }

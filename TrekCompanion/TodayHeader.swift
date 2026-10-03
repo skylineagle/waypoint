@@ -3,21 +3,28 @@ import SwiftUI
 struct TodayHeader: View {
     let eyebrow: String
     let title: String
+    var isCompact = false
     let weather: DayWeather?
     let weatherURL: URL?
     @Binding var isMapShown: Bool
     @Environment(\.openURL) private var openURL
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @ScaledMetric(relativeTo: .subheadline) private var buttonSize = 38
+
+    private var layout: AnyLayout {
+        dynamicTypeSize.isAccessibilitySize ? AnyLayout(VStackLayout(alignment: .leading, spacing: 8)) : AnyLayout(HStackLayout(alignment: .top))
+    }
 
     var body: some View {
-        HStack(alignment: .top) {
+        layout {
             VStack(alignment: .leading, spacing: 1) {
                 CardCaption(text: eyebrow)
                 Text(title)
-                    .font(.poppins(26, .bold, relativeTo: .largeTitle))
+                    .font(.poppins(isCompact ? 18 : 26, .bold, relativeTo: isCompact ? .headline : .largeTitle))
                     .tracking(-0.5)
                     .foregroundStyle(Color.trekText)
                     .accessibilityAddTraits(.isHeader)
-                    .lineLimit(2)
+                    .lineLimit(isCompact ? 1 : 3)
                     .fixedSize(horizontal: false, vertical: true)
             }
             Spacer(minLength: 8)
@@ -31,7 +38,7 @@ struct TodayHeader: View {
                             .symbolRenderingMode(.hierarchical)
                             .foregroundStyle(Color.trekText)
                             .padding(.horizontal, 10)
-                            .frame(height: 38)
+                            .frame(height: buttonSize)
                     }
                     .buttonStyle(.plain)
                     .glassEffect(.regular.interactive())
@@ -41,9 +48,9 @@ struct TodayHeader: View {
                     withAnimation(.smooth(duration: 0.35)) { isMapShown.toggle() }
                 }
                 .labelStyle(.iconOnly)
-                .font(.system(size: 15, weight: .semibold))
+                .font(.subheadline.weight(.semibold))
                 .foregroundStyle(isMapShown ? Color.trekAccentText : Color.trekText)
-                .frame(width: 38, height: 38)
+                .frame(width: buttonSize, height: buttonSize)
                 .glassEffect(isMapShown ? .regular.tint(.trekAccent).interactive() : .regular.interactive(), in: .circle)
                 .contentTransition(.symbolEffect(.replace))
             }

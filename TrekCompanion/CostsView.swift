@@ -28,15 +28,18 @@ struct CostsView: View {
     @State private var categoryFilter: CostCategory?
     @State private var unpaidOnly = false
     @State private var editor: ExpenseEditorTarget?
+    @State private var isTotalScrolledAway = false
 
     var body: some View {
         NavigationStack {
             List {
                 Section {
                     CostsHeader(trip: model.trip).plainListRow()
-                    CostsTotalCard(model: model, onShowUnpaid: showUnpaid)
-                        .redacted(reason: model.items == nil ? .placeholder : [])
-                        .plainListRow()
+                    if tab == .expenses {
+                        CostsTotalCard(model: model, onShowUnpaid: showUnpaid)
+                            .redacted(reason: model.items == nil ? .placeholder : [])
+                            .plainListRow()
+                    }
                     CostsTabPicker(selection: $tab, tabs: tabs).plainListRow()
                 }
 
@@ -63,6 +66,14 @@ struct CostsView: View {
             .background(Color.trekBackground)
             .toolbarVisibility(.hidden, for: .navigationBar)
             .contentMargins(.bottom, 72, for: .scrollContent)
+            .onScrollGeometryChange(for: Bool.self) { geometry in
+                geometry.contentOffset.y + geometry.contentInsets.top > 260
+            } action: { _, isAway in
+                withAnimation(.smooth) { isTotalScrolledAway = isAway }
+            }
+            .safeAreaInset(edge: .top, spacing: 0) {
+                if tab == .expenses, isTotalScrolledAway { compactTotal }
+            }
             .overlay(alignment: .bottomTrailing) { addButton }
             .refreshable { await model.load() }
             .sheet(item: $editor) { target in
@@ -81,6 +92,27 @@ struct CostsView: View {
                 if isEmpty { unpaidOnly = false }
             }
         }
+    }
+
+    private var compactTotal: some View {
+        let currency = model.converter.displayCurrency
+        return HStack {
+            Text(model.total.money(currency, fractionDigits: 0...0))
+                .font(.poppins(15, .bold, relativeTo: .headline))
+                .monospacedDigit()
+            Spacer(minLength: 8)
+            if model.isShared {
+                Text("Your share \(model.myShare.money(currency, fractionDigits: 0...0))")
+                    .font(.poppins(12.5, relativeTo: .footnote))
+                    .foregroundStyle(Color.trekMuted)
+            }
+        }
+        .foregroundStyle(Color.trekText)
+        .padding(.horizontal, 20)
+        .padding(.vertical, 10)
+        .background(.bar)
+        .transition(.opacity)
+        .accessibilityElement(children: .combine)
     }
 
     private var tabs: [CostsTab] {
@@ -199,7 +231,7 @@ struct CostsView: View {
 
     private var plusIcon: some View {
         Image(systemName: "plus")
-            .font(.system(size: 18, weight: .semibold))
-            .frame(width: 28, height: 28)
+            .font(.body.weight(.semibold))
+            .frame(minWidth: 28, minHeight: 28)
     }
 }

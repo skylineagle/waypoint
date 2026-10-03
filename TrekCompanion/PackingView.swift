@@ -1,0 +1,122 @@
+import SwiftUI
+
+enum PackingEditorTarget: Identifiable {
+    case new(category: String?)
+    case edit(PackingItem)
+
+    var id: String {
+        switch self {
+        case .new(let category): "new-\(category ?? "")"
+        case .edit(let item): "\(item.id)"
+        }
+    }
+}
+
+struct PackingView: View {
+    let model: PackingModel
+    @State private var editor: PackingEditorTarget?
+    @State private var collapsed: Set<String> = []
+
+    var body: some View {
+        List {
+            status
+            ForEach(model.categories) { category in
+                Section {
+                    if !collapsed.contains(category.id) {
+                        ForEach(category.items) { item in
+                            row(for: item, tint: PackingCategoryStyle(category: category.name).color)
+                        }
+                        quickAddRow(category: category.name)
+                    }
+                } header: {
+                    PackingCategoryHeader(category: category, isCollapsed: collapsed.contains(category.id)) {
+                        withAnimation(.smooth) {
+                            if collapsed.contains(category.id) { collapsed.remove(category.id) } else { collapsed.insert(category.id) }
+                        }
+                    }
+                }
+            }
+            if model.items?.isEmpty == true {
+                Section { quickAddRow(category: nil) }
+            }
+        }
+        .listStyle(.insetGrouped)
+        .listSectionSpacing(10)
+        .environment(\.defaultMinListRowHeight, 40)
+        .scrollContentBackground(.hidden)
+        .scrollDismissesKeyboard(.interactively)
+        .contentMargins(.top, 0, for: .scrollContent)
+        .contentMargins(.bottom, 72, for: .scrollContent)
+        .overlay(alignment: .bottomTrailing) {
+            ListsAddButton(label: "New packing item") { editor = .new(category: nil) }
+        }
+        .refreshable { await model.load() }
+        .animation(.smooth, value: model.items)
+        .task { if model.items == nil { await model.load() } }
+        .sheet(item: $editor) { target in
+            editorView(for: target)
+        }
+    }
+
+    @ViewBuilder
+    private var status: some View {
+        if let errorMessage = model.errorMessage {
+            Section {
+                Label(errorMessage, systemImage: "wifi.exclamationmark")
+                    .font(.poppins(13, relativeTo: .footnote))
+                    .foregroundStyle(Color.trekDanger)
+            }
+        } else if model.items == nil {
+            Section {
+                ProgressView().frame(maxWidth: .infinity, minHeight: 80)
+            }
+            .listRowBackground(Color.clear)
+        }
+    }
+
+    private func editorView(for target: PackingEditorTarget) -> some View {
+        let item: PackingItem? = if case .edit(let item) = target { item } else { nil }
+        let category: String? = if case .new(let category) = target { category } else { nil }
+        return PackingEditorView(
+            item: item,
+            category: category,
+            categories: model.categories.map(\.name).filter { $0 != PackingModel.uncategorized },
+            onSave: { try await model.save($0, editing: item) },
+            onDelete: { if let item { await model.delete(item) } }
+        )
+    }
+
+    private func row(for item: PackingItem, tint: Color) -> some View {
+        Button {
+            editor = .edit(item)
+        } label: {
+            PackingRow(item: item, tint: tint) {
+                Task { await model.toggle(item) }
+            }
+        }
+        .buttonStyle(.plain)
+        .listRowBackground(Color.trekCard)
+        .listRowInsets(.vertical, 7)
+        .swipeActions(edge: .leading) {
+            Button(item.isPacked ? "Unpack" : "Packed", systemImage: item.isPacked ? "arrow.uturn.backward" : "checkmark") {
+                Task { await model.toggle(item) }
+            }
+            .tint(Color.trekSuccess)
+        }
+        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+            Button("Delete", systemImage: "trash", role: .destructive) {
+                Task { await model.delete(item) }
+            }
+            .tint(Color.trekDanger)
+        }
+    }
+
+    private func quickAddRow(category: String?) -> some View {
+        TodoQuickAddRow(placeholder: "Add item") { name in
+            let category = category == PackingModel.uncategorized ? nil : category
+            try? await model.save(PackingInput(name: name, category: category, quantity: 1), editing: nil)
+        }
+        .listRowBackground(Color.trekCard)
+    }
+
+}

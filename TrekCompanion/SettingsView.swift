@@ -1,16 +1,14 @@
 import SwiftUI
 import WidgetKit
 
-private enum SettingsSheet: Identifiable {
-    case trip, shortcut
-
-    var id: Self { self }
+private enum SettingsPage: Hashable {
+    case trip, shortcut, notifications
 }
 
 struct SettingsView: View {
     @Environment(AppModel.self) private var model
     @State private var isConfirmingLogOut = false
-    @State private var sheet: SettingsSheet?
+    @State private var path: [SettingsPage] = []
     @AppStorage(AppSettings.liveActivityKey, store: AppGroup.defaults) private var isLiveActivityEnabled = true
     @AppStorage(AppSettings.directionsAppKey, store: AppGroup.defaults) private var directionsApp = DirectionsApp.appleMaps
     @AppStorage(AppSettings.widgetPhotosKey, store: AppGroup.defaults) private var isWidgetPhotosEnabled = true
@@ -20,18 +18,19 @@ struct SettingsView: View {
     }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             Form {
+                if let account = model.account {
+                    Section("Account") {
+                        LabeledContent(account.email, value: account.serverURL.host() ?? account.serverURL.absoluteString)
+                    }
+                }
                 Section("Trip") {
-                    Button("Change Trip", systemImage: "suitcase") { sheet = .trip }
-                    Button("Shortcut Setup", systemImage: "bolt") { sheet = .shortcut }
+                    NavigationLink(value: SettingsPage.trip) { Label("Change Trip", systemImage: "suitcase") }
+                    NavigationLink(value: SettingsPage.shortcut) { Label("Shortcut Setup", systemImage: "bolt") }
                 }
                 Section {
-                    NavigationLink {
-                        NotificationsView()
-                    } label: {
-                        Label("Notifications", systemImage: "bell.badge")
-                    }
+                    NavigationLink(value: SettingsPage.notifications) { Label("Notifications", systemImage: "bell.badge") }
                 }
                 JourneySettingsSection()
                 Section {
@@ -58,6 +57,10 @@ struct SettingsView: View {
                 Section {
                     Link("Privacy Policy", destination: TrekLinks.privacy)
                     Link("Support", destination: TrekLinks.support)
+                } footer: {
+                    if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
+                        Text("Waypoint \(version)")
+                    }
                 }
                 Section {
                     Button("Log Out", role: .destructive) { isConfirmingLogOut = true }
@@ -68,19 +71,11 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
-            .sheet(item: $sheet) { sheet in
-                NavigationStack {
-                    Group {
-                        switch sheet {
-                        case .trip: TripStepView { self.sheet = nil }
-                        case .shortcut: ShortcutStepView { self.sheet = nil }
-                        }
-                    }
-                    .padding(.top, 12)
-                    .background(Color.trekBackground)
-                    .toolbar {
-                        Button("Close", systemImage: "xmark") { self.sheet = nil }
-                    }
+            .navigationDestination(for: SettingsPage.self) { page in
+                switch page {
+                case .trip: TripStepView { path.removeAll() }.padding(.top, 12).background(Color.trekBackground)
+                case .shortcut: ShortcutStepView { path.removeAll() }.padding(.top, 12).background(Color.trekBackground)
+                case .notifications: NotificationsView()
                 }
             }
             .onChange(of: isLiveActivityEnabled) { syncActivity() }

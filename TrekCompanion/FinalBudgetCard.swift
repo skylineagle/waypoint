@@ -4,6 +4,7 @@ struct FinalBudgetCard: View {
     let model: CostsModel
     let budgets: [Settlement.FinalBudget]
     @State private var expandedID: Int?
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var currency: String { model.converter.displayCurrency }
 
@@ -44,7 +45,7 @@ struct FinalBudgetCard: View {
                             line("Trip cost", budget.final, isTotal: true)
                         }
                         .padding(.leading, 42)
-                        .transition(.opacity.combined(with: .move(edge: .top)))
+                        .transition(reduceMotion ? .opacity : .opacity.combined(with: .move(edge: .top)))
                     }
                 }
                 .padding(.vertical, 6)

@@ -25,12 +25,9 @@ struct CostsTotalCard: View {
             if model.isShared {
                 shareBar.padding(.top, 10)
             }
-            HStack(spacing: 14) {
-                if model.hasStarted {
-                    stat("Today", model.todayTotal.money(currency, fractionDigits: 0...0))
-                    stat("Daily avg", model.dailyAverage.money(currency, fractionDigits: 0...0))
-                }
-                stat(nil, "\(model.items?.count ?? 0) expenses")
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 14) { stats }
+                VStack(alignment: .leading, spacing: 4) { stats }
             }
             .padding(.top, model.isShared ? 6 : 10)
             if !model.unpaidItems.isEmpty {
@@ -51,7 +48,7 @@ struct CostsTotalCard: View {
     private var shareBar: some View {
         let total = max(model.total, 0.01)
         let shareFraction = min(max(model.myShare / total, 0), 1)
-        return VStack(spacing: 6) {
+        return VStack(alignment: .leading, spacing: 6) {
             GeometryReader { proxy in
                 Capsule()
                     .fill(Color(hex: 0xF5F5F7, alpha: 0.22))
@@ -62,10 +59,13 @@ struct CostsTotalCard: View {
                     }
             }
             .frame(height: 8)
-            HStack {
-                stat("Your share", model.myShare.money(currency, fractionDigits: 0...0))
-                Spacer(minLength: 8)
-                stat("Others", max(model.total - model.myShare, 0).money(currency, fractionDigits: 0...0))
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    shareStats(spacer: true)
+                }
+                VStack(alignment: .leading, spacing: 4) {
+                    shareStats(spacer: false)
+                }
             }
         }
         .animation(.smooth, value: model.myShare)
@@ -76,12 +76,14 @@ struct CostsTotalCard: View {
             HStack(spacing: 8) {
                 Image(systemName: "exclamationmark.circle.fill")
                     .foregroundStyle(Color.trekWarning)
+                    .accessibilityHidden(true)
                 Text("\(model.unpaidItems.count) expenses need a payer")
                     .foregroundStyle(Color(hex: 0xF5F5F7, alpha: 0.72))
                 Spacer(minLength: 8)
                 Image(systemName: "chevron.right")
                     .font(.system(size: 11, weight: .semibold))
                     .foregroundStyle(Color(hex: 0xF5F5F7, alpha: 0.5))
+                    .accessibilityHidden(true)
             }
             .font(.poppins(11.5, relativeTo: .caption))
             .contentShape(.rect)
@@ -90,13 +92,25 @@ struct CostsTotalCard: View {
         .accessibilityHint("Shows the expenses so you can set who paid")
     }
 
-    private func stat(_ label: String?, _ value: String) -> some View {
-        HStack(spacing: 4) {
-            if let label {
-                Text(label).foregroundStyle(Color(hex: 0xF5F5F7, alpha: 0.72))
-            }
-            Text(value).fontWeight(.semibold)
+    @ViewBuilder
+    private var stats: some View {
+        if model.hasStarted {
+            stat("Today", model.todayTotal.money(currency, fractionDigits: 0...0))
+            stat("Avg per trip day", model.dailyAverage.money(currency, fractionDigits: 0...0))
         }
+        stat(nil, "\(model.items?.count ?? 0) expenses")
+    }
+
+    @ViewBuilder
+    private func shareStats(spacer: Bool) -> some View {
+        stat("Your share", model.myShare.money(currency, fractionDigits: 0...0))
+        if spacer { Spacer(minLength: 8) }
+        stat("Others", max(model.total - model.myShare, 0).money(currency, fractionDigits: 0...0))
+    }
+
+    private func stat(_ label: String?, _ value: String) -> some View {
+        Text("\(Text(label.map { "\($0) " } ?? "").foregroundStyle(Color(hex: 0xF5F5F7, alpha: 0.72)))\(Text(value).fontWeight(.semibold))")
         .font(.poppins(11.5, relativeTo: .caption))
+        .fixedSize(horizontal: false, vertical: true)
     }
 }

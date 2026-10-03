@@ -3,6 +3,7 @@ import SwiftUI
 struct BalancesCard: View {
     let model: CostsModel
     let balances: [Settlement.Balance]
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     private var largest: Double {
         max(balances.map { abs($0.balance) }.max() ?? 0, 1)
@@ -24,7 +25,7 @@ struct BalancesCard: View {
                         .font(.poppins(14, .bold))
                         .foregroundStyle(balance.balance > 0.005 ? Color.trekSuccess : balance.balance < -0.005 ? Color.trekDanger : Color.trekMuted)
                         .monospacedDigit()
-                        .frame(minWidth: 96, alignment: .trailing)
+                        .frame(minWidth: dynamicTypeSize.isAccessibilitySize ? nil : 96, alignment: .trailing)
                 }
                 .accessibilityElement(children: .combine)
             }

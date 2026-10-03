@@ -9,33 +9,58 @@ struct DayTimeline: View {
     let bookings: DayBookings
     let highlightedID: Int?
     let onSelect: (TripStop) -> Void
+    let onShowOnMap: (TripStop) -> Void
     let onToggle: ((TripStop) -> Void)?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            ForEach(entries) { entry in
+        ForEach(Array(entries.enumerated()), id: \.element.id) { index, entry in
+            Group {
                 switch entry {
                 case .note(let note):
                     NoteRow(note: note)
                 case .stop(let stop, let number):
-                    if let journey = bookings.journeys[stop.id] {
-                        JourneyLegLabel(reservation: journey)
-                    } else if number > 1, let leg = legs[stop.id], stop.id != nextID, !doneIDs.contains(stop.id) {
-                        TravelLegLabel(leg: leg)
+                    VStack(alignment: .leading, spacing: 6) {
+                        if let journey = bookings.journeys[stop.id] {
+                            JourneyLegLabel(reservation: journey)
+                        } else if number > 1, let leg = legs[stop.id], stop.id != nextID, !doneIDs.contains(stop.id) {
+                            TravelLegLabel(leg: leg)
+                        }
+                        row(stop: stop, number: number)
                     }
-                    row(stop: stop, number: number)
-                        .id(stop.id)
+                    .id(stop.id)
+                    .swipeActions(edge: .leading) { doneAction(stop) }
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) { placeActions(stop) }
+                    .contextMenu {
+                        if let onToggle {
+                            let isDone = doneIDs.contains(stop.id)
+                            Button(isDone ? "Undo" : "Done", systemImage: isDone ? "arrow.uturn.backward" : "checkmark") { onToggle(stop) }
+                        }
+                        Button("Directions", systemImage: "arrow.triangle.turn.up.right.diamond.fill") { Directions.open(to: stop.place) }
+                        Button("Show on map", systemImage: "map") { onShowOnMap(stop) }
+                    }
                 }
             }
+            .listRowInsets(EdgeInsets(top: 3, leading: 16, bottom: 3, trailing: 16))
+            .listRowSeparator(.hidden)
+            .listRowBackground(TimelineLine(isFirst: index == 0, isLast: index == entries.count - 1))
         }
-        .background(alignment: .leading) {
-            Rectangle()
-                .fill(Color.trekBorder)
-                .frame(width: 1.5)
-                .padding(.vertical, 18)
-                .padding(.leading, 12.25)
+    }
+
+    @ViewBuilder
+    private func doneAction(_ stop: TripStop) -> some View {
+        if let onToggle {
+            let isDone = doneIDs.contains(stop.id)
+            Button(isDone ? "Undo" : "Done", systemImage: isDone ? "arrow.uturn.backward" : "checkmark") { onToggle(stop) }
+                .tint(Color.trekSuccess)
         }
-        .animation(.snappy, value: doneIDs)
+    }
+
+    @ViewBuilder
+    private func placeActions(_ stop: TripStop) -> some View {
+        Button("Directions", systemImage: "arrow.triangle.turn.up.right.diamond.fill") { Directions.open(to: stop.place) }
+            .tint(Color.trekAccent)
+        Button("Show on map", systemImage: "map") { onShowOnMap(stop) }
+            .tint(Color(hex: 0x111827))
     }
 
     @ViewBuilder
@@ -48,8 +73,8 @@ struct DayTimeline: View {
                     .onTapGesture { onSelect(stop) }
             }
         } else {
-            StopRow(stop: stop, number: number, booking: bookings.stopBookings[stop.id], state: doneIDs.contains(stop.id) ? .done : .upcoming, isHighlighted: stop.id == highlightedID, onToggle: onToggle.map { toggle in { toggle(stop) } })
-            .onTapGesture { onSelect(stop) }
+            StopRow(stop: stop, number: number, booking: bookings.stopBookings[stop.id], state: doneIDs.contains(stop.id) ? .done : .upcoming, isHighlighted: stop.id == highlightedID)
+                .onTapGesture { onSelect(stop) }
         }
     }
 }

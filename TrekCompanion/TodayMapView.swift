@@ -32,7 +32,7 @@ struct TodayMapView: View {
                 .stroke(Color.trekAccent.opacity(0.7), style: StrokeStyle(lineWidth: 3, lineCap: .round, dash: [6, 6]))
             ForEach(Array(stops.enumerated()), id: \.element.id) { index, stop in
                 if let coordinate = stop.place.coordinate {
-                    Annotation(stop.place.name, coordinate: coordinate) {
+                    Annotation(stop.place.name, coordinate: coordinate, anchor: .center) {
                         MapStopPin(number: index + 1, category: stop.place.category, isDone: doneIDs.contains(stop.id), isNext: stop.id == nextID)
                     }
                     .tag(stop.id)
@@ -45,6 +45,7 @@ struct TodayMapView: View {
             MapUserLocationButton(scope: mapScope)
                 .padding(10)
         }
+        .safeAreaPadding(.bottom, coveredBottom)
         .mapScope(mapScope)
         .onGeometryChange(for: CGFloat.self, of: \.size.height) { height = $0 }
         .onChange(of: height == 0) { focusOnNext(animated: false) }
@@ -97,10 +98,11 @@ struct TodayMapView: View {
     }
 
     private func visibleRegion(center: CLLocationCoordinate2D, span: MKCoordinateSpan) -> MKCoordinateRegion {
-        let visibleHeight = height - coveredTop - coveredBottom
-        guard height > 0, visibleHeight > 0 else { return MKCoordinateRegion(center: center, span: span) }
-        let latitudeDelta = span.latitudeDelta * height / visibleHeight
-        let shift = latitudeDelta * (coveredBottom - coveredTop) / 2 / height
+        let safeHeight = height - coveredBottom
+        let visibleHeight = safeHeight - coveredTop
+        guard safeHeight > 0, visibleHeight > 0 else { return MKCoordinateRegion(center: center, span: span) }
+        let latitudeDelta = span.latitudeDelta * safeHeight / visibleHeight
+        let shift = -latitudeDelta * coveredTop / 2 / safeHeight
         return MKCoordinateRegion(
             center: CLLocationCoordinate2D(latitude: center.latitude - shift, longitude: center.longitude),
             span: MKCoordinateSpan(latitudeDelta: latitudeDelta, longitudeDelta: span.longitudeDelta)

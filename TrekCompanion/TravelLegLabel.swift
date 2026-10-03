@@ -16,6 +16,7 @@ struct TravelLegLabel: View {
                 .frame(width: 20, height: 20)
                 .background(isOnGlass ? AnyShapeStyle(.primary.opacity(0.14)) : AnyShapeStyle(Color.trekBackground), in: .circle)
                 .frame(width: 26)
+                .accessibilityHidden(true)
             Text(leg.isTransit ? "\(leg.minutes) min by transit · \(distance)" : "\(leg.minutes) min walk · \(distance)")
                 .font(.poppins(11, relativeTo: .caption2))
         }

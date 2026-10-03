@@ -51,7 +51,8 @@ final class TodosModel {
         let open = filtered.filter { !$0.isDone }.sorted(by: Self.isMoreUrgent)
         return [
             TodoSection(title: "Overdue", items: open.filter(\.isOverdue), isAlert: true),
-            TodoSection(title: "Upcoming", items: open.filter { $0.dueDate != nil && !$0.isOverdue }),
+            TodoSection(title: "Today", items: open.filter { $0.dueDate == ExpenseDate.today }),
+            TodoSection(title: "Upcoming", items: open.filter { ($0.dueDate ?? "") > ExpenseDate.today }),
             TodoSection(title: "No date", items: open.filter { $0.dueDate == nil }),
             TodoSection(title: "Done", items: filtered.filter(\.isDone)),
         ]

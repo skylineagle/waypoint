@@ -123,6 +123,7 @@ struct MapTimelineSheet: View {
                     .foregroundStyle(.primary)
                     .frame(width: 34, height: 34)
                     .background(.primary.opacity(0.14), in: .circle)
+                    .minimumHitArea(around: 34)
                     .buttonStyle(.plain)
                 }
                 if isNext, let onToggle {
@@ -132,6 +133,7 @@ struct MapTimelineSheet: View {
                         .foregroundStyle(Color.trekAccentText)
                         .frame(width: 34, height: 34)
                         .background(Color.trekAccent, in: .circle)
+                        .minimumHitArea(around: 34)
                         .buttonStyle(.plain)
                 }
             }

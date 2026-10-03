@@ -4,6 +4,7 @@ import WidgetKit
 struct TodayView: View {
     @Environment(AppModel.self) private var app
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let model: TodayModel
     let costs: CostsModel
     @State private var highlightedID: Int?
@@ -11,6 +12,7 @@ struct TodayView: View {
     @State private var isScrolled = false
     @State private var sheetHeight: CGFloat = 160
     @State private var photoTask: Task<Void, Never>?
+    @State private var undoStop: TripStop?
     @AppStorage(AppSettings.widgetPhotosKey, store: AppGroup.defaults) private var isWidgetPhotosEnabled = true
 
     var body: some View {
@@ -34,6 +36,7 @@ struct TodayView: View {
                 }
             }
             .overlay(alignment: .bottom) { backButton }
+            .overlay(alignment: .bottom) { undoToast }
             .background { fullscreenMap }
             .background(Color.trekBackground)
             .toolbarVisibility(.hidden, for: .navigationBar)
@@ -62,36 +65,11 @@ struct TodayView: View {
         }
     }
 
-    @ViewBuilder
     private var pages: some View {
-        if model.errorMessage == nil, let days = model.days, model.viewedDay != nil {
-            ScrollView(.horizontal) {
-                LazyHStack(spacing: 0) {
-                    ForEach(days) { day in
-                        dayScroll(nextID: nextID(on: day)) { dayContent(day) }
-                            .containerRelativeFrame(.horizontal)
-                    }
-                }
-                .scrollTargetLayout()
-            }
-            .scrollTargetBehavior(.paging)
-            .scrollIndicators(.hidden)
-            .scrollPosition(id: pagedDayID)
+        dayScroll(nextID: model.viewedDay.flatMap(nextID)) { content }
             .onChange(of: model.viewedDay?.id) {
                 withAnimation(.smooth) { isScrolled = false }
             }
-        } else {
-            dayScroll(nextID: nil) { content }
-        }
-    }
-
-    private var pagedDayID: Binding<Int?> {
-        Binding {
-            model.viewedDay?.id
-        } set: { id in
-            guard let day = model.days?.first(where: { $0.id == id }) else { return }
-            select(day)
-        }
     }
 
     private func nextID(on day: TripDay) -> Int? {
@@ -100,16 +78,20 @@ struct TodayView: View {
 
     private func dayScroll(nextID: Int?, @ViewBuilder content: @escaping () -> some View) -> some View {
         ScrollViewReader { proxy in
-            ScrollView {
-                VStack(alignment: .leading, spacing: 12) {
+            List {
+                Group {
                     content()
                     if nextID != nil {
                         Color.clear.containerRelativeFrame(.vertical) { height, _ in height * 0.5 }
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.bottom, model.selectedDayID == nil ? 24 : 80)
+                .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
             }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+            .contentMargins(.bottom, model.selectedDayID == nil ? 24 : 80, for: .scrollContent)
             .refreshable {
                 await model.load()
                 await costs.load()
@@ -168,7 +150,7 @@ struct TodayView: View {
 
         if !stops.isEmpty {
             sectionTitle(isToday ? "Today's plan" : "Plan", badge: badge(for: day), trailing: isToday ? "\(remaining) left" : "\(stops.count) stops")
-            DayTimeline(entries: day.timeline, stopCount: stops.count, doneIDs: model.doneIDs, nextID: next?.id, legs: model.legs, bookings: dayBookings, highlightedID: highlightedID, onSelect: { mapFocusID = $0.id }, onToggle: onToggle)
+            DayTimeline(entries: day.timeline, stopCount: stops.count, doneIDs: model.doneIDs, nextID: next?.id, legs: model.legs, bookings: dayBookings, highlightedID: highlightedID, onSelect: { mapFocusID = $0.id }, onShowOnMap: showOnMap, onToggle: onToggle)
             if isToday, next == nil {
                 Label("Day complete", systemImage: "checkmark.seal.fill")
                     .font(.poppins(15, .semibold))
@@ -198,7 +180,7 @@ struct TodayView: View {
         if model.errorMessage == nil, let days = model.days, !days.isEmpty {
             VStack(spacing: 10) {
                 if let day = model.viewedDay {
-                    TodayHeader(eyebrow: eyebrow(day: day), title: day.title ?? "Day \(model.number(of: day))", weather: model.weather[day.id], weatherURL: weatherURL(for: day), isMapShown: Binding { model.isMapShown } set: { model.isMapShown = $0 })
+                    TodayHeader(eyebrow: eyebrow(day: day), title: day.title ?? "Day \(model.number(of: day))", isCompact: isScrolled && !model.isMapShown, weather: model.weather[day.id], weatherURL: weatherURL(for: day), isMapShown: Binding { model.isMapShown } set: { model.isMapShown = $0 })
                 }
                 if !isScrolled || model.isMapShown {
                     DayStrip(days: days, segments: model.segments, todayID: model.todayDay?.id, selectedID: model.viewedDay?.id, daysUntilStart: daysUntilStart, onSelect: select, onOverscrollStart: returnToOverview, inset: model.isMapShown ? 6 : 16)
@@ -207,7 +189,7 @@ struct TodayView: View {
                         .glassEffect(model.isMapShown ? .regular : .identity, in: .rect(cornerRadius: 24))
                         .padding(.horizontal, model.isMapShown ? 0 : -16)
                         .padding(.top, 4)
-                        .transition(.move(edge: .top).combined(with: .opacity))
+                        .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
                 }
             }
         }
@@ -294,7 +276,7 @@ struct TodayView: View {
         .padding(.horizontal, 18)
         .frame(height: 44)
         .glassEffect(.regular.interactive(), in: .capsule)
-        .transition(.blurReplace.combined(with: .move(edge: .bottom)))
+        .transition(reduceMotion ? AnyTransition(.opacity) : AnyTransition(.blurReplace.combined(with: .move(edge: .bottom))))
     }
 
     private func returnToOverview() {
@@ -306,7 +288,41 @@ struct TodayView: View {
     }
 
     private func toggleDone(_ stop: TripStop) {
-        withAnimation(.snappy) { model.toggleDone(stop) }
+        let isMarkingDone = !model.doneIDs.contains(stop.id)
+        withAnimation(.snappy) {
+            model.toggleDone(stop)
+            undoStop = isMarkingDone ? stop : nil
+        }
+        guard isMarkingDone else { return }
+        Task {
+            try? await Task.sleep(for: .seconds(4))
+            if undoStop == stop { withAnimation(.smooth) { undoStop = nil } }
+        }
+    }
+
+    private func showOnMap(_ stop: TripStop) {
+        mapFocusID = stop.id
+        withAnimation(.smooth(duration: 0.35)) { model.isMapShown = true }
+    }
+
+    @ViewBuilder
+    private var undoToast: some View {
+        if let undoStop {
+            HStack(spacing: 12) {
+                Label("Marked \(undoStop.place.name) done", systemImage: "checkmark.circle.fill")
+                    .lineLimit(1)
+                Button("Undo") { toggleDone(undoStop) }
+                    .fontWeight(.bold)
+            }
+            .font(.poppins(14, .semibold, relativeTo: .subheadline))
+            .foregroundStyle(Color.trekText)
+            .padding(.horizontal, 18)
+            .frame(minHeight: 44)
+            .glassEffect(.regular.interactive(), in: .capsule)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 12)
+            .transition(reduceMotion ? AnyTransition(.opacity) : AnyTransition(.move(edge: .bottom).combined(with: .opacity)))
+        }
     }
 
     private func badge(for day: TripDay) -> DayStatusBadge? {
@@ -353,11 +369,18 @@ struct TodayView: View {
     }
 
     private func sectionTitle(_ title: String, badge: DayStatusBadge?, trailing: String?) -> some View {
-        HStack(spacing: 8) {
-            CardCaption(text: title)
-            badge
-            Spacer()
-            if let trailing { CardCaption(text: trailing) }
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 8) {
+                CardCaption(text: title)
+                badge
+                Spacer()
+                if let trailing { CardCaption(text: trailing) }
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                CardCaption(text: title)
+                badge
+                if let trailing { CardCaption(text: trailing) }
+            }
         }
         .padding(.top, 8)
     }
@@ -365,7 +388,8 @@ struct TodayView: View {
     private func eyebrow(day: TripDay) -> String {
         let number = model.number(of: day)
         let total = model.days?.count ?? number
-        guard let date = ExpenseDate.date(from: day.date) else { return "Day \(number) of \(total)" }
-        return "Day \(number) of \(total) · \(date.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated)))"
+        let segment = model.segments.first { $0.covers(dayNumber: number) }?.name
+        let date = ExpenseDate.date(from: day.date)?.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated))
+        return ["Day \(number) of \(total)", date, segment].compactMap(\.self).joined(separator: " · ")
     }
 }

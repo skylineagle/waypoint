@@ -15,6 +15,9 @@ struct CurrencyConverter {
 
     func displayAmount(of item: BudgetItem) -> Double {
         let currency = (item.currency ?? tripCurrency).uppercased()
+        if currency == displayCurrency {
+            return item.totalPrice
+        }
         if currency == tripCurrency {
             return convert(item.totalPrice, from: tripCurrency)
         }

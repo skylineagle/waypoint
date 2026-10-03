@@ -20,5 +20,7 @@ struct MapStopPin: View {
         .overlay(Circle().strokeBorder(category?.tint ?? .white, lineWidth: 2))
         .background(Circle().fill(Color(hex: 0x111827).opacity(isNext ? 0.18 : 0)).padding(-7))
         .shadow(color: .black.opacity(0.25), radius: 3, y: 2)
+        .frame(width: 44, height: 44)
+        .contentShape(.circle)
     }
 }
