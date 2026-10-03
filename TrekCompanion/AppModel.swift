@@ -18,6 +18,7 @@ final class AppModel {
     var shortcutCheck = ShortcutCheck.idle
     var tab = MainTab.today
     var isAddingExpense = false
+    var isScanningReceipt = false
     var isConverting = false
     var editingExpense: ExpenseLink?
     var converterAmount = 100.0

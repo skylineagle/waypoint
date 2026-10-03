@@ -3,7 +3,7 @@ import SwiftUI
 struct JourneyLegLabel: View {
     let reservation: Reservation
 
-    private static let tint = Color(hex: 0x8B74E0)
+    private static let tint = Color.blue
 
     private var schedule: String {
         [reservation.time, reservation.endTime].compactMap(\.self).joined(separator: " → ")

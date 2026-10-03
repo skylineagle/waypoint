@@ -33,6 +33,17 @@ struct JourneyAPI {
         _ = try await data("POST", "api/journeys/entries/\(entryID)/link-photo", body: JSONEncoder().encode(Input(journey_photo_id: photoID)))
     }
 
+    func stampArrival(assignment assignmentID: Int, at time: String) async throws {
+        let saved = JourneyDestination.saved(for: session)?.id
+        let journeys = try await destinations()
+        guard let journeyID = (journeys.first { $0.id == saved } ?? journeys.first)?.id,
+              let entry = try await stops(in: journeyID).first(where: { $0.sourceAssignmentId == assignmentID }),
+              entry.isUntouched
+        else { return }
+        struct Input: Encodable { let entry_time: String }
+        _ = try await data("PATCH", "api/journeys/entries/\(entry.id)", body: JSONEncoder().encode(Input(entry_time: time)))
+    }
+
     func create() async throws -> JourneyDestination {
         guard let tripID = session.tripID, let title = session.tripTitle else {
             throw JourneyError.message("Choose an active trip in Waypoint first.")
@@ -55,18 +66,18 @@ struct JourneyAPI {
         return false
     }
 
-    private func request<Response: Decodable>(_ method: String, _ path: String, body: Data? = nil) async throws -> Response {
+    func request<Response: Decodable>(_ method: String, _ path: String, body: Data? = nil) async throws -> Response {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         return try decoder.decode(Response.self, from: await data(method, path, body: body))
     }
 
-    private func data(_ method: String, _ path: String, body: Data? = nil) async throws -> Data {
+    func data(_ method: String, _ path: String, body: Data? = nil, contentType: String = "application/json") async throws -> Data {
         let current = JourneySession.load().flatMap { $0.scope == session.scope ? $0 : nil } ?? session
         var request = try JourneyStore.request(path, session: current)
         request.httpMethod = method
         request.httpBody = body
-        if body != nil { request.setValue("application/json", forHTTPHeaderField: "Content-Type") }
+        if body != nil { request.setValue(contentType, forHTTPHeaderField: "Content-Type") }
         request.timeoutInterval = 20
         let (data, response) = try await Self.transport.data(for: request)
         if let response = response as? HTTPURLResponse { JourneySession.renew(from: response, for: session.scope) }

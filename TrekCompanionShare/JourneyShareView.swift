@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct JourneyShareView: View {
-    let model: JourneyShareModel
+    @Bindable var model: JourneyShareModel
     let onClose: () -> Void
     @State private var isChoosingJourney = false
 
@@ -12,10 +12,29 @@ struct JourneyShareView: View {
                     if model.isSaved {
                         saved
                     } else {
-                        if model.isLoading { ProgressView("Preparing photos…").frame(maxWidth: .infinity) }
+                        if model.isLoading {
+                            ShareProcessingStrip(queue: model.queue, processedCount: model.processedCount)
+                        }
+                        if !model.receipts.isEmpty {
+                            Text("\(model.receipts.count) \(model.receipts.count == 1 ? "RECEIPT" : "RECEIPTS") · ADD AS EXPENSES")
+                                .font(.poppins(11, .medium)).foregroundStyle(Color.trekMuted)
+                            ForEach($model.receipts) { $receipt in
+                                ShareReceiptRow(receipt: $receipt, fallbackCurrency: model.tripCurrency)
+                            }
+                            Text("Turn a receipt off to send it to Journey instead.")
+                                .font(.poppins(12)).foregroundStyle(Color.trekMuted)
+                        }
+                        if !model.files.isEmpty && !model.receipts.isEmpty {
+                            Text("\(model.photoLabel.uppercased()) · JOURNEY")
+                                .font(.poppins(11, .medium)).foregroundStyle(Color.trekMuted)
+                        }
                         ForEach(model.groups) { group in
                             ShareGroupCard(group: group, stops: model.stops(on: group.day)) { model.assign(group, to: $0) }
                         }
+                        if !model.outsideTripPhotos.isEmpty {
+                            OutsideTripNote(files: model.outsideTripPhotos.map(\.file))
+                        }
+                        if !model.files.isEmpty {
                         Text("DESTINATION").font(.poppins(11, .medium)).foregroundStyle(Color.trekMuted)
                         Button { isChoosingJourney = true } label: {
                             HStack {
@@ -38,12 +57,13 @@ struct JourneyShareView: View {
                             Text("\(model.unplacedCount) without a stop will go to the gallery only.")
                                 .font(.poppins(12)).foregroundStyle(Color.trekWarning)
                         }
+                        }
                         if let error = model.errorMessage ?? model.selection.errorMessage {
                             Text(error).font(.poppins(13)).foregroundStyle(Color.trekDanger)
                         }
-                        Button("Send all \(model.photoLabel)") { model.send() }
+                        Button(model.isLoading ? "Reading photos…" : model.receipts.isEmpty && !model.files.isEmpty ? "Send all \(model.photoLabel)" : model.sendLabel) { Task { await model.send() } }
                             .buttonStyle(TrekButtonStyle())
-                            .disabled(model.isLoading || model.isSending || model.files.isEmpty || model.errorMessage != nil || model.selection.selected == nil)
+                            .disabled(!model.canSend)
                         Text("You can write and organize them later in TREK.")
                             .font(.poppins(11)).foregroundStyle(Color.trekMuted)
                             .frame(maxWidth: .infinity)
@@ -52,7 +72,7 @@ struct JourneyShareView: View {
                 .padding(20)
             }
             .background(Color.trekCard)
-            .navigationTitle("Send to Journey")
+            .navigationTitle(model.receipts.isEmpty ? "Send to Journey" : "Send to Waypoint")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -74,19 +94,24 @@ struct JourneyShareView: View {
     }
 
     private var saved: some View {
-        VStack(spacing: 18) {
-            Image(systemName: "checkmark.circle.fill").font(.system(size: 48)).foregroundStyle(Color.trekSuccess)
-            Text("Photos saved on this phone").font(.poppins(20, .semibold)).multilineTextAlignment(.center)
-            Text(model.uploadError ?? "They'll upload when a connection to TREK is available.")
-                .font(.poppins(14)).foregroundStyle(Color.trekMuted).multilineTextAlignment(.center)
-            if let destination = model.selection.selected {
-                Text("\(model.photoLabel) → \(destination.title)")
-                    .font(.poppins(14, .medium))
+        VStack(spacing: 14) {
+            Image(systemName: "checkmark.circle.fill").font(.system(size: 64)).foregroundStyle(Color.trekSuccess)
+                .padding(.top, 60)
+            Text("Done").font(.poppins(22, .semibold))
+            HStack(spacing: 12) {
+                if model.addedExpenseCount > 0 {
+                    Label("\(model.addedExpenseCount) \(model.addedExpenseCount == 1 ? "expense" : "expenses")", systemImage: "creditcard")
+                }
+                if !model.files.isEmpty {
+                    Label("\(model.photoLabel) → \(model.selection.selected?.title ?? "Journey")", systemImage: "photo")
+                }
             }
-            Text("Check progress in Waypoint → Settings → Journey uploads. Your photos are kept until TREK confirms the upload.")
-                .font(.poppins(12)).foregroundStyle(Color.trekMuted)
-            Button("Done", action: onClose).buttonStyle(TrekButtonStyle())
+            .font(.poppins(14)).foregroundStyle(Color.trekMuted)
+            if let uploadError = model.uploadError {
+                Text(uploadError).font(.poppins(13)).foregroundStyle(Color.trekWarning).multilineTextAlignment(.center)
+            }
+            Button("Done", action: onClose).buttonStyle(TrekButtonStyle()).padding(.top, 40)
         }
-        .padding(.top, 24)
+        .frame(maxWidth: .infinity)
     }
 }

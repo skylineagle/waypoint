@@ -11,6 +11,13 @@ nonisolated struct JourneyStop: Decodable, Identifiable, Equatable {
     let locationName: String?
     let locationLat: Double?
     let locationLng: Double?
+    var sourceAssignmentId: Int? = nil
+    var createdAt: Int? = nil
+    var updatedAt: Int? = nil
+
+    var isUntouched: Bool {
+        entryTime == nil || createdAt == updatedAt
+    }
 
     var name: String {
         [title, locationName].compactMap { $0 }.first { !$0.isEmpty } ?? "Stop"

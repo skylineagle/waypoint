@@ -62,6 +62,18 @@ struct MainTabView: View {
             )
             .presentationDragIndicator(.visible)
         }
+        .sheet(isPresented: $app.isScanningReceipt) {
+            ExpenseEditorView(
+                item: nil,
+                converter: costs.converter,
+                members: costs.members,
+                meID: costs.meID,
+                startsScanning: true,
+                onSave: { try await costs.save($0, editing: nil, receipt: $1) },
+                onDelete: {}
+            )
+            .presentationDragIndicator(.visible)
+        }
         .sheet(item: $app.editingExpense) { link in
             ExpenseLinkEditor(link: link, costs: costs)
                 .presentationDragIndicator(.visible)

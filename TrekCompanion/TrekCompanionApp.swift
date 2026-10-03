@@ -19,6 +19,7 @@ struct TrekCompanionApp: App {
                 .tint(.trekAccent)
                 .onOpenURL { url in
                     if url.host() == "add-expense" { model.isAddingExpense = true }
+                    if url.host() == "scan-receipt" { model.isScanningReceipt = true }
                     if url.host() == "converter" { model.openConverter(from: url) }
                     if url.host() == "edit-expense" { model.openExpense(from: url) }
                     if let id = BookingLink.reservationID(in: url) { model.openedBookingID = id }

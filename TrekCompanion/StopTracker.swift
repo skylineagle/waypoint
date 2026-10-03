@@ -76,11 +76,12 @@ final class StopTracker: NSObject, CLLocationManagerDelegate {
               let snapshot = TodaySnapshot.load()
         else { return }
         Task { await TripLiveActivity.startAutomatically(with: snapshot) }
+        let arrival = visit?.since
         let step = StopVisits.step(visit, places: places(in: snapshot), at: location, dwell: Self.dwell)
         visit = step.visit
         let isHereChanged = StopHere.save(step.visit.map { StopHere(stopID: $0.stopID, since: $0.since) })
         if let id = step.done {
-            markDone(id, in: snapshot)
+            markDone(id, in: snapshot, arrivedAt: arrival ?? location.timestamp)
         } else if isHereChanged {
             Task { await TripLiveActivity.sync(with: snapshot) }
         }
@@ -94,18 +95,25 @@ final class StopTracker: NSObject, CLLocationManagerDelegate {
         if !hasLeft {
             if StopHere.save(StopHere(stopID: id, since: arrival)) { Task { await TripLiveActivity.sync(with: snapshot) } }
         } else if stay >= Self.dwell {
-            markDone(id, in: snapshot)
+            markDone(id, in: snapshot, arrivedAt: arrival)
         } else if StopHere.save(nil) {
             Task { await TripLiveActivity.sync(with: snapshot) }
         }
     }
 
-    private func markDone(_ id: Int, in snapshot: TodaySnapshot) {
+    private func markDone(_ id: Int, in snapshot: TodaySnapshot, arrivedAt arrival: Date) {
         snapshot.markDone(id)
+        stampJourney(id, arrival: arrival)
         NotificationCenter.default.post(name: Self.doneChanged, object: nil)
         Task {
             await TripLiveActivity.sync(with: snapshot)
             WidgetCenter.shared.reloadAllTimelines()
         }
+    }
+
+    private func stampJourney(_ assignmentID: Int, arrival: Date) {
+        guard let session = JourneySession.load() else { return }
+        let time = arrival.formatted(.verbatim("\(hour: .twoDigits(clock: .twentyFourHour, hourCycle: .zeroBased)):\(minute: .twoDigits)", timeZone: .current, calendar: .current))
+        Task { try? await JourneyAPI(session: session).stampArrival(assignment: assignmentID, at: time) }
     }
 }

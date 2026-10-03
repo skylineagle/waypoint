@@ -20,6 +20,7 @@ struct TodoEditorView: View {
     @State private var isNamingList = false
     @State private var newListName = ""
     @State private var contentHeight: CGFloat = 520
+    @State private var headerHeight: CGFloat = 70
     @State private var isConfirmingDelete = false
     @State private var isConfirmingDiscard = false
     private let original: Fields
@@ -79,37 +80,47 @@ struct TodoEditorView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(spacing: 0) {
             header
-            TrekTextField(symbol: "pencil", placeholder: "What needs doing?", text: $name, focusOnAppear: item == nil, accessibilityLabel: "Name")
-            TrekTextField(symbol: "text.alignleft", placeholder: "Description", text: $description, accessibilityLabel: "Description", axis: .vertical)
-                .lineLimit(1...4)
-            CardCaption(text: "Details").padding(.top, 6)
-            details
-            CardCaption(text: "Priority").padding(.top, 6)
-            TodoPriorityPicker(selection: $priority)
-            if let errorMessage {
-                Label(errorMessage, systemImage: "exclamationmark.circle")
-                    .font(.poppins(13, relativeTo: .footnote))
-                    .foregroundStyle(Color.trekDanger)
+                .padding(.horizontal, 16)
+                .padding(.top, 24)
+                .padding(.bottom, 10)
+                .fixedSize(horizontal: false, vertical: true)
+                .onGeometryChange(for: CGFloat.self, of: \.size.height) { headerHeight = $0 }
+            ScrollView {
+                VStack(alignment: .leading, spacing: 10) {
+                    TrekTextField(symbol: "pencil", placeholder: "What needs doing?", text: $name, focusOnAppear: item == nil, accessibilityLabel: "Name")
+                    TrekTextField(symbol: "text.alignleft", placeholder: "Description", text: $description, accessibilityLabel: "Description", axis: .vertical)
+                        .lineLimit(1...4)
+                    CardCaption(text: "Details").padding(.top, 6)
+                    details
+                    CardCaption(text: "Priority").padding(.top, 6)
+                    TodoPriorityPicker(selection: $priority)
+                    if let errorMessage {
+                        Label(errorMessage, systemImage: "exclamationmark.circle")
+                            .font(.poppins(13, relativeTo: .footnote))
+                            .foregroundStyle(Color.trekDanger)
+                    }
+                    Button(item == nil ? "Add to-do" : "Save to-do", action: save)
+                        .buttonStyle(TrekButtonStyle())
+                        .disabled(!canSave)
+                        .padding(.top, 8)
+                    if item != nil {
+                        Button("Delete to-do", role: .destructive) { isConfirmingDelete = true }
+                        .font(.poppins(15, .semibold))
+                        .foregroundStyle(Color.trekDanger)
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .padding(.top, 4)
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
+                .onGeometryChange(for: CGFloat.self, of: \.size.height) { contentHeight = $0 }
             }
-            Button(item == nil ? "Add to-do" : "Save to-do", action: save)
-                .buttonStyle(TrekButtonStyle())
-                .disabled(!canSave)
-                .padding(.top, 8)
-            if item != nil {
-                Button("Delete to-do", role: .destructive) { isConfirmingDelete = true }
-                .font(.poppins(15, .semibold))
-                .foregroundStyle(Color.trekDanger)
-                .frame(maxWidth: .infinity, minHeight: 44)
-                .padding(.top, 4)
-            }
+            .scrollDismissesKeyboard(.interactively)
         }
-        .padding(16)
-        .onGeometryChange(for: CGFloat.self, of: \.size.height) { contentHeight = $0 }
-        .frame(maxHeight: .infinity, alignment: .top)
         .background(Color.trekBackground)
-        .presentationDetents([.height(contentHeight)])
+        .presentationDetents([.height(contentHeight + headerHeight)])
         .presentationDragIndicator(.visible)
         .interactiveDismissDisabled(hasChanges)
         .confirmationDialog("Delete this to-do?", isPresented: $isConfirmingDelete, titleVisibility: .visible) {

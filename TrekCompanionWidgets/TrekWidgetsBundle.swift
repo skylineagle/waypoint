@@ -8,5 +8,6 @@ struct TrekWidgetsBundle: WidgetBundle {
         SpentTodayWidget()
         ConverterWidget()
         TripActivityWidget()
+        ScanReceiptControl()
     }
 }
