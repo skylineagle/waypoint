@@ -25,7 +25,7 @@ struct PackingCheck {
         let cleared = try JSONSerialization.jsonObject(with: clearedData) as! [String: NSObject]
         precondition(cleared["bag_id"] is NSNull, "Removing a bag must send null, not omit the assignment.")
 
-        let bagJSON = #"{"id":7,"name":"Backpack","color":"#6366f1","members":[],"total_weight_grams":500}"#
+        let bagJSON = ##"{"id":7,"name":"Backpack","color":"#6366f1","members":[],"total_weight_grams":500}"##
         let bag = try decoder.decode(PackingBag.self, from: Data(bagJSON.utf8))
         precondition(bag.id == assigned.bagId && bag.name == "Backpack")
         print("Packing API checks passed: assigned bags, legacy items, preserved checked state, and explicit unassignment.")
