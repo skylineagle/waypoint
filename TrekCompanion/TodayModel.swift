@@ -20,6 +20,7 @@ final class TodayModel {
     private(set) var trip: Trip
     private(set) var days: [TripDay]?
     private(set) var reservations: [Reservation] = []
+    private(set) var files: [TripFile] = []
     private(set) var stays: [Stay] = []
     private(set) var segments: [TripSegment] = []
     private(set) var weather: [Int: DayWeather] = [:]
@@ -89,6 +90,10 @@ final class TodayModel {
             .sorted { ($0.time ?? "") < ($1.time ?? "") }
     }
 
+    func files(for reservation: Reservation) -> [TripFile] {
+        files.filter { $0.belongs(to: reservation) }
+    }
+
     func dayBookings(on day: TripDay) -> DayBookings {
         DayBookings(stops: day.stops, bookings: bookings(on: day))
     }
@@ -127,12 +132,14 @@ final class TodayModel {
             async let loadedTrip = client.trip(id: trip.id)
             async let loadedDays = client.days(tripID: trip.id)
             async let loadedReservations = client.reservations(tripID: trip.id)
+            async let loadedFiles = client.files(tripID: trip.id)
             async let loadedStays = client.stays(tripID: trip.id)
             async let loadedSegments = client.segments(tripID: trip.id)
             days = try await loadedDays
             segments = (try? await loadedSegments) ?? []
             trip = (try? await loadedTrip) ?? trip
             reservations = (try? await loadedReservations) ?? []
+            files = (try? await loadedFiles) ?? []
             stays = (try? await loadedStays) ?? []
             errorMessage = nil
             await ReminderScheduler.update([

@@ -2,7 +2,6 @@ import SwiftUI
 
 struct JourneyLegLabel: View {
     let reservation: Reservation
-    @Environment(\.openURL) private var openURL
 
     private static let tint = Color(hex: 0x8B74E0)
 
@@ -21,9 +20,7 @@ struct JourneyLegLabel: View {
     }
 
     var body: some View {
-        Button {
-            if let url = reservation.webURL { openURL(url) }
-        } label: {
+        BookingButton(reservation: reservation) { icon in
             HStack(spacing: 0) {
                 Capsule()
                     .fill(Self.tint)
@@ -43,6 +40,7 @@ struct JourneyLegLabel: View {
                             .font(.poppins(12, .semibold))
                             .monospacedDigit()
                             .foregroundStyle(Color.trekText)
+                        if icon.hasFiles || icon.isOpening { icon }
                     }
                     .font(.system(size: 12, weight: .semibold))
                     if !details.isEmpty {
@@ -57,8 +55,6 @@ struct JourneyLegLabel: View {
             }
             .fixedSize(horizontal: false, vertical: true)
         }
-        .buttonStyle(.plain)
-        .accessibilityHint("Opens this booking in TREK")
     }
 
     private func minutes(_ time: String?) -> Int? {

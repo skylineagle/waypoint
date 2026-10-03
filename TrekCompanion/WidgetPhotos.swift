@@ -42,7 +42,7 @@ enum WidgetPhotos {
 
     private static func cache(_ path: String, named name: String, client: TrekClient) async {
         guard WidgetPhotoStore.load(name) == nil,
-              let data = try? await client.image(at: path),
+              let data = try? await client.download(path),
               !Task.isCancelled, AppSettings.isWidgetPhotosEnabled,
               Account.load()?.serverURL == client.account.serverURL,
               let source = CGImageSourceCreateWithData(data as CFData, nil),

@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct DayTimeline: View {
     let entries: [TimelineEntry]
@@ -50,17 +51,36 @@ struct DayTimeline: View {
     private func doneAction(_ stop: TripStop) -> some View {
         if let onToggle {
             let isDone = doneIDs.contains(stop.id)
-            Button(isDone ? "Undo" : "Done", systemImage: isDone ? "arrow.uturn.backward" : "checkmark") { onToggle(stop) }
-                .tint(Color.trekSuccess)
+            Button {
+                onToggle(stop)
+            } label: {
+                Label {
+                    Text(isDone ? "Undo" : "Done")
+                } icon: {
+                    doneIcon(isDone ? "arrow.uturn.backward" : "checkmark")
+                }
+            }
+            .labelStyle(.iconOnly)
+            .tint(Color(hex: 0x00D775))
         }
+    }
+
+    private func doneIcon(_ symbol: String) -> Image {
+        let color = UIColor(red: 6 / 255, green: 36 / 255, blue: 23 / 255, alpha: 1)
+        if let image = UIImage(systemName: symbol)?.withTintColor(color, renderingMode: .alwaysOriginal) {
+            return Image(uiImage: image)
+        }
+        return Image(systemName: symbol)
     }
 
     @ViewBuilder
     private func placeActions(_ stop: TripStop) -> some View {
         Button("Directions", systemImage: "arrow.triangle.turn.up.right.diamond.fill") { Directions.open(to: stop.place) }
-            .tint(Color.trekAccent)
+            .labelStyle(.iconOnly)
+            .tint(Color(hex: 0x3172DF))
         Button("Show on map", systemImage: "map") { onShowOnMap(stop) }
-            .tint(Color(hex: 0x111827))
+            .labelStyle(.iconOnly)
+            .tint(Color(hex: 0x64748B))
     }
 
     @ViewBuilder

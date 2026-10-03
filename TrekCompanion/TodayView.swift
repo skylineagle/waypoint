@@ -10,6 +10,7 @@ struct TodayView: View {
     @State private var highlightedID: Int?
     @State private var mapFocusID: Int?
     @State private var isScrolled = false
+    @State private var scrollPhase = ScrollPhase.idle
     @State private var sheetHeight: CGFloat = 160
     @State private var photoTask: Task<Void, Never>?
     @State private var undoStop: TripStop?
@@ -97,7 +98,14 @@ struct TodayView: View {
                 await costs.load()
             }
             .onScrollGeometryChange(for: Bool?.self, of: stripVisibility) { _, scrolled in
-                guard let scrolled, scrolled != isScrolled else { return }
+                guard scrollPhase == .interacting || scrollPhase == .decelerating,
+                      let scrolled, scrolled != isScrolled else { return }
+                withAnimation(.smooth) { isScrolled = scrolled }
+            }
+            .onScrollPhaseChange { _, phase, context in
+                scrollPhase = phase
+                guard phase == .interacting,
+                      let scrolled = stripVisibility(context.geometry), scrolled != isScrolled else { return }
                 withAnimation(.smooth) { isScrolled = scrolled }
             }
             .onAppear { scrollToNext(nextID, proxy: proxy, animated: false) }
@@ -111,7 +119,7 @@ struct TodayView: View {
 
     private func scrollToNext(_ id: Int?, proxy: ScrollViewProxy, animated: Bool) {
         guard let id else { return }
-        withAnimation(animated ? .smooth : nil) { proxy.scrollTo(id, anchor: .top) }
+        withAnimation(animated && !reduceMotion ? .smooth(duration: 0.3) : nil) { proxy.scrollTo(id, anchor: .top) }
     }
 
     private func stripVisibility(_ geometry: ScrollGeometry) -> Bool? {

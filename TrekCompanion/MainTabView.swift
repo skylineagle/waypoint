@@ -15,7 +15,7 @@ struct MainTabView: View {
     }
 
     private var tripDay: TripDay? {
-        guard app.tab != .today || (today.selectedDayID == nil && !today.isMapShown), case .during(let day, _) = today.phase, !day.stops.isEmpty else { return nil }
+        guard app.tab != .settings, app.tab != .today || (today.selectedDayID == nil && !today.isMapShown), case .during(let day, _) = today.phase, !day.stops.isEmpty else { return nil }
         return day
     }
 
@@ -49,6 +49,7 @@ struct MainTabView: View {
         .task { await costs.load() }
         .task { await todos.load() }
         .environment(todos)
+        .environment(today)
         .sheet(isPresented: $app.isAddingExpense) {
             ExpenseEditorView(
                 item: nil,

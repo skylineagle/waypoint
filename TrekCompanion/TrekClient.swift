@@ -58,9 +58,9 @@ struct TrekClient {
         return try await request("GET", "api/maps/place-photo/\(encodedID)?\(query.percentEncodedQuery ?? "")", as: PlacePhoto.self).photoUrl
     }
 
-    func image(at path: String) async throws -> Data {
+    func download(_ path: String) async throws -> Data {
         guard let url = TrekURL.resolve(path, on: account.serverURL)
-        else { throw TrekError("The photo address is invalid.") }
+        else { throw TrekError("The file address is invalid.") }
         if url.scheme == account.serverURL.scheme, url.host == account.serverURL.host, url.port == account.serverURL.port {
             var (data, status) = try await Self.send("GET", url.absoluteString, serverURL: account.serverURL, token: Account.load()?.token ?? account.token, body: nil)
             if status == 401 {
@@ -93,6 +93,20 @@ struct TrekClient {
 
     func reservations(tripID: Int) async throws -> [Reservation] {
         try await request("GET", "api/trips/\(tripID)/reservations", as: ReservationsEnvelope.self).reservations
+    }
+
+    func files(tripID: Int) async throws -> [TripFile] {
+        try await request("GET", "api/trips/\(tripID)/files", as: FilesEnvelope.self).files
+    }
+
+    func localCopy(of file: TripFile) async throws -> URL {
+        let folder = FileManager.default.temporaryDirectory.appending(path: "booking-files/\(file.id)")
+        let url = folder.appending(path: (file.originalName as NSString).lastPathComponent)
+        if FileManager.default.fileExists(atPath: url.path()) { return url }
+        let data = try await download(file.url)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        try data.write(to: url)
+        return url
     }
 
     func stays(tripID: Int) async throws -> [Stay] {
@@ -308,6 +322,10 @@ private struct PlacePhoto: Decodable {
 
 private struct ReservationsEnvelope: Decodable {
     let reservations: [Reservation]
+}
+
+private struct FilesEnvelope: Decodable {
+    let files: [TripFile]
 }
 
 private struct StaysEnvelope: Decodable {

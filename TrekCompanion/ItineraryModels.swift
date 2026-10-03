@@ -83,6 +83,18 @@ struct ReservationEndpoint: Decodable, Hashable {
     var coordinate: CLLocationCoordinate2D { CLLocationCoordinate2D(latitude: lat, longitude: lng) }
 }
 
+struct TripFile: Decodable, Identifiable {
+    let id: Int
+    let originalName: String
+    let url: String
+    let reservationId: Int?
+    var linkedReservationIds: [Int]? = nil
+
+    func belongs(to reservation: Reservation) -> Bool {
+        reservationId == reservation.id || linkedReservationIds?.contains(reservation.id) == true
+    }
+}
+
 struct Reservation: Decodable, Identifiable {
     let id: Int
     let tripId: Int

@@ -2,7 +2,6 @@ import SwiftUI
 
 struct BookingRow: View {
     let reservation: Reservation
-    @Environment(\.openURL) private var openURL
 
     private var details: String {
         var parts: [String] = []
@@ -12,16 +11,12 @@ struct BookingRow: View {
     }
 
     var body: some View {
-        Button {
-            if let webURL = reservation.webURL { openURL(webURL) }
-        } label: {
-            content
+        BookingButton(reservation: reservation) { icon in
+            content(icon)
         }
-        .buttonStyle(.plain)
-        .accessibilityHint("Opens this booking in TREK")
     }
 
-    private var content: some View {
+    private func content(_ icon: BookingIcon) -> some View {
         HStack(spacing: 11) {
             Image(systemName: reservation.symbol)
                 .font(.system(size: 14, weight: .semibold))
@@ -42,9 +37,7 @@ struct BookingRow: View {
                 }
             }
             Spacer(minLength: 0)
-            Image(systemName: "arrow.up.right")
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundStyle(Color.trekFaint)
+            icon
         }
         .padding(11)
         .trekCard()
