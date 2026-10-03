@@ -18,6 +18,8 @@ final class PackingModel {
     let trip: Trip
     private(set) var items: [PackingItem]?
     private(set) var errorMessage: String?
+    private(set) var bags: [PackingBag] = []
+    private(set) var bagErrorMessage: String?
 
     init(trip: Trip) {
         self.trip = trip
@@ -45,6 +47,19 @@ final class PackingModel {
         } catch {
             errorMessage = error.localizedDescription
         }
+        do {
+            bags = try await client.packingBags(tripID: trip.id)
+            bagErrorMessage = nil
+        } catch {
+            bagErrorMessage = "Bags couldn't be loaded. Pull to refresh and try again."
+        }
+    }
+
+    func createBag(name: String) async throws -> PackingBag {
+        guard let client = TrekClient.current else { throw TrekError("Sign in to create a bag.") }
+        let bag = try await client.addPackingBag(name: name, tripID: trip.id)
+        bags.append(bag)
+        return bag
     }
 
     func save(_ input: PackingInput, editing item: PackingItem?) async throws {

@@ -158,6 +158,7 @@ final class TodayModel {
                 .bookings: TripReminderEvents.bookings(reservations),
                 .stays: TripReminderEvents.stays(stays, days: days ?? []),
                 .brief: TripReminderEvents.briefs(days ?? []),
+                .recap: TripReminderEvents.recaps(days ?? []),
             ])
         } catch {
             errorMessage = error.localizedDescription

@@ -169,6 +169,10 @@ struct TodayView: View {
                     .foregroundStyle(Color.trekSuccess)
                     .padding(.leading, 36)
             }
+            if isRecapOffered(for: day, isComplete: isToday ? next == nil : (model.daysFromToday(day) ?? 0) < 0) {
+                RecapCard { app.recapDayID = day.id }
+                    .padding(.top, 4)
+            }
         } else {
             ContentUnavailableView("No visits planned", systemImage: "calendar", description: Text("Add places to this day in TREK."))
             ForEach(day.notesItems ?? []) { NoteRow(note: $0) }
@@ -301,6 +305,10 @@ struct TodayView: View {
             model.isMapShown = true
             mapFocusID = stopID
         }
+    }
+
+    private func isRecapOffered(for day: TripDay, isComplete: Bool) -> Bool {
+        isComplete && !DayRecap.isDone(day.id) && app.recapDayID != day.id
     }
 
     private func returnToOverview() {

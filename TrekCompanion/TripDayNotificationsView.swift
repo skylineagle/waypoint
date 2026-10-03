@@ -15,6 +15,7 @@ struct TripDayNotificationsView: View {
         case .stays: "At check-in time (15:00 if none is set), and 1 hour before check-out (11:00 if none is set)."
         case .brief: "Every trip day with stops: the day's title, how many stops, and the first one."
         case .countdown: "7, 3 and 1 day before your trip starts, with any to-dos still open."
+        case .recap: "At 21:00 on every trip day, a nudge to add that day's photos and notes to your Journey."
         default: ""
         }
     }
@@ -23,11 +24,11 @@ struct TripDayNotificationsView: View {
         Form {
             Section {
                 Toggle(kind.title, isOn: $isEnabled)
-                if isEnabled, kind != .stays {
+                if isEnabled, kind.usesMorningTime {
                     TimeOfDayPicker(title: "Morning time", minute: $morningMinute)
                 }
             } footer: {
-                Text(kind == .stays ? explanation : "\(explanation) The morning time is shared by the morning brief and the countdown.")
+                Text(!kind.usesMorningTime ? explanation : "\(explanation) The morning time is shared by the morning brief and the countdown.")
             }
         }
         .navigationTitle(kind.title)

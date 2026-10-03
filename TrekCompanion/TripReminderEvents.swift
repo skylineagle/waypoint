@@ -57,6 +57,20 @@ enum TripReminderEvents {
         }
     }
 
+    static func recaps(_ days: [TripDay]) -> [ReminderEvent] {
+        days.enumerated().compactMap { index, day in
+            guard !day.stops.isEmpty, let date = ExpenseDate.date(from: day.date), !DayRecap.isDone(day.id) else { return nil }
+            return ReminderEvent(
+                id: "recap-\(day.id)",
+                moment: .evening,
+                date: date,
+                title: "Recap Day \(index + 1) in your Journey",
+                body: "Pick your favourite photos from \(day.stops.count == 1 ? day.stops[0].place.name : "today's \(day.stops.count) places").",
+                link: DayRecap.link(dayID: day.id)
+            )
+        }
+    }
+
     static func countdown(_ trip: Trip, openTodos: Int?) -> [ReminderEvent] {
         guard let start = ExpenseDate.date(from: trip.startDate) else { return [] }
         let todos = openTodos.flatMap { $0 > 0 ? "\($0) \($0 == 1 ? "to-do" : "to-dos") still open" : nil }

@@ -3,6 +3,7 @@ import SwiftUI
 struct PackingRow: View {
     let item: PackingItem
     let tint: Color
+    let bag: PackingBag?
     let onToggle: () -> Void
 
     var body: some View {
@@ -23,6 +24,14 @@ struct PackingRow: View {
                     .environment(\.layoutDirection, .leftToRight)
             }
             Spacer(minLength: 0)
+            if let bag {
+                PackingBagChip(bag: bag)
+                    .frame(maxWidth: 140)
+            } else if item.bagId != nil {
+                Label("Bag unavailable", systemImage: "bag")
+                    .font(.poppins(11, relativeTo: .caption))
+                    .foregroundStyle(Color.trekMuted)
+            }
         }
         .environment(\.layoutDirection, item.name.isRightToLeft ? .rightToLeft : .leftToRight)
         .contentShape(.rect)

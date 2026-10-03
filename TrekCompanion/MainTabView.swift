@@ -19,6 +19,10 @@ struct MainTabView: View {
         return day
     }
 
+    private var recapDay: Binding<TripDay?> {
+        Binding { today.days?.first { $0.id == app.recapDayID } } set: { app.recapDayID = $0?.id }
+    }
+
     var body: some View {
         @Bindable var app = app
         TabView(selection: $app.tab.animation(.smooth)) {
@@ -77,6 +81,9 @@ struct MainTabView: View {
         .sheet(item: $app.editingExpense) { link in
             ExpenseLinkEditor(link: link, costs: costs)
                 .presentationDragIndicator(.visible)
+        }
+        .fullScreenCover(item: recapDay) { day in
+            RecapView(day: day, dayNumber: today.number(of: day))
         }
         .sheet(isPresented: $app.isConverting) {
             ConverterSheet(converter: costs.converter, amount: app.converterAmount)

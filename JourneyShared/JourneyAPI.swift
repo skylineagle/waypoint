@@ -44,6 +44,11 @@ struct JourneyAPI {
         _ = try await data("PATCH", "api/journeys/entries/\(entry.id)", body: JSONEncoder().encode(Input(entry_time: time)))
     }
 
+    func write(story: String, toEntry entryID: Int) async throws {
+        struct Input: Encodable { let story: String }
+        _ = try await data("PATCH", "api/journeys/entries/\(entryID)", body: JSONEncoder().encode(Input(story: story)))
+    }
+
     func create() async throws -> JourneyDestination {
         guard let tripID = session.tripID, let title = session.tripTitle else {
             throw JourneyError.message("Choose an active trip in Waypoint first.")

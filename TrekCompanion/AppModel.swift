@@ -24,6 +24,7 @@ final class AppModel {
     var converterAmount = 100.0
     var openedBookingID: Int?
     var openedStop: SpotlightIndex.Target?
+    var recapDayID: Int?
 
     func select(_ trip: Trip?) {
         guard var latest = Account.load() else { return }

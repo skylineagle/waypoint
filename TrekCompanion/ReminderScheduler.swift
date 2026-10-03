@@ -45,7 +45,7 @@ enum ReminderScheduler {
         content.body = reminder.body
         content.sound = .default
         content.threadIdentifier = reminder.kind.rawValue
-        content.userInfo = ["url": reminder.kind.link.absoluteString]
+        content.userInfo = ["url": reminder.link.absoluteString]
         let components = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: reminder.date)
         return UNNotificationRequest(identifier: reminder.id, content: content, trigger: UNCalendarNotificationTrigger(dateMatching: components, repeats: false))
     }

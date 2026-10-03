@@ -70,6 +70,13 @@ struct PackingView: View {
 
     @ViewBuilder
     private var status: some View {
+        if let message = model.bagErrorMessage {
+            Section {
+                Label(message, systemImage: "bag.badge.questionmark")
+                    .font(.poppins(13, relativeTo: .footnote))
+                    .foregroundStyle(Color.trekMuted)
+            }
+        }
         if let errorMessage = model.errorMessage {
             Section {
                 Label(errorMessage, systemImage: "wifi.exclamationmark")
@@ -100,13 +107,17 @@ struct PackingView: View {
         Button {
             editor = .edit(item)
         } label: {
-            PackingRow(item: item, tint: tint) {
+            PackingRow(item: item, tint: tint, bag: model.bags.first { $0.id == item.bagId }) {
                 Task { await model.toggle(item) }
             }
         }
         .buttonStyle(.plain)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 7)
         .listRowBackground(Color.trekCard)
-        .listRowInsets(.vertical, 7)
+        .listRowInsets(EdgeInsets())
+        .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
+        .alignmentGuide(.listRowSeparatorTrailing) { $0.width }
         .swipeActions(edge: .leading) {
             Button(item.isPacked ? "Unpack" : "Packed", systemImage: item.isPacked ? "arrow.uturn.backward" : "checkmark") {
                 Task { await model.toggle(item) }
@@ -128,7 +139,12 @@ struct PackingView: View {
             }
         }
         .environment(\.layoutDirection, category.name.isRightToLeft ? .rightToLeft : .leftToRight)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .listRowInsets(EdgeInsets())
         .listRowBackground(Color.trekCard)
+        .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
+        .alignmentGuide(.listRowSeparatorTrailing) { $0.width }
     }
 
     private func quickAddRow(category: String?) -> some View {
@@ -137,7 +153,12 @@ struct PackingView: View {
             try await model.save(PackingInput(name: name, category: category, quantity: 1), editing: nil)
         }
         .environment(\.layoutDirection, (category ?? "").isRightToLeft ? .rightToLeft : .leftToRight)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .listRowInsets(EdgeInsets())
         .listRowBackground(Color.trekCard)
+        .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
+        .alignmentGuide(.listRowSeparatorTrailing) { $0.width }
     }
 
 }

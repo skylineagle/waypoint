@@ -183,6 +183,14 @@ struct TrekClient {
         try await request("GET", "api/trips/\(tripID)/packing", as: PackingList.self).items
     }
 
+    func packingBags(tripID: Int) async throws -> [PackingBag] {
+        try await request("GET", "api/trips/\(tripID)/packing/bags", as: PackingBags.self).bags
+    }
+
+    func addPackingBag(name: String, tripID: Int) async throws -> PackingBag {
+        try await request("POST", "api/trips/\(tripID)/packing/bags", body: try .json(PackingBagInput(name: name)), as: PackingBagEnvelope.self).bag
+    }
+
     func addPackingItem(_ input: PackingInput, tripID: Int) async throws -> PackingItem {
         try await request("POST", "api/trips/\(tripID)/packing", body: try .json(input), as: PackingEnvelope.self).item
     }
@@ -410,6 +418,14 @@ private struct TodoEnvelope: Decodable {
 
 private struct PackingList: Decodable {
     let items: [PackingItem]
+}
+
+private struct PackingBags: Decodable {
+    let bags: [PackingBag]
+}
+
+private struct PackingBagEnvelope: Decodable {
+    let bag: PackingBag
 }
 
 private struct PackingEnvelope: Decodable {

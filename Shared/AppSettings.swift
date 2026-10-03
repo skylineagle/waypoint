@@ -60,6 +60,8 @@ nonisolated enum AppSettings {
         AppGroup.defaults.object(forKey: flightCheckInKey) as? Bool ?? true
     }
 
+    static let recapMinute = 21 * 60
+
     static var morningMinute: Int {
         AppGroup.defaults.object(forKey: morningMinuteKey) as? Int ?? defaultMorningMinute
     }

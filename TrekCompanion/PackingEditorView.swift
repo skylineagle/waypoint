@@ -160,7 +160,7 @@ struct PackingEditorView: View {
 
     private func save() {
         guard canSave else { return }
-        let input = PackingInput(name: name.trimmingCharacters(in: .whitespaces), category: category, quantity: quantity)
+        let input = PackingInput(name: name.trimmingCharacters(in: .whitespaces), category: category, quantity: quantity, bagId: item?.bagId)
         isSaving = true
         errorMessage = nil
         Task {

@@ -25,6 +25,7 @@ struct TrekCompanionApp: App {
                     if url.host() == "edit-expense" { model.openExpense(from: url) }
                     if let id = BookingLink.reservationID(in: url) { model.openedBookingID = id }
                     if let tab = MainTab(link: url) { model.tab = tab }
+                    if let dayID = DayRecap.dayID(in: url) { model.tab = .today; model.recapDayID = dayID }
                     if let directions = AppSettings.resolveDirectionsLink(url) { UIApplication.shared.open(directions) }
                 }
                 .onContinueUserActivity(CSSearchableItemActionType) { activity in

@@ -2,7 +2,7 @@ import Foundation
 
 struct ReminderEvent: Codable, Hashable {
     enum Moment: String, Codable {
-        case due, booking, flight, checkIn, checkOut, day, tripStart
+        case due, booking, flight, checkIn, checkOut, day, tripStart, evening
     }
 
     let id: String
@@ -10,6 +10,7 @@ struct ReminderEvent: Codable, Hashable {
     let date: Date
     let title: String
     let body: String
+    var link: URL? = nil
 }
 
 struct Reminder: Identifiable {
@@ -18,6 +19,7 @@ struct Reminder: Identifiable {
     let date: Date
     let title: String
     let body: String
+    let link: URL
 }
 
 extension ReminderEvent {
@@ -48,6 +50,8 @@ extension ReminderEvent {
             return [reminder(kind, at: date.addingTimeInterval(-3600))].compactMap(\.self)
         case .day:
             return [reminder(kind, at: day(offset: 0, minute: AppSettings.morningMinute))].compactMap(\.self)
+        case .evening:
+            return [reminder(kind, at: day(offset: 0, minute: AppSettings.recapMinute))].compactMap(\.self)
         case .tripStart:
             return [7, 3, 1].compactMap { days in
                 reminder(
@@ -67,6 +71,6 @@ extension ReminderEvent {
     }
 
     private func reminder(_ kind: ReminderKind, at date: Date?, title: String? = nil, body: String? = nil, suffix: String = "") -> Reminder? {
-        date.map { Reminder(id: "\(id):\(suffix)", kind: kind, date: $0, title: title ?? self.title, body: body ?? self.body) }
+        date.map { Reminder(id: "\(id):\(suffix)", kind: kind, date: $0, title: title ?? self.title, body: body ?? self.body, link: link ?? kind.link) }
     }
 }

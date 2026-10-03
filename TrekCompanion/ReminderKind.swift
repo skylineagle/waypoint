@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum ReminderKind: String, CaseIterable, Identifiable {
-    case todos, bookings, stays, brief, countdown
+    case todos, bookings, stays, brief, countdown, recap
 
     var id: Self { self }
 
@@ -12,6 +12,7 @@ enum ReminderKind: String, CaseIterable, Identifiable {
         case .stays: "Stays"
         case .brief: "Morning brief"
         case .countdown: "Trip countdown"
+        case .recap: "Day recap"
         }
     }
 
@@ -22,6 +23,7 @@ enum ReminderKind: String, CaseIterable, Identifiable {
         case .stays: "bed.double.fill"
         case .brief: "sun.max.fill"
         case .countdown: "hourglass"
+        case .recap: "photo.on.rectangle.angled"
         }
     }
 
@@ -32,12 +34,15 @@ enum ReminderKind: String, CaseIterable, Identifiable {
         case .stays: Color(hex: 0xFF9F0A)
         case .brief: Color(hex: 0x30D158)
         case .countdown: Color(hex: 0xFF375F)
+        case .recap: Color(hex: 0xBF5AF2)
         }
     }
 
     var link: URL {
         URL(string: self == .todos ? "trekcompanion://todos" : "trekcompanion://today")!
     }
+
+    var usesMorningTime: Bool { self == .brief || self == .countdown }
 
     var enabledKey: String { "notify-\(rawValue)" }
 
