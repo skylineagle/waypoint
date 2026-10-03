@@ -35,6 +35,8 @@ nonisolated enum AppSettings {
     static let flightCheckInKey = "flight-check-in-reminder"
     static let morningMinuteKey = "morning-minute"
     static let defaultMorningMinute = 8 * 60
+    static let recapMinuteKey = "recap-minute"
+    static let defaultRecapMinute = 21 * 60
 
     static var directionsApp: DirectionsApp {
         DirectionsApp(rawValue: AppGroup.defaults.string(forKey: directionsAppKey) ?? "") ?? .appleMaps
@@ -60,7 +62,9 @@ nonisolated enum AppSettings {
         AppGroup.defaults.object(forKey: flightCheckInKey) as? Bool ?? true
     }
 
-    static let recapMinute = 21 * 60
+    static var recapMinute: Int {
+        AppGroup.defaults.object(forKey: recapMinuteKey) as? Int ?? defaultRecapMinute
+    }
 
     static var morningMinute: Int {
         AppGroup.defaults.object(forKey: morningMinuteKey) as? Int ?? defaultMorningMinute

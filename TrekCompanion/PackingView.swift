@@ -98,6 +98,9 @@ struct PackingView: View {
             item: item,
             category: category,
             categories: model.categories.map(\.name).filter { $0 != PackingModel.uncategorized },
+            bags: model.bags,
+            bagErrorMessage: model.bagErrorMessage,
+            onCreateBag: { try await model.createBag(name: $0) },
             onSave: { try await model.save($0, editing: item) },
             onDelete: { if let item { await model.delete(item) } }
         )

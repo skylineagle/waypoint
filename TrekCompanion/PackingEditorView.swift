@@ -4,12 +4,17 @@ struct PackingEditorView: View {
     @Environment(\.dismiss) private var dismiss
     let item: PackingItem?
     let categories: [String]
+    let bagErrorMessage: String?
+    let onCreateBag: (String) async throws -> PackingBag
     let onSave: (PackingInput) async throws -> Void
     let onDelete: () async -> Void
 
     @State private var name: String
     @State private var category: String?
     @State private var quantity: Int
+    @State private var bagId: Int?
+    @State private var bags: [PackingBag]
+    @State private var isCreatingBag = false
     @State private var isSaving = false
     @State private var errorMessage: String?
     @State private var isNamingCategory = false
@@ -21,54 +26,75 @@ struct PackingEditorView: View {
         item: PackingItem?,
         category: String?,
         categories: [String],
+        bags: [PackingBag],
+        bagErrorMessage: String?,
+        onCreateBag: @escaping (String) async throws -> PackingBag,
         onSave: @escaping (PackingInput) async throws -> Void,
         onDelete: @escaping () async -> Void
     ) {
         self.item = item
         self.categories = categories
+        self.bagErrorMessage = bagErrorMessage
+        self.onCreateBag = onCreateBag
         self.onSave = onSave
         self.onDelete = onDelete
         _name = State(initialValue: item?.name ?? "")
         _category = State(initialValue: item?.category ?? category)
         _quantity = State(initialValue: item?.quantity ?? 1)
+        _bagId = State(initialValue: item?.bagId)
+        _bags = State(initialValue: bags)
     }
 
     private var canSave: Bool {
-        !name.trimmingCharacters(in: .whitespaces).isEmpty && !isSaving
+        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !isSaving
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(item == nil ? "New item" : "Edit item")
-                .font(.poppins(15, .semibold, relativeTo: .headline))
-                .foregroundStyle(Color.trekText)
-                .frame(maxWidth: .infinity)
-                .padding(.bottom, 4)
-            TrekTextField(symbol: "suitcase", placeholder: "What to pack?", text: $name, focusOnAppear: item == nil, accessibilityLabel: "Name")
-            details
-            if let errorMessage {
-                Label(errorMessage, systemImage: "exclamationmark.circle")
-                    .font(.poppins(13, relativeTo: .footnote))
-                    .foregroundStyle(Color.trekDanger)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 10) {
+                Text(item == nil ? "New item" : "Edit item")
+                    .font(.poppins(15, .semibold, relativeTo: .headline))
+                    .foregroundStyle(Color.trekText)
+                    .frame(maxWidth: .infinity)
+                    .padding(.bottom, 4)
+                TrekTextField(symbol: "suitcase", placeholder: "What to pack?", text: $name, focusOnAppear: item == nil, accessibilityLabel: "Name")
+                details
+                PackingBagPicker(bags: bags, errorMessage: bagErrorMessage, selectedId: $bagId) {
+                    isCreatingBag = true
+                }
+                .disabled(isSaving)
+                if let errorMessage {
+                    Label(errorMessage, systemImage: "exclamationmark.circle")
+                        .font(.poppins(13, relativeTo: .footnote))
+                        .foregroundStyle(Color.trekDanger)
+                }
+                Button(item == nil ? "Add item" : "Save item", action: save)
+                    .buttonStyle(TrekButtonStyle())
+                    .disabled(!canSave)
+                    .padding(.top, 8)
+                if item != nil {
+                    Button("Delete item", role: .destructive) { isConfirmingDelete = true }
+                        .font(.poppins(15, .semibold))
+                        .foregroundStyle(Color.trekDanger)
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .padding(.top, 4)
+                }
             }
-            Button(item == nil ? "Add item" : "Save item", action: save)
-                .buttonStyle(TrekButtonStyle())
-                .disabled(!canSave)
-                .padding(.top, 8)
-            if item != nil {
-                Button("Delete item", role: .destructive) { isConfirmingDelete = true }
-                    .font(.poppins(15, .semibold))
-                    .foregroundStyle(Color.trekDanger)
-                    .frame(maxWidth: .infinity, minHeight: 44)
-                    .padding(.top, 4)
+            .padding(16)
+            .onGeometryChange(for: CGFloat.self, of: \.size.height) { contentHeight = $0 }
+        }
+        .scrollDismissesKeyboard(.interactively)
+        .background(Color.trekBackground)
+        .presentationDetents([.height(min(contentHeight, 600)), .large])
+        .presentationDragIndicator(.visible)
+        .interactiveDismissDisabled(isSaving)
+        .sheet(isPresented: $isCreatingBag) {
+            PackingBagEditorView { name in
+                let bag = try await onCreateBag(name)
+                bags.append(bag)
+                bagId = bag.id
             }
         }
-        .padding(16)
-        .onGeometryChange(for: CGFloat.self, of: \.size.height) { contentHeight = $0 }
-        .frame(maxHeight: .infinity, alignment: .top)
-        .background(Color.trekBackground)
-        .presentationDetents([.height(contentHeight)])
-        .presentationDragIndicator(.visible)
         .confirmationDialog("Delete this item?", isPresented: $isConfirmingDelete, titleVisibility: .visible) {
             Button("Delete Item", role: .destructive) {
                 Task {
@@ -160,7 +186,7 @@ struct PackingEditorView: View {
 
     private func save() {
         guard canSave else { return }
-        let input = PackingInput(name: name.trimmingCharacters(in: .whitespaces), category: category, quantity: quantity, bagId: item?.bagId)
+        let input = PackingInput(name: name.trimmingCharacters(in: .whitespacesAndNewlines), category: category, quantity: quantity, bagId: bagId)
         isSaving = true
         errorMessage = nil
         Task {

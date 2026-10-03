@@ -26,7 +26,7 @@ struct PackingRow: View {
             Spacer(minLength: 0)
             if let bag {
                 PackingBagChip(bag: bag)
-                    .frame(maxWidth: 140)
+                    .frame(maxWidth: 140, alignment: .trailing)
             } else if item.bagId != nil {
                 Label("Bag unavailable", systemImage: "bag")
                     .font(.poppins(11, relativeTo: .caption))

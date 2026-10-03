@@ -26,7 +26,7 @@ struct NotificationsView: View {
                 ReminderKindRow(kind: .stays, summary: "Check-in & check-out", onChange: refresh) { TripDayNotificationsView(kind: .stays) }
                 ReminderKindRow(kind: .brief, summary: "Every trip day · \(TimeOfDayPicker.label(for: AppSettings.morningMinute))", onChange: refresh) { TripDayNotificationsView(kind: .brief) }
                 ReminderKindRow(kind: .countdown, summary: "7, 3 and 1 day before", onChange: refresh) { TripDayNotificationsView(kind: .countdown) }
-                ReminderKindRow(kind: .recap, summary: "Every trip day · 21:00", onChange: refresh) { TripDayNotificationsView(kind: .recap) }
+                ReminderKindRow(kind: .recap, summary: "Every trip day · \(TimeOfDayPicker.label(for: AppSettings.recapMinute))", onChange: refresh) { TripDayNotificationsView(kind: .recap) }
                 HStack(spacing: 12) {
                     ReminderKindIcon(symbol: "photo.badge.exclamationmark", tint: Color(hex: 0x64D2FF))
                     VStack(alignment: .leading, spacing: 2) {

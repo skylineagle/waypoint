@@ -11,7 +11,10 @@ struct PackingBagChip: View {
     }
 
     var body: some View {
-        Label(bag.name, systemImage: "bag")
+        HStack(spacing: 4) {
+            Image(systemName: "bag")
+            Text(bag.name)
+        }
             .font(.poppins(11, .medium, relativeTo: .caption))
             .foregroundStyle(Color.trekTextSecondary)
             .padding(.horizontal, 7)
@@ -21,6 +24,7 @@ struct PackingBagChip: View {
                 RoundedRectangle(cornerRadius: 6).strokeBorder(tint.opacity(0.3), lineWidth: 0.5)
             }
             .environment(\.layoutDirection, bag.name.isRightToLeft ? .rightToLeft : .leftToRight)
+            .accessibilityElement(children: .ignore)
             .accessibilityLabel("Bag: \(bag.name)")
     }
 }
