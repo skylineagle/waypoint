@@ -26,10 +26,10 @@ struct ExpenseRow: View {
             }
             Spacer(minLength: 8)
             VStack(alignment: .trailing, spacing: 1) {
-                Text(converter.displayAmount(of: item).money(converter.displayCurrency))
+                Text(converter.displayAmount(of: item).map { $0.money(converter.displayCurrency) } ?? item.totalPrice.money(itemCurrency))
                     .font(.poppins(14, .semibold))
                     .foregroundStyle(Color.trekText)
-                if itemCurrency.uppercased() != converter.displayCurrency {
+                if itemCurrency.uppercased() != converter.displayCurrency, converter.displayAmount(of: item) != nil {
                     Text(item.totalPrice.money(itemCurrency))
                         .font(.poppins(11, relativeTo: .caption2))
                         .foregroundStyle(Color.trekMuted)

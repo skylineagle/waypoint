@@ -2,8 +2,10 @@ import SwiftUI
 
 struct TodoQuickAddRow: View {
     var placeholder = "New to-do"
-    let onAdd: (String) async -> Void
+    let onAdd: (String) async throws -> Void
     @State private var name = ""
+    @State private var isSaving = false
+    @State private var errorMessage: String?
     @FocusState private var isFocused: Bool
 
     var body: some View {
@@ -25,15 +27,32 @@ struct TodoQuickAddRow: View {
                 .focused($isFocused)
                 .submitLabel(.done)
                 .onSubmit(add)
+                .disabled(isSaving)
         }
         .padding(.vertical, 3)
+        .alert("Couldn’t add item", isPresented: Binding(
+            get: { errorMessage != nil },
+            set: { if !$0 { errorMessage = nil } }
+        )) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(errorMessage ?? "")
+        }
     }
 
     private func add() {
         let trimmed = name.trimmingCharacters(in: .whitespaces)
-        guard !trimmed.isEmpty else { return }
-        name = ""
-        isFocused = true
-        Task { await onAdd(trimmed) }
+        guard !trimmed.isEmpty, !isSaving else { return }
+        isSaving = true
+        Task {
+            defer { isSaving = false }
+            do {
+                try await onAdd(trimmed)
+                name = ""
+                isFocused = true
+            } catch {
+                errorMessage = error.localizedDescription
+            }
+        }
     }
 }

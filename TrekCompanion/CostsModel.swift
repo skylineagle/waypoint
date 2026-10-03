@@ -5,7 +5,7 @@ import WidgetKit
 struct ExpenseDay: Identifiable {
     let date: String?
     let items: [BudgetItem]
-    let total: Double
+    let total: Double?
 
     var id: String { date ?? "undated" }
 }
@@ -41,12 +41,12 @@ final class CostsModel {
         converter = CurrencyConverter(displayCurrency: trip.currency, tripCurrency: trip.currency, rates: nil)
     }
 
-    var total: Double {
-        (items ?? []).reduce(0) { $0 + converter.displayAmount(of: $1) }
+    var total: Double? {
+        converter.total(of: items ?? [])
     }
 
-    var todayTotal: Double {
-        (items ?? []).filter { $0.expenseDate == ExpenseDate.today }.reduce(0) { $0 + converter.displayAmount(of: $1) }
+    var todayTotal: Double? {
+        converter.total(of: (items ?? []).filter { $0.expenseDate == ExpenseDate.today })
     }
 
     var isShared: Bool {
@@ -85,8 +85,8 @@ final class CostsModel {
         (items ?? []).filter { $0.totalPrice != 0 && !$0.hasPayer }
     }
 
-    var unpaidTotal: Double {
-        unpaidItems.reduce(0) { $0 + converter.displayAmount(of: $1) }
+    var unpaidTotal: Double? {
+        converter.total(of: unpaidItems)
     }
 
     func name(of userID: Int, username: String) -> String {
@@ -97,12 +97,14 @@ final class CostsModel {
         !elapsedTripDays.isEmpty
     }
 
-    var dailyAverage: Double {
-        dailyTotals.reduce(0) { $0 + $1.amount } / Double(max(elapsedTripDays.count, 1))
+    var dailyAverage: Double? {
+        guard total != nil else { return nil }
+        return dailyTotals.reduce(0) { $0 + $1.amount } / Double(max(elapsedTripDays.count, 1))
     }
 
-    var totalInTripCurrency: Double {
-        converter.convert(total, from: converter.displayCurrency, to: trip.currency)
+    var totalInTripCurrency: Double? {
+        guard let total else { return nil }
+        return converter.convert(total, from: converter.displayCurrency, to: trip.currency)
     }
 
     func days(in category: CostCategory?, unpaidOnly: Bool = false) -> [ExpenseDay] {
@@ -112,28 +114,28 @@ final class CostsModel {
         let grouped = Dictionary(grouping: filtered, by: \.expenseDate)
         return grouped
             .map { date, items in
-                ExpenseDay(date: date, items: items, total: items.reduce(0) { $0 + converter.displayAmount(of: $1) })
+                ExpenseDay(date: date, items: items, total: converter.total(of: items))
             }
             .sorted { ($0.date ?? "") > ($1.date ?? "") }
     }
 
     var categoryTotals: [CategoryTotal] {
-        let total = total
-        guard total > 0 else { return [] }
+        guard let total, total > 0 else { return [] }
         let grouped = Dictionary(grouping: items ?? [], by: \.costCategory)
         return grouped
             .map { category, items in
-                let amount = items.reduce(0) { $0 + converter.displayAmount(of: $1) }
+                let amount = converter.total(of: items) ?? 0
                 return CategoryTotal(category: category, amount: amount, share: amount / total)
             }
             .sorted { $0.amount > $1.amount }
     }
 
     var dailyTotals: [DailyTotal] {
+        guard total != nil else { return [] }
         let byDate = Dictionary(grouping: items ?? [], by: \.expenseDate)
         return elapsedTripDays.map { day in
             let key = ExpenseDate.format.format(day)
-            let amount = (byDate[key] ?? []).reduce(0) { $0 + converter.displayAmount(of: $1) }
+            let amount = converter.total(of: byDate[key] ?? []) ?? 0
             return DailyTotal(date: day, amount: amount, isToday: key == ExpenseDate.today)
         }
     }
@@ -166,7 +168,7 @@ final class CostsModel {
             meID = try? await loadedMe
             members = (try? await loadedMembers) ?? []
             self.converter = converter
-            if rates != nil { publishConverter() }
+            publishConverter()
             errorMessage = nil
             await loadSettlement()
         } catch {
@@ -175,11 +177,16 @@ final class CostsModel {
     }
 
     private func publishConverter() {
+        guard let rate = converter.convert(1, from: converter.tripCurrency) else {
+            ConverterState.clear()
+            WidgetCenter.shared.reloadAllTimelines()
+            return
+        }
         ConverterState.publish(
             tripTitle: trip.title,
             tripCurrency: converter.tripCurrency,
             displayCurrency: converter.displayCurrency,
-            rate: converter.convert(1, from: converter.tripCurrency)
+            rate: rate
         )
         WidgetCenter.shared.reloadAllTimelines()
     }

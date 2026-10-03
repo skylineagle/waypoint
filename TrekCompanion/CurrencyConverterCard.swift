@@ -24,8 +24,9 @@ struct CurrencyConverterCard: View {
     }
 
     private var rateLine: String {
-        let forward = converter.convert(1, from: converter.tripCurrency, to: converter.displayCurrency)
-        let backward = converter.convert(1, from: converter.displayCurrency, to: converter.tripCurrency)
+        guard let forward = converter.convert(1, from: converter.tripCurrency, to: converter.displayCurrency),
+              let backward = converter.convert(1, from: converter.displayCurrency, to: converter.tripCurrency)
+        else { return "Exchange rates are unavailable. Pull to refresh Costs to try again." }
         return "\(1.0.money(converter.tripCurrency)) = \(forward.money(converter.displayCurrency, fractionDigits: 2...4)) · \(1.0.money(converter.displayCurrency)) = \(backward.money(converter.tripCurrency))"
     }
 
@@ -39,9 +40,11 @@ struct CurrencyConverterCard: View {
                         .focused($isEditing)
                 }
                 Button("Swap currencies", systemImage: "arrow.left.arrow.right") {
-                    amount = converter.convert(amount, from: from, to: to)
+                    guard let converted = converter.convert(amount, from: from, to: to) else { return }
+                    amount = converted
                     isFromTrip.toggle()
                 }
+                .disabled(converter.convert(amount, from: from, to: to) == nil)
                 .labelStyle(.iconOnly)
                 .font(.system(size: 13, weight: .bold))
                 .foregroundStyle(Color.trekText)

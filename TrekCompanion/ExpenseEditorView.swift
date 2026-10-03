@@ -95,12 +95,12 @@ struct ExpenseEditorView: View {
     }
 
     private var perPerson: String? {
-        guard let amount, !splitIDs.isEmpty else { return nil }
-        return (converter.convert(amount, from: currency) / Double(splitIDs.count)).money(converter.displayCurrency)
+        guard let amount, let converted = converter.convert(amount, from: currency), !splitIDs.isEmpty else { return nil }
+        return (converted / Double(splitIDs.count)).money(converter.displayCurrency)
     }
 
     private var currencies: [String] {
-        [converter.tripCurrency, converter.displayCurrency, currency].reduce(into: []) { list, code in
+        [converter.tripCurrency, converter.displayCurrency, "USD", "EUR", currency].reduce(into: []) { list, code in
             if !list.contains(code) { list.append(code) }
         }
     }
@@ -241,7 +241,7 @@ struct ExpenseEditorView: View {
                 .accessibilityLabel("Currency \(currency)")
             }
             if let amount, currency != converter.displayCurrency {
-                Text("≈ \(converter.convert(amount, from: currency).money(converter.displayCurrency))")
+                Text(converter.convert(amount, from: currency).map { "≈ \($0.money(converter.displayCurrency))" } ?? "Exchange rate unavailable")
                     .font(.poppins(12, relativeTo: .caption))
                     .foregroundStyle(Color.trekMuted)
                     .frame(maxWidth: .infinity, alignment: .trailing)

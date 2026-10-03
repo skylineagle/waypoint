@@ -19,6 +19,10 @@ nonisolated struct ConverterState: Codable, Hashable, Sendable {
         return try? JSONDecoder().decode(ConverterState.self, from: data)
     }
 
+    static func clear() {
+        AppGroup.defaults.removeObject(forKey: key)
+    }
+
     func save() {
         guard let data = try? JSONEncoder().encode(self) else { return }
         AppGroup.defaults.set(data, forKey: Self.key)

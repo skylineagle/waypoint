@@ -1,5 +1,6 @@
 import AppIntents
 import Foundation
+import SwiftUI
 
 enum CostCategory: String {
     case food, other
@@ -18,10 +19,19 @@ struct TrekClient {
     let account = TestAccount()
 
     func currentUserID() async throws -> Int { 7 }
-    func addExpense(_ input: ExpenseInput, tripID: Int) async throws {
+    func addExpense(_ input: ExpenseInput, tripID: Int) async throws -> BudgetItem {
         precondition(tripID == 42)
         Self.recorded = input
+        return BudgetItem(id: 1, name: input.name, category: input.category ?? "other", totalPrice: input.totalPrice, currency: input.currency)
     }
+}
+
+struct ExpenseAddedSnippet: View {
+    let expense: BudgetItem
+    let tripID: Int
+    let category: CostCategory
+
+    var body: some View { EmptyView() }
 }
 
 struct TestAccount {

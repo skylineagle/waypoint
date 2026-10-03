@@ -22,7 +22,7 @@ struct CostsTotalCard: View {
                     .font(.poppins(12, relativeTo: .caption))
                     .foregroundStyle(Color(hex: 0xF5F5F7, alpha: 0.62))
             }
-            if model.isShared {
+            if model.isShared, model.total != nil {
                 shareBar.padding(.top, 10)
             }
             ViewThatFits(in: .horizontal) {
@@ -46,7 +46,7 @@ struct CostsTotalCard: View {
     }
 
     private var shareBar: some View {
-        let total = max(model.total, 0.01)
+        let total = max(model.total ?? 0, 0.01)
         let shareFraction = min(max(model.myShare / total, 0), 1)
         return VStack(alignment: .leading, spacing: 6) {
             GeometryReader { proxy in
@@ -105,7 +105,7 @@ struct CostsTotalCard: View {
     private func shareStats(spacer: Bool) -> some View {
         stat("Your share", model.myShare.money(currency, fractionDigits: 0...0))
         if spacer { Spacer(minLength: 8) }
-        stat("Others", max(model.total - model.myShare, 0).money(currency, fractionDigits: 0...0))
+        stat("Others", model.total.map { max($0 - model.myShare, 0) }.money(currency, fractionDigits: 0...0))
     }
 
     private func stat(_ label: String?, _ value: String) -> some View {

@@ -131,7 +131,7 @@ struct TodosView: View {
 
     private var quickAddRow: some View {
         TodoQuickAddRow { name in
-            try? await model.save(quickAddInput(named: name), editing: nil)
+            try await model.save(quickAddInput(named: name), editing: nil)
         }
         .listRowBackground(Color.trekCard)
     }

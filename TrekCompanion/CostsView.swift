@@ -147,6 +147,14 @@ struct CostsView: View {
             }
         }
 
+        if model.total == nil {
+            Section {
+                Label("Exchange rates are unavailable. Amounts are shown in their original currencies. Pull to refresh to try again.", systemImage: "wifi.exclamationmark")
+                    .font(.poppins(13, relativeTo: .footnote))
+                    .foregroundStyle(Color.trekMuted)
+            }
+        }
+
         if let errorMessage = model.errorMessage {
             Section {
                 Label(errorMessage, systemImage: "wifi.exclamationmark")

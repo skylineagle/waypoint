@@ -134,7 +134,7 @@ struct PackingView: View {
     private func quickAddRow(category: String?) -> some View {
         TodoQuickAddRow(placeholder: "Add item") { name in
             let category = category == PackingModel.uncategorized ? nil : category
-            try? await model.save(PackingInput(name: name, category: category, quantity: 1), editing: nil)
+            try await model.save(PackingInput(name: name, category: category, quantity: 1), editing: nil)
         }
         .environment(\.layoutDirection, (category ?? "").isRightToLeft ? .rightToLeft : .leftToRight)
         .listRowBackground(Color.trekCard)

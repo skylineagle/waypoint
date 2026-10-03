@@ -6,7 +6,12 @@ struct CostsInsightsView: View {
 
     var body: some View {
         VStack(spacing: 10) {
-            if model.categoryTotals.isEmpty {
+            if model.total == nil {
+                Text("Exchange rates are unavailable. Pull to refresh to try again.")
+                    .font(.poppins(13))
+                    .foregroundStyle(Color.trekMuted)
+                    .frame(maxWidth: .infinity, minHeight: 120)
+            } else if model.categoryTotals.isEmpty {
                 Text("Insights appear once you have expenses.")
                     .font(.poppins(13))
                     .foregroundStyle(Color.trekMuted)
@@ -14,7 +19,7 @@ struct CostsInsightsView: View {
             } else {
                 CategoryDonutCard(
                     totals: model.categoryTotals,
-                    total: model.total,
+                    total: model.total ?? 0,
                     currency: model.converter.displayCurrency,
                     onSelect: onSelectCategory
                 )

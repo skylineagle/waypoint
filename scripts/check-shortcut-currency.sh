@@ -3,7 +3,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
-swiftc -parse-as-library TrekCompanion/TrekModels.swift TrekCompanion/AddExpenseIntent.swift Checks/ShortcutCurrency/main.swift -o "$work/check"
+swiftc -parse-as-library TrekCompanion/TrekModels.swift TrekCompanion/AddExpenseIntent.swift TrekCompanion/ExpenseLog.swift Checks/ShortcutCurrency/main.swift -o "$work/check"
 "$work/check"
 python3 - <<'PY'
 import pathlib

@@ -7,13 +7,12 @@ struct CurrencyConverter {
 
     init(displayCurrency: String, tripCurrency: String, rates: [String: Double]?) {
         let trip = tripCurrency.uppercased()
-        let hasRates = rates != nil
         self.tripCurrency = trip
-        self.displayCurrency = hasRates ? displayCurrency.uppercased() : trip
-        self.rates = rates ?? [trip: 1]
+        self.displayCurrency = displayCurrency.uppercased()
+        self.rates = rates ?? [:]
     }
 
-    func displayAmount(of item: BudgetItem) -> Double {
+    func displayAmount(of item: BudgetItem) -> Double? {
         let currency = (item.currency ?? tripCurrency).uppercased()
         if currency == displayCurrency {
             return item.totalPrice
@@ -27,14 +26,26 @@ struct CurrencyConverter {
         return convert(item.totalPrice, from: currency)
     }
 
-    func convert(_ amount: Double, from currency: String) -> Double {
+    func total(of items: [BudgetItem]) -> Double? {
+        var total = 0.0
+        for item in items {
+            guard let amount = displayAmount(of: item) else { return nil }
+            total += amount
+        }
+        return total
+    }
+
+    func convert(_ amount: Double, from currency: String) -> Double? {
         convert(amount, from: currency, to: displayCurrency)
     }
 
-    func convert(_ amount: Double, from source: String, to target: String) -> Double {
+    func convert(_ amount: Double, from source: String, to target: String) -> Double? {
         let from = source.uppercased()
         let to = target.uppercased()
-        guard from != to, let fromRate = rates[from], let toRate = rates[to], fromRate > 0 else { return amount }
+        guard from != to else { return amount }
+        guard let fromRate = rates[from], let toRate = rates[to],
+              fromRate.isFinite, toRate.isFinite, fromRate > 0, toRate > 0
+        else { return nil }
         return amount / fromRate * toRate
     }
 }
