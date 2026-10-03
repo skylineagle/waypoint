@@ -105,7 +105,7 @@ final class TodayModel {
     }
 
     func dayBookings(on day: TripDay) -> DayBookings {
-        DayBookings(stops: day.stops, bookings: bookings(on: day))
+        DayBookings(day: day, bookings: bookings(on: day))
     }
 
     func stay(for day: TripDay) -> (stay: Stay, night: Int, nights: Int)? {

@@ -55,4 +55,29 @@ assert(onlyStay.stops.isEmpty)
 assert(onlyStay.timeline.count == 3)
 let stay = try decoder.decode(Stay.self, from: Data(#"{"id":3,"start_day_id":10,"end_day_id":14,"check_in":"15:00"}"#.utf8))
 assert(stay.startDayId == checkInDay.id && stay.checkIn == "15:00")
+
+let oct7 = try decoder.decode(TripDay.self, from: Data(#"""
+{
+  "id": 3, "date": "2026-10-07",
+  "assignments": [
+    {"id": 28, "order_index": 0, "place": {"id": 1, "name": "Senso-ji", "lat": 35.7147, "lng": 139.7966}},
+    {"id": 32, "order_index": 1, "place": {"id": 2, "name": "Nakamise", "lat": 35.7118, "lng": 139.7964}},
+    {"id": 33, "order_index": 2, "place": {"id": 3, "name": "Gyukatsu", "lat": 35.7107, "lng": 139.7959}},
+    {"id": 34, "order_index": 3, "place": {"id": 4, "name": "Ueno Park", "lat": 35.7147, "lng": 139.7734}}
+  ]
+}
+"""#.utf8))
+func train(id: Int, time: String, position: Double, from: (Double, Double), to: (Double, Double)) throws -> Reservation {
+    try decoder.decode(Reservation.self, from: Data("""
+    {"id": \(id), "trip_id": 1, "title": "Train", "type": "train", "reservation_time": "\(time)", "day_id": 3,
+     "day_plan_position": 9, "day_positions": {"3": \(position)},
+     "endpoints": [{"role": "from", "name": "A", "lat": \(from.0), "lng": \(from.1)}, {"role": "to", "name": "B", "lat": \(to.0), "lng": \(to.1)}]}
+    """.utf8))
+}
+let hotelToAsakusa = try train(id: 53, time: "2026-10-07T09:41", position: -0.5, from: (35.6694, 139.7673), to: (35.7107, 139.7973))
+let asakusaToUeno = try train(id: 55, time: "13:17", position: 2.5, from: (35.7108, 139.7975), to: (35.7116, 139.7761))
+let bookings = DayBookings(day: oct7, bookings: [hotelToAsakusa, asakusaToUeno])
+assert(bookings.journeys[28]?.id == 53)
+assert(bookings.journeys[34]?.id == 55)
+assert(bookings.journeys.count == 2 && bookings.loose.isEmpty)
 print("Itinerary ordering checks passed")

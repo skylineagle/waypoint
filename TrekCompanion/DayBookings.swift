@@ -7,9 +7,10 @@ struct DayBookings {
 
     private static let arrivalRadius: CLLocationDistance = 2000
 
-    init(stops: [TripStop], bookings: [Reservation]) {
+    init(day: TripDay, bookings: [Reservation]) {
+        let stops = day.stops
         for booking in bookings {
-            if booking.isTransport, let stop = Self.arrivalStop(of: booking, in: stops), journeys[stop.id] == nil {
+            if booking.isTransport, let stop = Self.arrivalStop(of: booking, on: day), journeys[stop.id] == nil {
                 journeys[stop.id] = booking
             } else if !booking.isTransport, let stop = stops.first(where: { $0.id == booking.assignmentId || $0.place.id == booking.placeId }), stopBookings[stop.id] == nil {
                 stopBookings[stop.id] = booking
@@ -19,8 +20,11 @@ struct DayBookings {
         }
     }
 
-    private static func arrivalStop(of booking: Reservation, in stops: [TripStop]) -> TripStop? {
-        let candidates = stops.dropFirst()
+    private static func arrivalStop(of booking: Reservation, on day: TripDay) -> TripStop? {
+        if let position = booking.position(on: day.id) {
+            return day.positionedStops.first { $0.position > position }?.stop
+        }
+        let candidates = day.stops.dropFirst()
         if let arrival = booking.arrival {
             let target = CLLocation(latitude: arrival.lat, longitude: arrival.lng)
             return candidates.first { stop in

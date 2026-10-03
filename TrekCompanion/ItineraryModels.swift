@@ -35,15 +35,17 @@ enum TimelineEntry: Identifiable {
 }
 
 extension TripDay {
-    var timeline: [TimelineEntry] {
-        let assignments = (assignments ?? []).sorted { $0.orderIndex < $1.orderIndex }
-        var number = 0
-        let stops = assignments.enumerated().compactMap { index, stop -> (position: Double, entry: TimelineEntry)? in
-            guard stop.accommodationId == nil else { return nil }
-            number += 1
-            return (Double(index), .stop(stop, number: number))
+    var positionedStops: [(position: Double, stop: TripStop)] {
+        (assignments ?? []).sorted { $0.orderIndex < $1.orderIndex }.enumerated().compactMap { index, stop in
+            stop.accommodationId == nil ? (position: Double(index), stop: stop) : nil
         }
-        let notes = (notesItems ?? []).map { (position: $0.sortOrder ?? Double(assignments.count), entry: TimelineEntry.note($0)) }
+    }
+
+    var timeline: [TimelineEntry] {
+        let stops = positionedStops.enumerated().map { number, item in
+            (position: item.position, entry: TimelineEntry.stop(item.stop, number: number + 1))
+        }
+        let notes = (notesItems ?? []).map { (position: $0.sortOrder ?? Double((assignments ?? []).count), entry: TimelineEntry.note($0)) }
         return (notes + stops).sorted { $0.position < $1.position }.map(\.entry)
     }
 }
@@ -107,9 +109,13 @@ struct Reservation: Decodable, Identifiable {
     var status: String? = nil
     var reservationEndTime: String? = nil
     var assignmentId: Int? = nil
+    var dayPlanPosition: Double? = nil
+    var dayPositions: [String: Double]? = nil
     var placeId: Int? = nil
     var accommodationPlaceId: Int? = nil
     var endpoints: [ReservationEndpoint]? = nil
+
+    func position(on dayID: Int) -> Double? { dayPositions?[String(dayID)] ?? dayPlanPosition }
 
     var time: String? { Self.clockTime(reservationTime) }
     var endTime: String? { Self.clockTime(reservationEndTime) }
