@@ -1,3 +1,4 @@
+import ImageIO
 import Photos
 import UIKit
 import UniformTypeIdentifiers
@@ -14,6 +15,22 @@ enum RecapLibrary {
         options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: true)]
         let result = PHAsset.fetchAssets(with: options)
         return (0..<result.count).map(result.object(at:)).filter { !$0.mediaSubtypes.contains(.photoScreenshot) }
+    }
+
+    static func isFromCamera(_ asset: PHAsset) async -> Bool {
+        let options = PHImageRequestOptions()
+        options.version = .original
+        options.isNetworkAccessAllowed = true
+        let data: Data? = await withCheckedContinuation { continuation in
+            PHImageManager.default().requestImageDataAndOrientation(for: asset, options: options) { data, _, _, _ in
+                continuation.resume(returning: data)
+            }
+        }
+        guard let data, let source = CGImageSourceCreateWithData(data as CFData, nil),
+              let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
+              let tiff = properties[kCGImagePropertyTIFFDictionary] as? [CFString: Any]
+        else { return false }
+        return tiff[kCGImagePropertyTIFFMake] != nil
     }
 
     static func thumbnail(of asset: PHAsset, side: CGFloat) async -> UIImage? {

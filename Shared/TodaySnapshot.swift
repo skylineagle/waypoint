@@ -55,8 +55,11 @@ nonisolated struct TodaySnapshot: Codable, Hashable, Sendable {
     }
 
     var next: Stop? {
-        let done = doneIDs
-        return stops.first { !done.contains($0.id) }
+        stop(id: NextStop.id(among: stops.map(\.id), done: doneIDs))
+    }
+
+    private func stop(id: Int?) -> Stop? {
+        stops.first { $0.id == id }
     }
 
     var here: (stop: Stop, since: Date)? {
@@ -107,8 +110,7 @@ nonisolated struct TodaySnapshot: Codable, Hashable, Sendable {
             nextTicketURL: next?.ticketURL
         )
         if let here {
-            let done = doneIDs
-            let then = stops.first { !done.contains($0.id) && $0.id != here.stop.id }
+            let then = stop(id: NextStop.id(among: stops.map(\.id), done: doneIDs, after: here.stop.id))
             state.here = TripActivityAttributes.Here(
                 name: here.stop.name,
                 category: here.stop.category,

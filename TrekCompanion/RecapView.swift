@@ -40,7 +40,7 @@ struct RecapView: View {
     }
 
     private var nextPlaceName: String? {
-        model.isLast ? nil : model.places[model.index + 1].stop.place.name
+        model.isLast ? nil : model.places[model.index + 1].name ?? "A place not in your plan"
     }
 
     private var stepper: some View {
@@ -68,6 +68,7 @@ struct RecapView: View {
                     if isPublishing { ProgressView() } else { Text(model.isLast ? "Add to Journey" : "Next") }
                 }
                 .buttonStyle(TrekButtonStyle())
+                .disabled(model.places[model.index].name == nil)
             }
             .disabled(isPublishing)
             .padding(.horizontal, 20)

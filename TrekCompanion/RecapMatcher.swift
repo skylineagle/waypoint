@@ -7,6 +7,11 @@ nonisolated enum RecapMatcher {
         let latitude: Double?
         let longitude: Double?
         let arrival: Date?
+
+        var location: CLLocation? {
+            guard let latitude, let longitude else { return nil }
+            return CLLocation(latitude: latitude, longitude: longitude)
+        }
     }
 
     struct Photo {
@@ -15,9 +20,15 @@ nonisolated enum RecapMatcher {
         let latitude: Double?
         let longitude: Double?
         var isFavorite = false
+
+        var location: CLLocation? {
+            guard let latitude, let longitude else { return nil }
+            return CLLocation(latitude: latitude, longitude: longitude)
+        }
     }
 
     static let radiusMeters = 500.0
+    static let sameSpotMeters = 50.0
     static let pickCount = 3
 
     /// A photo goes to the nearest place within range. Without a location, or with none in range, it goes to the place you had most recently arrived at.
@@ -47,5 +58,29 @@ nonisolated enum RecapMatcher {
         guard needed > 0 else { return Array(favorites) }
         let spread = (0..<needed).map { rest[$0 * rest.count / needed].id }
         return favorites + spread
+    }
+
+    static func isUnplanned(_ photo: Photo, among places: [Place]) -> Bool {
+        guard let spot = photo.location else { return false }
+        return !places.contains { place in place.location.map { spot.distance(from: $0) <= radiusMeters } ?? false }
+    }
+
+    static func spots(of photos: [Photo]) -> [[Photo]] {
+        var spots: [[Photo]] = []
+        for photo in photos.sorted(by: { $0.date < $1.date }) {
+            guard let location = photo.location else { continue }
+            let isNear = { (other: Photo) in other.location.map { location.distance(from: $0) <= sameSpotMeters } ?? false }
+            if let index = spots.firstIndex(where: { $0.contains(where: isNear) }) {
+                spots[index].append(photo)
+            } else {
+                spots.append([photo])
+            }
+        }
+        return spots
+    }
+
+    static func insertionIndex(of moment: Date, among moments: [Date?]) -> Int {
+        if let last = moments.lastIndex(where: { $0.map { $0 <= moment } ?? false }) { return last + 1 }
+        return moments.contains { $0 != nil } ? 0 : moments.count
     }
 }

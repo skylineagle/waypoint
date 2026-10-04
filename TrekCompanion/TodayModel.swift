@@ -82,7 +82,8 @@ final class TodayModel {
     }
 
     func nextStop(on day: TripDay) -> TripStop? {
-        day.stops.first { !doneIDs.contains($0.id) }
+        let id = NextStop.id(among: day.stops.map(\.id), done: doneIDs)
+        return day.stops.first { $0.id == id }
     }
 
     func bookings(on day: TripDay) -> [Reservation] {

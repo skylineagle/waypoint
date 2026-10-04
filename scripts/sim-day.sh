@@ -50,9 +50,9 @@ case "${1:-}" in
     ;;
   undone)
     container="$(xcrun simctl get_app_container "$SIMULATOR" "$APP" "$GROUP")"
-    plist="$container/Library/Preferences/$GROUP.plist"
-    for key in $(plutil -p "$plist" 2>/dev/null | grep -o '"done-stops-[0-9]*"' | tr -d '"'); do
-      plutil -remove "$key" "$plist"
+    domain="$container/Library/Preferences/$GROUP"
+    for key in $(xcrun simctl spawn "$SIMULATOR" defaults read "$domain" 2>/dev/null | grep -o '"done-stops-[0-9]*"' | tr -d '"'); do
+      xcrun simctl spawn "$SIMULATOR" defaults delete "$domain" "$key"
     done
     relaunch
     echo "Cleared Done stops"
