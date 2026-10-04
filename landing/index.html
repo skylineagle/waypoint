@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Waypoint - TREK mate</title>
-    <meta name="description" content="Waypoint is the iPhone app for your self-hosted TREK server. The itinerary, the walk between stops, a Live Activity, widgets, receipt scanning and who owes whom." />
+    <meta name="description" content="Waypoint is the iPhone app for your self-hosted TREK server. The itinerary, a Live Activity, Apple Pay expenses, receipt scanning, photos straight to your Journey, day recaps, packing and who owes whom." />
     <meta name="theme-color" content="#000000" />
     <meta name="color-scheme" content="dark" />
     <meta name="apple-itunes-app" content="app-id=6817039570" />
@@ -31,6 +31,8 @@
       <symbol id="i-play" viewBox="0 0 14 14"><path fill="currentColor" d="M3 1.8v10.4c0 .6.7 1 1.2.7l8.3-5.2a.8.8 0 0 0 0-1.4L4.2 1.1c-.5-.3-1.2.1-1.2.7Z" /></symbol>
       <symbol id="i-pause" viewBox="0 0 14 14"><rect x="2.5" y="1.5" width="3.2" height="11" rx="1" fill="currentColor" /><rect x="8.3" y="1.5" width="3.2" height="11" rx="1" fill="currentColor" /></symbol>
       <symbol id="i-trek" viewBox="4.9 3.2 51 53.6"><path fill="currentColor" d="M34.23 28.17H11.48c-.88 0-1.52-.84-1.28-1.69l6.25-22.26c.16-.57.69-.97 1.28-.97h22.75c.88 0 1.52.84 1.28 1.69L35.52 27.2c-.16.57-.69.97-1.29.97ZM19.46 44.97l3.21-11.46c.24-.85-.4-1.69-1.28-1.69H9.7c-.6 0-1.12.4-1.28.97L5.2 44.25c-.24.85.4 1.69 1.28 1.69h11.7c.6 0 1.12-.39 1.28-.97Zm5.92-12.18-6.25 22.26c-.24.85.4 1.69 1.28 1.69h22.75c.6 0 1.12-.4 1.28-.97l6.25-22.26c.24-.85-.4-1.69-1.28-1.69H26.66c-.6 0-1.12.4-1.28.97Zm16.06-17.77-3.22 11.46c-.24.85.4 1.69 1.28 1.69h11.7c.59 0 1.12-.4 1.28-.97l3.21-11.46c.24-.85-.4-1.69-1.28-1.69h-11.7c-.6 0-1.12.39-1.27.97Z" /></symbol>
+      <symbol id="i-search" viewBox="0 0 16 16"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.8" /><path d="m11 11 3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></symbol>
+      <symbol id="i-viewfinder" viewBox="0 0 28 28"><path d="M4 9V6a2 2 0 0 1 2-2h3M19 4h3a2 2 0 0 1 2 2v3M24 19v3a2 2 0 0 1-2 2h-3M9 24H6a2 2 0 0 1-2-2v-3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" /><path d="M10 10h8M10 14h8M10 18h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></symbol>
     </svg>
 
     <nav class="localnav" aria-label="Waypoint">
@@ -38,12 +40,12 @@
         <a class="localnav-title" href="#top">Waypoint</a>
         <div class="localnav-menu">
           <ul class="localnav-links">
+            <li><a href="#native">iPhone</a></li>
+            <li><a href="#share">Share</a></li>
             <li><a href="#itinerary">Itinerary</a></li>
             <li><a href="#live">Live Activity</a></li>
             <li><a href="#costs">Costs</a></li>
-            <li><a href="#journey">Journey</a></li>
             <li><a href="#trek">TREK</a></li>
-            <li><a href="#privacy">Privacy</a></li>
           </ul>
           <a class="button button-small" href="https://apps.apple.com/app/id6817039570">Get</a>
         </div>
@@ -58,18 +60,18 @@
             <p class="hero-headline"><span class="headline-dim">Plan it in TREK.</span><br />Travel it with Waypoint.</p>
             <div class="hero-cta">
               <a class="button" href="https://apps.apple.com/app/id6817039570">Download</a>
-              <a class="link" href="#trek">Works with your TREK server <svg class="icon-chevron"><use href="#i-chevron" /></svg></a>
+              <a class="link" href="#native">Built for iPhone <svg class="icon-chevron"><use href="#i-chevron" /></svg></a>
             </div>
           </div>
           <div class="hero-stage">
             <div class="phone hero-phone hero-phone-left">
-              <img src="./media/costs.webp" width="860" height="1870" alt="Costs tab: ₪25,034 spent on a trip to Japan, with who owes whom." />
+              <img src="./media/share-receipt.webp" width="860" height="1870" alt="Send to Waypoint: a shared receipt becomes a ¥2,700 Food expense and four photos are sorted under the stops they were taken at." />
             </div>
             <div class="phone hero-phone hero-phone-right">
-              <img src="./media/lock.webp" width="860" height="1870" alt="Lock Screen with a Waypoint Live Activity showing the next stop." />
+              <img src="./media/lock.webp" width="860" height="1870" alt="Lock Screen Live Activity: you're at Ueno Park, next is Tokyo National Museum, leave by 9:22." />
             </div>
             <div class="phone hero-phone hero-phone-center">
-              <img src="./media/today.webp" width="860" height="1870" alt="Today tab: day 5 of the Japan trip, Ueno and Yanaka, with the next stop up top." fetchpriority="high" />
+              <img src="./media/today.webp" width="860" height="1870" alt="Today tab: day 5 of the Japan trip, Ueno and Yanaka, with the next stop up top and travel times between stops." fetchpriority="high" />
             </div>
           </div>
         </div>
@@ -81,33 +83,33 @@
         </div>
         <div class="gallery" data-gallery>
           <ul class="gallery-track" data-gallery-track>
-            <li class="gallery-item tone-violet">
-              <p class="gallery-caption">The whole day, <strong>stop by stop,</strong> with the walk in between.</p>
-              <div class="phone gallery-phone"><img src="./media/today.webp" width="860" height="1870" alt="Today's plan with 7 stops left." loading="lazy" /></div>
+            <li class="gallery-item tone-indigo" data-dwell="14">
+              <p class="gallery-caption">Share photos and receipts. <strong>Each one lands in the right place.</strong></p>
+              <div class="phone gallery-phone"><video src="./media/share.mp4" poster="./media/share-poster.webp" muted playsinline loop preload="none" aria-label="Five items shared from Photos: the receipt becomes an expense and the photos are sorted by stop for the Journey."></video></div>
             </li>
             <li class="gallery-item tone-green" data-dwell="8">
               <p class="gallery-caption">Stay a while, and the stop is <strong>marked done on its own.</strong></p>
               <div class="phone gallery-phone"><video src="./media/arrive.mp4" poster="./media/arrive-poster.webp" muted playsinline loop preload="none" aria-label="A stop is marked done and the Lock Screen moves on to the next one."></video></div>
+            </li>
+            <li class="gallery-item tone-violet">
+              <p class="gallery-caption">End the day with <strong>a recap for your Journey.</strong></p>
+              <div class="phone gallery-phone"><img src="./media/recap.webp" width="860" height="1870" alt="Day recap: two photos taken at Meiji Jingu are already picked, with a drafted line to edit." loading="lazy" /></div>
             </li>
             <li class="gallery-item tone-cyan" data-dwell="12">
               <p class="gallery-caption">Type a price on the Home Screen. <strong>See what it costs you.</strong></p>
               <div class="phone gallery-phone"><video src="./media/convert.mp4" poster="./media/convert-poster.webp" muted playsinline loop preload="none" aria-label="The converter widget turns ¥1,200 into ₪23.39 while typing."></video></div>
             </li>
             <li class="gallery-item tone-orange">
-              <p class="gallery-caption">Scan a receipt. <strong>It fills itself in.</strong></p>
-              <div class="phone gallery-phone"><img src="./media/receipt.webp" width="860" height="1870" alt="A scanned Japanese receipt fills in a ¥3,795 expense at Ameyoko Kaisen Nami, filed under Food." loading="lazy" /></div>
+              <p class="gallery-caption">Look around a place <strong>before you walk there.</strong></p>
+              <div class="phone gallery-phone"><img src="./media/look-around.webp" width="860" height="1870" alt="Look Around street imagery of Ameyoko market in Ueno." loading="lazy" /></div>
             </li>
             <li class="gallery-item tone-pink">
               <p class="gallery-caption">Who paid, who owes, <strong>and how to settle up.</strong></p>
               <div class="phone gallery-phone"><img src="./media/balances.webp" width="860" height="1870" alt="Balances: Alex pays you ₪9,253.55." loading="lazy" /></div>
             </li>
-            <li class="gallery-item tone-indigo">
-              <p class="gallery-caption">Photos go <strong>straight to your Journey,</strong> sorted by stop.</p>
-              <div class="phone gallery-phone"><img src="./media/journey.webp" width="860" height="1870" alt="Send to Journey: photos grouped under Meiji Jingu, Shibuya Scramble Crossing, Sensō-ji, Nakamise and Tokyo Skytree." loading="lazy" /></div>
-            </li>
             <li class="gallery-item tone-yellow">
-              <p class="gallery-caption">The trip's to-dos, <strong>with due-date notifications.</strong></p>
-              <div class="phone gallery-phone"><img src="./media/todos.webp" width="860" height="1870" alt="To-Dos: overdue, upcoming and undated tasks for the trip." loading="lazy" /></div>
+              <p class="gallery-caption">To-dos and packing, <strong>bag by bag.</strong></p>
+              <div class="phone gallery-phone"><img src="./media/packing.webp" width="860" height="1870" alt="Packing list: 7 of 12 packed, grouped by category, each item tagged with its bag." loading="lazy" /></div>
             </li>
           </ul>
           <div class="gallery-controls">
@@ -116,6 +118,93 @@
               <svg class="icon-pause"><use href="#i-pause" /></svg><svg class="icon-play"><use href="#i-play" /></svg>
             </button>
           </div>
+        </div>
+      </section>
+
+      <section class="section native" id="native" aria-labelledby="native-title">
+        <div class="viewport-content section-head">
+          <p class="eyebrow tone-cyan reveal">Made for iPhone</p>
+          <h2 id="native-title" class="section-headline reveal">Not a website<br />in an app.</h2>
+          <p class="intro reveal">Waypoint is written in Swift and works with the parts of iPhone you already use. <strong>Wallet, the Lock Screen, Photos, Siri, Spotlight and Control Center</strong> all lead into your trip.</p>
+        </div>
+        <div class="viewport-content bento native-bento">
+          <article class="tile tile-native-live reveal-tile">
+            <div class="tile-copy">
+              <p class="tile-eyebrow tone-green">Live Activity</p>
+              <h3 class="tile-headline">The day,<br />on the Lock Screen.</h3>
+              <p class="tile-text">Where you are, what’s next and when to leave. <strong>Done and Expense work without unlocking.</strong></p>
+            </div>
+            <div class="phone tile-phone"><img src="./media/lock.webp" width="860" height="1870" alt="Live Activity on the Lock Screen: you're at Ueno Park for 2 minutes, next Tokyo National Museum, leave by 9:22, with Done and Expense buttons." loading="lazy" /></div>
+          </article>
+          <article class="tile tile-pay reveal-tile">
+            <div class="notification" aria-hidden="true">
+              <img src="./media/app-icon.webp" width="38" height="38" alt="" />
+              <div>
+                <p class="notification-title">Added to Japan Autumn <span>now</span></p>
+                <p class="notification-body">Tokyo National Museum · ¥2,000 · Activities</p>
+              </div>
+            </div>
+            <p class="tile-eyebrow tone-yellow">Apple Wallet</p>
+            <h3 class="tile-headline-small">Tap to pay.<br />It’s already logged.</h3>
+            <p class="tile-text">One Shortcut, set up in onboarding. <strong>Every Apple Pay tap on the trip becomes an expense,</strong> categorised on device.<sup><a href="#footnote-2">2</a></sup></p>
+          </article>
+          <article class="tile tile-scan reveal-tile">
+            <div class="share-crop"><img src="./media/share-receipt.webp" width="860" height="1870" alt="A shared receipt from Ichiran is read as ¥2,700 under Food." loading="lazy" /></div>
+            <p class="tile-eyebrow tone-orange">Receipt scanning</p>
+            <h3 class="tile-headline-small">Receipts read<br />themselves.</h3>
+            <p class="tile-text">Scan one, pick it from Photos or share it in. <strong>Merchant, total, currency and date</strong> are read on your iPhone.<sup><a href="#footnote-1">1</a></sup></p>
+          </article>
+          <article class="tile tile-photos reveal-tile">
+            <div class="photo-stack" aria-hidden="true">
+              <img src="./media/journey.webp" width="860" height="1870" alt="" loading="lazy" />
+            </div>
+            <p class="tile-eyebrow tone-indigo">Photos</p>
+            <h3 class="tile-headline-small">Share from Photos.<br />Straight into Journey.</h3>
+            <p class="tile-text">Pick photos, tap Waypoint. <strong>Each is matched to the stop it was taken at</strong> by time and place.</p>
+          </article>
+          <article class="tile tile-siri reveal-tile">
+            <div class="siri" aria-hidden="true">
+              <p class="siri-ask">“What’s next in Waypoint?”</p>
+              <div class="siri-card">
+                <span class="siri-dot"></span>
+                <div>
+                  <p class="siri-title">Tokyo National Museum</p>
+                  <p class="siri-body">8 min walk · Next of 7 today</p>
+                </div>
+              </div>
+              <div class="spotlight-row">
+                <svg><use href="#i-search" /></svg>
+                <span>Romancecar</span>
+                <em>Booking · Fri 10:00</em>
+              </div>
+            </div>
+            <p class="tile-eyebrow tone-pink">Siri and Spotlight</p>
+            <h3 class="tile-headline-small">Ask. Or just search.</h3>
+            <p class="tile-text">Ask Siri what’s next or log an expense by voice. <strong>Every stop and booking shows up in Spotlight.</strong></p>
+          </article>
+          <article class="tile tile-control reveal-tile">
+            <div class="controls" aria-hidden="true">
+              <span class="control"><svg><use href="#i-viewfinder" /></svg></span>
+              <span class="control control-dim"></span>
+              <span class="control control-dim"></span>
+              <span class="control control-dim"></span>
+            </div>
+            <p class="tile-eyebrow tone-cyan">Control Center</p>
+            <h3 class="tile-headline-small">Scan from anywhere.</h3>
+            <p class="tile-text">Add Scan Receipt to Control Center or the Action button. <strong>One press opens the camera.</strong></p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section share" id="share" aria-labelledby="share-title">
+        <div class="viewport-content section-head">
+          <p class="eyebrow tone-indigo reveal">Share to Waypoint</p>
+          <h2 id="share-title" class="section-headline reveal">One share.<br />Everything sorted.</h2>
+          <p class="intro reveal">Select a day’s photos in the Photos app, receipts included, and share them to Waypoint. <strong>Receipts are spotted and added as expenses. Photos are grouped by the stop you took them at</strong> and sent to your TREK Journey, capture time and place included.</p>
+        </div>
+        <div class="viewport-content duo" data-duo>
+          <div class="phone duo-phone duo-left"><video src="./media/share.mp4" poster="./media/share-poster.webp" muted playsinline loop autoplay preload="none" aria-label="Sharing four photos and a receipt from Photos to Waypoint."></video></div>
+          <div class="phone duo-phone duo-right"><img src="./media/share-receipt.webp" width="860" height="1870" alt="Send to Waypoint: one receipt to add as an expense and four photos under Meiji Jingu, Shibuya Scramble Crossing, Sensō-ji and Nakamise." loading="lazy" /></div>
         </div>
       </section>
 
@@ -130,24 +219,29 @@
             <article class="story-chapter" data-chapter="0">
               <div class="phone story-inline"><img src="./media/today.webp" width="860" height="1870" alt="" loading="lazy" /></div>
               <h3>Up next, up top.</h3>
-              <p>The next stop leads the day, notes and all. <strong>One tap for directions</strong> in Apple Maps, Google Maps or Waze. One tap to mark it done.</p>
+              <p>The next stop leads the day with how long it takes to get there. <strong>One tap for directions</strong> in Apple Maps, Google Maps or Waze. One tap to mark it done.</p>
             </article>
             <article class="story-chapter" data-chapter="1">
               <div class="phone story-inline"><img src="./media/today-list.webp" width="860" height="1870" alt="" loading="lazy" /></div>
               <h3>The walk in between.</h3>
-              <p>Every leg says how you’ll get there. <strong>A 9 minute walk. An 18 minute train.</strong> So you know when to leave before you have to.</p>
+              <p>Every leg says how you’ll get there. <strong>An 8 minute walk. A 16 minute train.</strong> Swipe a stop for directions, the map or Look Around.</p>
             </article>
             <article class="story-chapter" data-chapter="2">
               <div class="phone story-inline"><img src="./media/today-map.webp" width="860" height="1870" alt="" loading="lazy" /></div>
               <h3>Every stop, on a map.</h3>
-              <p>Open the map and the day’s pins are <strong>numbered in the order you’ll walk them,</strong> with the route drawn between. Weather for the next stop sits one tap away.</p>
+              <p>The day’s pins are <strong>numbered in the order you’ll walk them,</strong> with the timeline in a sheet below and the weather up top.</p>
             </article>
             <article class="story-chapter" data-chapter="3">
-              <div class="phone story-inline"><img src="./media/travel-day.webp" width="860" height="1870" alt="" loading="lazy" /></div>
-              <h3>Tomorrow, already packed.</h3>
-              <p>Swipe to any day. Travel days line up <strong>the train, the check-in and tonight’s hotel,</strong> with the 10:00 Romancecar already booked.</p>
+              <div class="phone story-inline"><img src="./media/look-around.webp" width="860" height="1870" alt="" loading="lazy" /></div>
+              <h3>See it before you go.</h3>
+              <p>Where Apple Maps has street imagery, <strong>Look Around opens right from the stop.</strong> Find the entrance before you get lost looking for it.</p>
             </article>
             <article class="story-chapter" data-chapter="4">
+              <div class="phone story-inline"><img src="./media/travel-day.webp" width="860" height="1870" alt="" loading="lazy" /></div>
+              <h3>Tickets, one tap away.</h3>
+              <p>Travel days line up <strong>the train, the check-in and tonight’s hotel.</strong> Tap a booking and its PDF or ticket opens straight from TREK.</p>
+            </article>
+            <article class="story-chapter" data-chapter="5">
               <div class="phone story-inline"><img src="./media/travel-map.webp" width="860" height="1870" alt="" loading="lazy" /></div>
               <h3>City to city.</h3>
               <p>When the day covers a country, the map does too. <strong>Shinjuku to the hot springs of Hakone,</strong> 89 km, in one line.</p>
@@ -158,6 +252,7 @@
               <img class="is-active" src="./media/today.webp" width="860" height="1870" alt="" loading="lazy" />
               <img src="./media/today-list.webp" width="860" height="1870" alt="" loading="lazy" />
               <img src="./media/today-map.webp" width="860" height="1870" alt="" loading="lazy" />
+              <img src="./media/look-around.webp" width="860" height="1870" alt="" loading="lazy" />
               <img src="./media/travel-day.webp" width="860" height="1870" alt="" loading="lazy" />
               <img src="./media/travel-map.webp" width="860" height="1870" alt="" loading="lazy" />
             </div>
@@ -165,21 +260,37 @@
         </div>
       </section>
 
+      <section class="section recap" id="recap" aria-labelledby="recap-title">
+        <div class="viewport-content todos-layout">
+          <div class="todos-copy">
+            <p class="eyebrow tone-violet reveal">Day Recap</p>
+            <h2 id="recap-title" class="section-headline section-headline-medium reveal">The day,<br />written down.</h2>
+            <p class="intro reveal">When a day ends, Waypoint offers a recap. <strong>It goes stop by stop with the photos you took there already picked</strong> and a line drafted from your notes. Change what you like, skip what you don’t, and it’s added to your Journey.</p>
+            <ul class="chips reveal" aria-label="What a recap does">
+              <li><span class="dot dot-accent"></span>Photos matched by time and place</li>
+              <li><span class="dot"></span>Favourites picked first</li>
+              <li><span class="dot dot-green"></span>One step per stop</li>
+            </ul>
+          </div>
+          <div class="phone todos-phone reveal-rise"><img src="./media/recap.webp" width="860" height="1870" alt="Recap step 2 of 6: Meiji Jingu at 11:00 with a drafted line and two selected photos." loading="lazy" /></div>
+        </div>
+      </section>
+
       <section class="section live" id="live" aria-labelledby="live-title">
         <div class="viewport-content section-head">
           <p class="eyebrow tone-green reveal">Live Activity</p>
           <h2 id="live-title" class="section-headline reveal">Up next.<br />Even when it’s locked.</h2>
-          <p class="intro reveal">Start the day and the next stop moves to your Lock Screen and the Dynamic Island. <strong>Go, Done and Expense are right there,</strong> no unlocking, no hunting for the app.</p>
+          <p class="intro reveal">Start the day and it moves to your Lock Screen and the Dynamic Island. <strong>Where you are, what’s next and when to leave,</strong> with Done and Expense a tap away. No unlocking, no hunting for the app.</p>
         </div>
         <div class="zoom" data-zoom>
           <div class="zoom-sticky">
             <div class="phone zoom-phone">
-              <img src="./media/lock.webp" width="860" height="1870" alt="Lock Screen with a Waypoint Live Activity: up next Tokyo National Museum, 8 min walk, with Go, Done and Expense buttons." loading="lazy" />
+              <img src="./media/lock.webp" width="860" height="1870" alt="Lock Screen Live Activity: you're at Ueno Park, next Tokyo National Museum, leave by 9:22, with Done and Expense buttons." loading="lazy" />
             </div>
             <ul class="zoom-callouts" aria-hidden="true">
-              <li class="callout callout-left">Next stop and how to get there</li>
-              <li class="callout callout-right">Spent today, at a glance</li>
-              <li class="callout callout-bottom">Go · Done · Expense</li>
+              <li class="callout callout-left" style="--y: 0.725">Where you are, and for how long</li>
+              <li class="callout callout-right" style="--y: 0.765">What’s next, and when to leave</li>
+              <li class="callout callout-bottom">Done · Expense</li>
             </ul>
           </div>
         </div>
@@ -274,17 +385,6 @@
             <div class="receipt-crop"><img src="./media/receipt.webp" width="860" height="1870" alt="New expense: ¥3,795 at Ameyoko Kaisen Nami, read from a Japanese receipt." loading="lazy" /></div>
           </article>
 
-          <article class="tile tile-pay reveal-tile">
-            <div class="notification" aria-hidden="true">
-              <img src="./media/app-icon.webp" width="38" height="38" alt="" />
-              <div>
-                <p class="notification-title">Added to Japan Autumn <span>now</span></p>
-                <p class="notification-body">Tokyo National Museum · ¥2,000 · Activities</p>
-              </div>
-            </div>
-            <h3 class="tile-headline-small">Tap to pay.<br />It’s already logged.</h3>
-            <p class="tile-text">A Shortcut sends Apple Pay payments made on the trip <strong>into that same budget,</strong> categorised on device.<sup><a href="#footnote-2">2</a></sup></p>
-          </article>
 
           <article class="tile tile-currency reveal-tile">
             <div class="currency" aria-hidden="true">
@@ -298,32 +398,21 @@
         </div>
       </section>
 
-      <section class="section journey" id="journey" aria-labelledby="journey-title">
+      <section class="section todos" id="lists" aria-labelledby="lists-title">
         <div class="viewport-content section-head">
-          <p class="eyebrow tone-orange reveal">Journey</p>
-          <h2 id="journey-title" class="section-headline reveal">Photos, straight<br />to your Journey.</h2>
-          <p class="intro reveal">Choose photos in the Photos app and share them to Waypoint. <strong>They’re sorted by the stop you took them at,</strong> then sent to your TREK Journey, capture time and place included.</p>
+          <p class="eyebrow tone-yellow reveal">Lists</p>
+          <h2 id="lists-title" class="section-headline reveal">To-dos and packing.<br />Both from TREK.</h2>
+          <p class="intro reveal">Tickets to buy, luggage to forward, a sushi counter to decide on. <strong>Your TREK to-dos come with priorities, due dates, who’s on it and a notification when one is due.</strong> The packing list shows what’s left, by category, and which bag each item goes in.</p>
+          <ul class="chips reveal" aria-label="What the lists carry">
+            <li><span class="flag flag-red"></span>P1 · Overdue</li>
+            <li><span class="dot dot-accent"></span>Notifies you when due</li>
+            <li><span class="dot"></span>7 of 12 packed</li>
+            <li><span class="dot dot-green"></span>Carry-on · Suitcase</li>
+          </ul>
         </div>
-        <div class="viewport-content duo" data-duo>
-          <div class="phone duo-phone duo-left"><img src="./media/share-sheet.webp" width="860" height="1870" alt="The iOS share sheet with Waypoint as a destination for 8 photos." loading="lazy" /></div>
-          <div class="phone duo-phone duo-right"><img src="./media/journey.webp" width="860" height="1870" alt="Send to Journey: photos grouped by stop, ready to send to the Japan trip." loading="lazy" /></div>
-        </div>
-      </section>
-
-      <section class="section todos" id="todos" aria-labelledby="todos-title">
-        <div class="viewport-content todos-layout">
-          <div class="todos-copy">
-            <p class="eyebrow tone-yellow reveal">To-Dos</p>
-            <h2 id="todos-title" class="section-headline section-headline-medium reveal">TREK to-do lists,<br />with notifications.</h2>
-            <p class="intro reveal">Tickets to buy, luggage to forward, a sushi counter to decide on. <strong>Your TREK to-dos, with priorities, due dates and who’s on it,</strong> and a notification when one comes due. Tick them off wherever you are.</p>
-            <ul class="chips reveal" aria-label="What a to-do carries">
-              <li><span class="flag flag-red"></span>P1 · Overdue</li>
-              <li><span class="flag flag-blue"></span>Due Thu, 8 Oct</li>
-              <li><span class="dot"></span>Assigned to you</li>
-              <li><span class="dot dot-accent"></span>Notifies you when due</li>
-            </ul>
-          </div>
-          <div class="phone todos-phone reveal-rise"><img src="./media/todos.webp" width="860" height="1870" alt="To-Dos: 8 open, 6 done, grouped into overdue, upcoming and no date." loading="lazy" /></div>
+        <div class="viewport-content duo">
+          <div class="phone duo-phone duo-left"><img src="./media/todos.webp" width="860" height="1870" alt="To-Dos: 8 open, 6 done, grouped into overdue, upcoming and no date." loading="lazy" /></div>
+          <div class="phone duo-phone duo-right"><img src="./media/packing.webp" width="860" height="1870" alt="Packing: 7 of 12 packed, grouped into clothing, documents, essentials and tech, each tagged Carry-on or Suitcase." loading="lazy" /></div>
         </div>
       </section>
 
@@ -411,7 +500,7 @@
             <li><a href="https://github.com/mauriceboe/TREK">TREK</a></li>
           </ul>
         </div>
-        <p class="footer-legal">Copyright © 2026 Ofek Nesher. Waypoint is an independent app for TREK and isn’t made by the TREK project. Apple, Apple Pay, Apple Intelligence and iPhone are trademarks of Apple Inc.</p>
+        <p class="footer-legal">Copyright © 2026 Ofek Nesher. Waypoint is an independent app for TREK and isn’t made by the TREK project. Apple, Apple Pay, Apple Wallet, Apple Intelligence, iPhone, Siri and Spotlight are trademarks of Apple Inc.</p>
       </div>
     </footer>
 
