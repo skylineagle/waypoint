@@ -6,13 +6,16 @@ struct AddExpenseIntent: AppIntent {
     static let description = IntentDescription("Adds a Wallet payment to the costs of your selected Trek trip.")
 
     @Parameter(title: "Amount")
-    var amount: IntentCurrencyAmount?
+    var amount: Double?
+
+    @Parameter(title: "Currency")
+    var currencyCode: String?
 
     @Parameter(title: "Merchant")
     var merchant: String?
 
     static var parameterSummary: some ParameterSummary {
-        Summary("Add \(\.$amount) at \(\.$merchant) to Trek")
+        Summary("Add \(\.$amount) \(\.$currencyCode) at \(\.$merchant) to Trek")
     }
 
     @MainActor
@@ -20,7 +23,7 @@ struct AddExpenseIntent: AppIntent {
         guard let amount else {
             return .result(dialog: "TREK shortcut is ready.", view: nil as ExpenseAddedSnippet?)
         }
-        let logged = try await ExpenseLog.add(amount, name: merchant, note: ExpenseInput.applePayNote)
+        let logged = try await ExpenseLog.add(Decimal(amount), currencyCode: currencyCode.flatMap { CurrencyCodeResolver.code(from: $0, amount: amount) }, name: merchant, note: ExpenseInput.applePayNote)
         return .result(dialog: logged.dialog, view: logged.snippet)
     }
 }

@@ -16,7 +16,7 @@ struct LogExpenseIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog & ShowsSnippetView {
-        let logged = try await ExpenseLog.add(amount, name: name, note: nil)
+        let logged = try await ExpenseLog.add(amount.amount, currencyCode: amount.currencyCode, name: name, note: nil)
         return .result(dialog: logged.dialog, view: logged.snippet)
     }
 }

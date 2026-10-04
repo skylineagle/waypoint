@@ -2,10 +2,17 @@ import plistlib
 import uuid
 
 
-def input_property(name):
+def input_property(*names):
     return {
-        "Aggrandizements": [{"PropertyName": name, "Type": "WFPropertyVariableAggrandizement"}],
+        "Aggrandizements": [{"PropertyName": name, "Type": "WFPropertyVariableAggrandizement"} for name in names],
         "Type": "ExtensionInput",
+    }
+
+
+def text_token(*names):
+    return {
+        "Value": {"attachmentsByRange": {"{0, 1}": input_property(*names)}, "string": "￼"},
+        "WFSerializationType": "WFTextTokenString",
     }
 
 
@@ -22,10 +29,8 @@ add_expense = {
             "Value": input_property("Amount"),
             "WFSerializationType": "WFTextTokenAttachment",
         },
-        "merchant": {
-            "Value": {"attachmentsByRange": {"{0, 1}": input_property("Merchant")}, "string": "￼"},
-            "WFSerializationType": "WFTextTokenString",
-        },
+        "currencyCode": text_token("Amount"),
+        "merchant": text_token("Merchant"),
     },
 }
 

@@ -8,7 +8,7 @@ python3 build-shortcut.py
 shortcuts sign --mode anyone --input "Add to TREK.unsigned.shortcut" --output "Waypoint - TREK Expenses.shortcut"
 ```
 
-The shortcut includes a Wallet trigger for any card, with no confirmation. Amount is the Wallet currency amount, preserving its value and ISO currency code, and Merchant is the transaction merchant. Do not convert Amount to a number. Share the signed file from Shortcuts and put the new iCloud link in `TrekShortcut.link`. Existing installations need the updated shortcut.
+The shortcut includes a Wallet trigger for any card. It imports switched off, so the app sends users to `shortcuts://automations` to turn it on after adding it. Amount is the Wallet currency amount, preserving its value and ISO currency code, and Merchant is the transaction merchant. Do not convert Amount to a number. Share the signed file from Shortcuts and put the new iCloud link in `TrekShortcut.link`. Existing installations need the updated shortcut.
 
 Run `bash scripts/check-shortcut-currency.sh` from the repository root to check expense currency forwarding and the generated Wallet input mapping.
 

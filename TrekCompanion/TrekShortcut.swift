@@ -2,9 +2,10 @@ import Foundation
 
 enum TrekShortcut {
     static let name = "Waypoint - TREK Expenses"
-    static let link = URL(string: "https://www.icloud.com/shortcuts/d922d306231546bbb75bf12abfbfc2e6")!
+    static let automations = URL(string: "shortcuts://automations")!
+    static let link = URL(string: "https://www.icloud.com/shortcuts/1510863a1f61429083fe99bb21d3842f")!
 }
 
 enum ShortcutCheck {
-    case idle, found
+    case idle, added, found
 }

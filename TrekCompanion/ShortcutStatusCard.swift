@@ -4,12 +4,17 @@ struct ShortcutStatusCard: View {
     let check: ShortcutCheck
 
     private var title: String {
-        check == .found ? "Shortcut is ready" : "Add the shortcut"
+        switch check {
+        case .idle: "Add the shortcut"
+        case .added: "Turn on the automation"
+        case .found: "Connected"
+        }
     }
 
     private var message: LocalizedStringKey {
         switch check {
         case .idle: "Tap **Add Shortcut** in Shortcuts, then **◀ Waypoint** at the top left to come back."
+        case .added: "Switch on the **When Any Card is tapped** automation and set it to **Run Immediately**. Then tap **◀ Waypoint** to come back."
         case .found: "Your first payment may ask once to **Allow** it."
         }
     }
@@ -42,6 +47,8 @@ struct ShortcutStatusCard: View {
             badgeTile(symbol: "checkmark", fill: .trekSuccess, foreground: .white)
         case .idle:
             badgeTile(symbol: "plus.square", fill: .trekAccent, foreground: .trekAccentText)
+        case .added:
+            badgeTile(symbol: "bolt.fill", fill: .trekAccent, foreground: .trekAccentText)
         }
     }
 

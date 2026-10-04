@@ -8,18 +8,18 @@ enum ExpenseLog {
     }
 
     @MainActor
-    static func add(_ amount: IntentCurrencyAmount, name: String?, note: String?) async throws -> Logged {
+    static func add(_ amount: Decimal, currencyCode: String?, name: String?, note: String?) async throws -> Logged {
         guard let client = TrekClient.current, let trip = client.account.trip else {
             throw TrekError("Open Waypoint and finish setup first.")
         }
-        let totalPrice = NSDecimalNumber(decimal: amount.amount).doubleValue
+        let totalPrice = NSDecimalNumber(decimal: amount).doubleValue
         let category = if let name { await ExpenseCategorizer.category(for: name) } else { CostCategory.other }
         let name = name ?? "Apple Pay"
         var expense = ExpenseInput(
             name: name,
             category: category.rawValue,
             totalPrice: totalPrice,
-            currency: amount.currencyCode,
+            currency: currencyCode?.uppercased() ?? trip.currency,
             note: note,
             expenseDate: ExpenseDate.today
         )

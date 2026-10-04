@@ -5,7 +5,7 @@ struct ShortcutStepView: View {
     @Environment(\.openURL) private var openURL
     @Environment(\.scenePhase) private var scenePhase
     let onDone: () -> Void
-    @State private var isAwaitingImport = false
+    @State private var awaitedCheck: ShortcutCheck?
 
     private var isReady: Bool {
         model.shortcutCheck == .found
@@ -20,7 +20,7 @@ struct ShortcutStepView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
-                StepHeader(title: isReady ? "Shortcut added" : "Add the shortcut", subtitle: subtitle)
+                StepHeader(title: isReady ? "You're all set" : "Add the shortcut", subtitle: subtitle)
                 ShortcutStatusCard(check: model.shortcutCheck)
             }
             .padding(.horizontal, 20)
@@ -30,9 +30,9 @@ struct ShortcutStepView: View {
         .scrollBounceBehavior(.basedOnSize)
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active else { return }
-            if isAwaitingImport {
-                isAwaitingImport = false
-                model.shortcutCheck = .found
+            if let awaitedCheck {
+                self.awaitedCheck = nil
+                model.shortcutCheck = awaitedCheck
             }
         }
         .stepActions { actions }
@@ -42,9 +42,11 @@ struct ShortcutStepView: View {
     private var actions: some View {
         switch model.shortcutCheck {
         case .idle:
-            addButton
-            Button("I already have it") { model.shortcutCheck = .found }
+            openButton(title: "Add Shortcut", url: TrekShortcut.link, next: .added)
+            Button("I already have it") { model.shortcutCheck = .added }
                 .buttonStyle(TrekButtonStyle(kind: .secondary))
+        case .added:
+            openButton(title: "Open Automations", url: TrekShortcut.automations, next: .found)
         case .found:
             Button("Done") {
                 model.isShortcutSetUp = true
@@ -54,14 +56,13 @@ struct ShortcutStepView: View {
         }
     }
 
-    private var addButton: some View {
+    private func openButton(title: LocalizedStringKey, url: URL, next: ShortcutCheck) -> some View {
         Button {
-            isAwaitingImport = true
-            openURL(TrekShortcut.link)
+            awaitedCheck = next
+            openURL(url)
         } label: {
-            Label("Add Shortcut", systemImage: "plus")
+            Text(title)
         }
         .buttonStyle(TrekButtonStyle())
     }
-
 }

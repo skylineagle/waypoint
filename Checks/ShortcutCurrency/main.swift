@@ -43,7 +43,8 @@ struct ShortcutCurrencyCheck {
     @MainActor
     static func main() async throws {
         let intent = AddExpenseIntent()
-        intent.amount = IntentCurrencyAmount(amount: Decimal(string: "12.34")!, currencyCode: "ILS")
+        intent.amount = 12.34
+        intent.currencyCode = "ILS"
         intent.merchant = "Starbucks Test"
         _ = try await intent.perform()
         let input = TrekClient.recorded!
@@ -52,6 +53,17 @@ struct ShortcutCurrencyCheck {
         precondition(input.payers?.first?.amount == 12.34)
         let payload = String(decoding: try JSONEncoder().encode(input), as: UTF8.self)
         precondition(payload.contains("\"currency\":\"ILS\""))
+
+        let us = Locale(identifier: "en_US")
+        precondition(CurrencyCodeResolver.code(from: "$12.34", amount: 12.34, locale: us) == "USD")
+        precondition(CurrencyCodeResolver.code(from: "€1,234.50", amount: 1234.5, locale: us) == "EUR")
+        precondition(CurrencyCodeResolver.code(from: "\u{200F}¥1,200", amount: 1200, locale: us) == "JPY")
+        precondition(CurrencyCodeResolver.code(from: "12.34", amount: 12.34, locale: us) == nil)
+
+        TrekClient.recorded = nil
+        intent.currencyCode = nil
+        _ = try await intent.perform()
+        precondition(TrekClient.recorded?.currency == "JPY")
 
         TrekClient.recorded = nil
         intent.amount = nil
