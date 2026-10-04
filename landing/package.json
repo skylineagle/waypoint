@@ -3,8 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "bun --port 4321 ./index.html",
-    "build": "bun build ./index.html --outdir dist --minify",
+    "dev": "bun --hot ./server.ts",
+    "sync:legal": "bun scripts/sync-legal.ts",
+    "build": "bun build ./index.html ./privacy.html ./license.html --outdir dist --minify",
     "preview": "bun run build && bunx serve dist"
   },
   "devDependencies": {
