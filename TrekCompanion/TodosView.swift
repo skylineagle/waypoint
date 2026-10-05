@@ -54,9 +54,10 @@ struct TodosView: View {
         .scrollContentBackground(.hidden)
         .scrollDismissesKeyboard(.interactively)
         .contentMargins(.top, 0, for: .scrollContent)
-        .contentMargins(.bottom, 72, for: .scrollContent)
-        .overlay(alignment: .bottomTrailing) {
-            ListsAddButton(label: "New to-do") { editor = .new }
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button("New to-do", systemImage: "plus") { editor = .new }
+            }
         }
         .refreshable { await model.load() }
         .animation(.smooth, value: model.items)

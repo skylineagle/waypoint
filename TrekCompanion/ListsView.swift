@@ -23,29 +23,23 @@ struct ListsView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(alignment: .leading, spacing: 0) {
-                header.padding(.horizontal, 20)
+            Group {
                 switch kind {
                 case .packing: PackingView(model: packing)
                 case .todo: TodosView(model: todos, members: members, meID: meID)
                 }
             }
+            .safeAreaBar(edge: .top, spacing: 0) {
+                header.padding(.horizontal, 20)
+            }
             .background(Color.trekBackground)
-            .toolbarVisibility(.hidden, for: .navigationBar)
+            .navigationTitle("Lists")
+            .navigationSubtitle(subtitle)
         }
     }
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 10) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Lists")
-                    .font(.poppins(26, .bold, relativeTo: .largeTitle))
-                    .foregroundStyle(Color.trekText)
-                Text(subtitle)
-                    .font(.poppins(13, relativeTo: .subheadline))
-                    .foregroundStyle(Color.trekMuted)
-                    .contentTransition(.numericText())
-            }
             Picker("List", selection: $kind.animation(.smooth)) {
                 Text("To-Do \(todos.items?.count ?? 0)").tag(ListKind.todo)
                 Text("Packing \(packing.totalCount)").tag(ListKind.packing)
@@ -56,6 +50,6 @@ struct ListsView: View {
                     .padding(.top, 2)
             }
         }
-        .padding(.top, 8)
+        .padding(.bottom, 8)
     }
 }

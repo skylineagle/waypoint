@@ -28,7 +28,7 @@ enum ExpenseLog {
         }
         let saved = try await client.addExpense(expense, tripID: trip.id)
         return Logged(
-            dialog: "Added \(name) to \(trip.title) as \(category.label).",
+            dialog: "Added to \(trip.title).",
             snippet: ExpenseAddedSnippet(expense: saved, tripID: trip.id, category: category)
         )
     }

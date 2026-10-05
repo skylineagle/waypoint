@@ -56,9 +56,10 @@ struct PackingView: View {
         .scrollContentBackground(.hidden)
         .scrollDismissesKeyboard(.interactively)
         .contentMargins(.top, 0, for: .scrollContent)
-        .contentMargins(.bottom, 72, for: .scrollContent)
-        .overlay(alignment: .bottomTrailing) {
-            ListsAddButton(label: "New packing item") { editor = .new(category: nil) }
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button("New packing item", systemImage: "plus") { editor = .new(category: nil) }
+            }
         }
         .refreshable { await model.load() }
         .animation(.smooth, value: model.items)

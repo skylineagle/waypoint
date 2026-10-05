@@ -11,35 +11,38 @@ struct ExpenseAddedSnippet: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(expense.totalPrice.money(expense.currency ?? ""))
-                        .font(.title.bold())
-                        .foregroundStyle(.primary)
-                    Label("\(expense.name) · \(category.label)", systemImage: category.symbol)
+        VStack(spacing: 14) {
+            HStack(spacing: 12) {
+                Image(systemName: category.symbol)
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(category.color)
+                    .frame(width: 40, height: 40)
+                    .background(category.color.opacity(0.15), in: .circle)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(expense.name)
+                        .font(.headline)
+                        .lineLimit(1)
+                    Text(category.label)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
-                Spacer()
-                Label("Added", systemImage: "checkmark")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.green)
+                Spacer(minLength: 8)
+                Text(expense.totalPrice.money(expense.currency ?? ""))
+                    .font(.title3.weight(.semibold))
+                    .monospacedDigit()
             }
-            HStack {
+            HStack(spacing: 10) {
                 Button(intent: UndoExpenseIntent(expenseID: expense.id, tripID: tripID)) {
-                    Text("Undo").frame(maxWidth: .infinity)
+                    Label("Undo", systemImage: "arrow.uturn.backward").frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.bordered)
                 Button(intent: OpenURLIntent(editURL)) {
-                    Text("Edit").frame(maxWidth: .infinity)
+                    Label("Edit", systemImage: "pencil").frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(.trekIndigo)
             }
-            .font(.body.weight(.semibold))
-            .controlSize(.large)
-            .buttonBorderShape(.roundedRectangle(radius: 12))
+            .buttonStyle(.bordered)
+            .buttonBorderShape(.capsule)
+            .font(.subheadline.weight(.semibold))
+            .tint(.primary)
         }
         .padding()
     }

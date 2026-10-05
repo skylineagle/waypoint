@@ -34,7 +34,6 @@ struct CostsView: View {
         NavigationStack {
             List {
                 Section {
-                    CostsHeader(trip: model.trip).plainListRow()
                     if tab == .expenses {
                         CostsTotalCard(model: model, onShowUnpaid: showUnpaid)
                             .redacted(reason: model.items == nil ? .placeholder : [])
@@ -64,17 +63,19 @@ struct CostsView: View {
             .listSectionSpacing(10)
             .scrollContentBackground(.hidden)
             .background(Color.trekBackground)
-            .toolbarVisibility(.hidden, for: .navigationBar)
-            .contentMargins(.bottom, 72, for: .scrollContent)
+            .navigationTitle("Costs")
+            .navigationSubtitle(subtitle)
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) { addButton }
+            }
             .onScrollGeometryChange(for: Bool.self) { geometry in
-                geometry.contentOffset.y + geometry.contentInsets.top > 260
+                geometry.contentOffset.y + geometry.contentInsets.top > 200
             } action: { _, isAway in
                 withAnimation(.smooth) { isTotalScrolledAway = isAway }
             }
             .safeAreaInset(edge: .top, spacing: 0) {
                 if tab == .expenses, isTotalScrolledAway { compactTotal }
             }
-            .overlay(alignment: .bottomTrailing) { addButton }
             .refreshable { await model.load() }
             .sheet(item: $editor) { target in
                 ExpenseEditorView(
@@ -113,6 +114,11 @@ struct CostsView: View {
         .background(.bar)
         .transition(.opacity)
         .accessibilityElement(children: .combine)
+    }
+
+    private var subtitle: String {
+        let trip = model.trip
+        return [trip.title, trip.dateRange, trip.dayProgress].compactMap(\.self).joined(separator: " · ")
     }
 
     private var tabs: [CostsTab] {
@@ -228,18 +234,10 @@ struct CostsView: View {
                 Button { editor = .new } label: { plusIcon }
             }
         }
-        .buttonStyle(.glass)
-        .buttonBorderShape(.circle)
-        .controlSize(.regular)
-        .tint(Color.trekAccent)
         .accessibilityLabel("Add expense")
-        .padding(.trailing, 16)
-        .padding(.bottom, 12)
     }
 
     private var plusIcon: some View {
         Image(systemName: "plus")
-            .font(.body.weight(.semibold))
-            .frame(minWidth: 28, minHeight: 28)
     }
 }

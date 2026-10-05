@@ -72,6 +72,17 @@ enum TrekFonts {
         let urls = (Bundle.main.urls(forResourcesWithExtension: "ttf", subdirectory: nil) ?? [])
             + (Bundle.main.urls(forResourcesWithExtension: "ttf", subdirectory: "Fonts") ?? [])
         CTFontManagerRegisterFontURLs(urls as CFArray, .process, true, nil)
+        styleNavigationBars()
+    }
+
+    private static func styleNavigationBars() {
+        let appearance = UINavigationBar.appearance()
+        if let largeTitle = UIFont(name: "Poppins-Bold", size: 30) {
+            appearance.largeTitleTextAttributes = [.font: UIFontMetrics(forTextStyle: .largeTitle).scaledFont(for: largeTitle)]
+        }
+        if let title = UIFont(name: "Poppins-SemiBold", size: 17) {
+            appearance.titleTextAttributes = [.font: UIFontMetrics(forTextStyle: .headline).scaledFont(for: title)]
+        }
     }
 }
 
